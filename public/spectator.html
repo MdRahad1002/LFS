@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Spectate Live — Last Flag Standing</title>
+<title>Spectate Live  Last Flag Standing</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
 <script src="/socket.io/socket.io.js"></script>
 <style>
@@ -104,7 +104,7 @@ nav{height:56px;background:rgba(3,8,12,0.95);border-bottom:1px solid var(--borde
   <div class="live-indicator">
     <span class="live-dot"></span>
     <span>LIVE</span>
-    <span style="color:var(--muted);margin-left:8px;" id="watcherCount">— watching</span>
+    <span style="color:var(--muted);margin-left:8px;" id="watcherCount"> watching</span>
   </div>
 </nav>
 
@@ -112,14 +112,14 @@ nav{height:56px;background:rgba(3,8,12,0.95);border-bottom:1px solid var(--borde
   <!-- MAP / TERRITORY GRID -->
   <div class="map-panel">
     <div class="map-header">
-      <div class="map-title">ROUND <span id="roundNum" style="color:var(--cyan)">—</span></div>
+      <div class="map-title">ROUND <span id="roundNum" style="color:var(--cyan)"></span></div>
       <div class="map-stats">
         <div class="map-stat">
-          <div class="map-stat-value" id="survivingCount">—</div>
+          <div class="map-stat-value" id="survivingCount"></div>
           <div class="map-stat-label">SURVIVING</div>
         </div>
         <div class="map-stat">
-          <div class="map-stat-value" id="eliminatedCount" style="color:var(--red)">—</div>
+          <div class="map-stat-value" id="eliminatedCount" style="color:var(--red)"></div>
           <div class="map-stat-label">ELIMINATED</div>
         </div>
       </div>
@@ -134,7 +134,7 @@ nav{height:56px;background:rgba(3,8,12,0.95);border-bottom:1px solid var(--borde
       <div class="jackpot-value" id="jackpotVal">$0</div>
       <div class="jackpot-label" style="margin-top:6px;">
         <span class="live-dot" style="display:inline-block;margin-right:4px;"></span>
-        ROUND <span id="roundLabel">—</span>
+        ROUND <span id="roundLabel"></span>
       </div>
     </div>
 
@@ -164,7 +164,7 @@ nav{height:56px;background:rgba(3,8,12,0.95);border-bottom:1px solid var(--borde
       <div class="sidebar-title">// PLAYERS</div>
       <div class="player-bar">
         <span style="font-size:12px;letter-spacing:1px;color:var(--muted);">ACTIVE</span>
-        <span class="player-bar-val" id="playerCount">—</span>
+        <span class="player-bar-val" id="playerCount"></span>
       </div>
     </div>
 

@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -180,9 +180,9 @@
 <div class="header">
   <div class="logo">⚑ LAST FLAG STANDING</div>
   <div class="header-stats">
-    <div class="hstat"><div class="hstat-label">Round</div><div class="hstat-val blue" id="hRound">—</div></div>
-    <div class="hstat"><div class="hstat-label">Players</div><div class="hstat-val" id="hPlayers">—</div></div>
-    <div class="hstat"><div class="hstat-label">Territories Left</div><div class="hstat-val green" id="hTerr">—</div></div>
+    <div class="hstat"><div class="hstat-label">Round</div><div class="hstat-val blue" id="hRound"></div></div>
+    <div class="hstat"><div class="hstat-label">Players</div><div class="hstat-val" id="hPlayers"></div></div>
+    <div class="hstat"><div class="hstat-label">Territories Left</div><div class="hstat-val green" id="hTerr"></div></div>
     <div class="hstat"><div class="hstat-label">Status</div><div class="hstat-val"><span class="pulse-dot"></span><span id="connStatus">CONNECTING</span></div></div>
   </div>
 </div>
@@ -197,7 +197,7 @@
     <div class="buy-section">
       <div class="balance-row">
         <span class="balance-label">Balance</span>
-        <span class="balance-val" id="userBalance">$—</span>
+        <span class="balance-val" id="userBalance">$</span>
       </div>
       <div class="buy-row">
         <select class="buy-select" id="buySelect"></select>
@@ -206,7 +206,7 @@
     </div>
     <div class="house-info">
       <span>House cut: <span class="house-cut" id="houseCutPct">3%</span></span>
-      <span>Total earned: <span class="house-cut" id="houseEarned">$—</span></span>
+      <span>Total earned: <span class="house-cut" id="houseEarned">$</span></span>
     </div>
   </div>
 
@@ -221,7 +221,7 @@
     </div>
     <div class="round-info">
       <div class="ri-item"><span class="ri-label">ELIM:</span><span class="ri-val warn" id="riElim">0</span></div>
-      <div class="ri-item"><span class="ri-label">SAFE:</span><span class="ri-val good" id="riSafe">—</span></div>
+      <div class="ri-item"><span class="ri-label">SAFE:</span><span class="ri-val good" id="riSafe"></span></div>
       <div class="ri-item"><span class="ri-label">ENTRY:</span><span class="ri-val">$10 / territory</span></div>
     </div>
     <div class="map-container"><canvas id="worldMap"></canvas></div>
@@ -231,7 +231,7 @@
   <div class="panel right-panel">
     <div class="jackpot-display">
       <div class="jackpot-label">🏆 Current Jackpot</div>
-      <div class="jackpot-amount" id="jackpotAmt">$—</div>
+      <div class="jackpot-amount" id="jackpotAmt">$</div>
       <div class="jackpot-sub">97% of total pool · 3% house cut</div>
     </div>
     <div class="panel-title">🏅 Leaderboard</div>
@@ -519,9 +519,9 @@ canvas.addEventListener('mousemove', e => {
   }
   if(hit) {
     document.getElementById('ttName').textContent    = hit.flag + ' ' + hit.name;
-    document.getElementById('ttPlayers').textContent = hit.playerCount || '—';
+    document.getElementById('ttPlayers').textContent = hit.playerCount || '';
     document.getElementById('ttStatus').textContent  = hit.status === 'eliminated' ? '❌ ELIMINATED' : '✅ SAFE';
-    document.getElementById('ttPrice').textContent   = hit.status === 'eliminated' ? '—' : '$' + (hit.price || 10);
+    document.getElementById('ttPrice').textContent   = hit.status === 'eliminated' ? '' : '$' + (hit.price || 10);
     tt.style.display = 'block'; tt.style.left = (e.clientX+14)+'px'; tt.style.top = (e.clientY-20)+'px';
   } else { tt.style.display = 'none'; }
 });
@@ -634,7 +634,7 @@ function openPeekModal() {
   pendingAction = { type: 'peek' };
   openModal('Buy Insider Intel',
     `Pay <strong style="color:var(--blue)">$${peekCost}</strong> to see which territory will be eliminated NEXT.<br><br>
-     This is information only — it does not change the outcome.`);
+     This is information only  it does not change the outcome.`);
 }
 
 function confirmAction() {

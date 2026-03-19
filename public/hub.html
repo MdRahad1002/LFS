@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>LAST FLAG STANDING — Game Hub</title>
+<title>LAST FLAG STANDING  Game Hub</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
 <style>
 :root {
@@ -1320,10 +1320,39 @@ footer .f-logo {
   .hero-stats { gap:24px; flex-wrap:wrap; }
   .phase-timeline { flex-direction:column; }
 }
+
+/* ══ BATTLEFIELD CANVAS ══════════════════════════════════════════ */
+#bfCanvas {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  z-index: -1;
+  pointer-events: none;
+  display: block;
+}
+/* Sections are semi-transparent so the battlefield bleeds through */
+section {
+  background: rgba(3,8,12,0.80) !important;
+}
+#how, #addiction {
+  background: rgba(6,15,24,0.82) !important;
+}
+.hero {
+  background: transparent !important;
+}
+.hero-bg {
+  opacity: 0.55 !important;
+}
+footer {
+  background: rgba(2,6,10,0.92) !important;
+  position: relative;
+  z-index: 1;
+}
 </style>
 <link rel="stylesheet" href="mobile.css">
 </head>
 <body>
+<canvas id="bfCanvas"></canvas>
 <div class="elim-flash" id="elimFlash"></div>
 <div class="notif-stack" id="notifStack"></div>
 
@@ -1446,15 +1475,15 @@ footer .f-logo {
     <h2 class="section-title">THE <span class="accent">LEGEND</span></h2>
     <div class="story-grid">
       <div class="story-text">
-        <p>In a world where borders mean everything, <strong>a secret council of global players</strong> gathers every day. They don't compete with armies — they compete with <em>flags</em>.</p>
-        <p>Each player claims a nation. They plant their flag, back it with <strong>real crypto</strong>, and watch the clock. Because every hour, the council spins the wheel of fate — and one nation <em>falls off the map forever</em>.</p>
-        <p>The survivors trade territories like warlords. They form alliances across continents. They buy <strong>intel on the next elimination</strong>. They hedge their bets, grow their empires, and wait — hearts pounding — for the clock to reach zero.</p>
+        <p>In a world where borders mean everything, <strong>a secret council of global players</strong> gathers every day. They don't compete with armies  they compete with <em>flags</em>.</p>
+        <p>Each player claims a nation. They plant their flag, back it with <strong>real crypto</strong>, and watch the clock. Because every hour, the council spins the wheel of fate  and one nation <em>falls off the map forever</em>.</p>
+        <p>The survivors trade territories like warlords. They form alliances across continents. They buy <strong>intel on the next elimination</strong>. They hedge their bets, grow their empires, and wait  hearts pounding  for the clock to reach zero.</p>
         <p>Only <em>one flag</em> will survive. Only <em>one player</em> will take the entire jackpot. <strong>Will it be yours?</strong></p>
       </div>
       <div class="lore-box">
         <h3>⚑ The Council's Decree</h3>
-        <p><em>"The game began in the back rooms of the internet — a bet between five friends about which country would fall first. A decade later, it became the most-watched elimination event on earth."</em></p>
-        <p>Every game is a new world order. Old alliances crumble. New empires rise. The strongest flag doesn't always win — sometimes it's the player smart enough to sell before the storm hits.</p>
+        <p><em>"The game began in the back rooms of the internet  a bet between five friends about which country would fall first. A decade later, it became the most-watched elimination event on earth."</em></p>
+        <p>Every game is a new world order. Old alliances crumble. New empires rise. The strongest flag doesn't always win  sometimes it's the player smart enough to sell before the storm hits.</p>
         <p>The crypto flows. The clock ticks. The map shrinks. <strong>Welcome to the last game you'll ever need.</strong></p>
       </div>
     </div>
@@ -1507,14 +1536,14 @@ footer .f-logo {
         <div class="step-num">1</div>
         <div class="step-content">
           <div class="step-title">💰 Deposit Crypto</div>
-          <div class="step-body">Fund your account using <span class="tag">BTC</span><span class="tag">ETH</span><span class="tag">SOL</span><span class="tag">USDT</span><span class="tag">BNB</span>. Your crypto is converted into <strong>Flag Credits (FC)</strong> — the in-game currency. <strong>1 FC = $1 USD equivalent</strong>. First deposit gets a <strong>+20% bonus</strong>.</div>
+          <div class="step-body">Fund your account using <span class="tag">BTC</span><span class="tag">ETH</span><span class="tag">SOL</span><span class="tag">USDT</span><span class="tag">BNB</span>. Your crypto is converted into <strong>Flag Credits (FC)</strong>  the in-game currency. <strong>1 FC = $1 USD equivalent</strong>. First deposit gets a <strong>+20% bonus</strong>.</div>
         </div>
       </div>
       <div class="step">
         <div class="step-num">2</div>
         <div class="step-content">
           <div class="step-title">🌍 Claim Your Territory</div>
-          <div class="step-body">Browse the live world map. Each territory costs <strong>10 FC</strong> to enter. You can own <strong>multiple territories</strong> — the more you own, the higher your jackpot share. Each territory you buy adds <strong>9.7 FC to the prize pool</strong> (3% house cut).</div>
+          <div class="step-body">Browse the live world map. Each territory costs <strong>10 FC</strong> to enter. You can own <strong>multiple territories</strong>  the more you own, the higher your jackpot share. Each territory you buy adds <strong>9.7 FC to the prize pool</strong> (3% house cut).</div>
         </div>
       </div>
       <div class="step">
@@ -1528,21 +1557,21 @@ footer .f-logo {
         <div class="step-num">4</div>
         <div class="step-content">
           <div class="step-title">📈 Trade the Market</div>
-          <div class="step-body">Territory values fluctuate based on <strong>elimination probability</strong>. If a territory has many players, it's "safer" by volume — or a bigger target? You can <strong>sell territories</strong> to other players at market price (3% cut). Buy low, sell high, survive.</div>
+          <div class="step-body">Territory values fluctuate based on <strong>elimination probability</strong>. If a territory has many players, it's "safer" by volume  or a bigger target? You can <strong>sell territories</strong> to other players at market price (3% cut). Buy low, sell high, survive.</div>
         </div>
       </div>
       <div class="step">
         <div class="step-num">5</div>
         <div class="step-content">
           <div class="step-title">🔍 Intel &amp; Power-Ups</div>
-          <div class="step-body">Spend FC to buy <strong>Insider Intel</strong> — a peek at the next elimination target. Use <strong>Shield Tokens</strong> (earnable via streaks) to protect a territory for one round. Use <strong>Fog of War</strong> to hide your holdings from other players' radar.</div>
+          <div class="step-body">Spend FC to buy <strong>Insider Intel</strong>  a peek at the next elimination target. Use <strong>Shield Tokens</strong> (earnable via streaks) to protect a territory for one round. Use <strong>Fog of War</strong> to hide your holdings from other players' radar.</div>
         </div>
       </div>
       <div class="step">
         <div class="step-num">6</div>
         <div class="step-content">
           <div class="step-title">🏆 Last Flag Takes All</div>
-          <div class="step-body">When only <strong>one territory remains</strong>, all players holding that territory split the jackpot <strong>proportionally by their share</strong>. Own 3 of the 5 remaining slots in that territory? You get 60% of the entire pot. <strong>Win in crypto — withdraw instantly.</strong></div>
+          <div class="step-body">When only <strong>one territory remains</strong>, all players holding that territory split the jackpot <strong>proportionally by their share</strong>. Own 3 of the 5 remaining slots in that territory? You get 60% of the entire pot. <strong>Win in crypto  withdraw instantly.</strong></div>
         </div>
       </div>
     </div>
@@ -1554,23 +1583,23 @@ footer .f-logo {
   <div class="container">
     <div class="section-eyebrow">// ruleset_v4.2.json</div>
     <h2 class="section-title">THE <span class="red">RULES</span></h2>
-    <p class="section-lead">Clear, fair, unbreakable. Every rule is enforced by smart contract — no human interference possible.</p>
+    <p class="section-lead">Clear, fair, unbreakable. Every rule is enforced by smart contract  no human interference possible.</p>
 
     <div class="rules-grid">
       <div class="rule-card gold">
         <div class="rule-icon">🎯</div>
         <div class="rule-title">Fair Elimination</div>
-        <div class="rule-body">Eliminations are determined by a <strong>Chainlink VRF</strong> (Verifiable Random Function). The result is provably random, publicly auditable, and impossible to manipulate — not even by us.</div>
+        <div class="rule-body">Eliminations are determined by a <strong>Chainlink VRF</strong> (Verifiable Random Function). The result is provably random, publicly auditable, and impossible to manipulate  not even by us.</div>
       </div>
       <div class="rule-card cyan">
         <div class="rule-icon">💎</div>
         <div class="rule-title">Entry &amp; Buy-In</div>
-        <div class="rule-body">Each territory slot costs <strong>10 FC</strong>. Each territory has <strong>unlimited slots</strong>. Multiple players can hold the same country — they split any winnings proportionally if that territory is the last one.</div>
+        <div class="rule-body">Each territory slot costs <strong>10 FC</strong>. Each territory has <strong>unlimited slots</strong>. Multiple players can hold the same country  they split any winnings proportionally if that territory is the last one.</div>
       </div>
       <div class="rule-card red">
         <div class="rule-icon">☠️</div>
         <div class="rule-title">No Refunds on Elimination</div>
-        <div class="rule-body">When your territory is eliminated, <strong>those credits are gone</strong>. This is the game. However — you can sell before elimination using the live market. Sell fast. Sell smart.</div>
+        <div class="rule-body">When your territory is eliminated, <strong>those credits are gone</strong>. This is the game. However  you can sell before elimination using the live market. Sell fast. Sell smart.</div>
       </div>
       <div class="rule-card green">
         <div class="rule-icon">🔄</div>
@@ -1611,7 +1640,7 @@ footer .f-logo {
           <div class="af-icon red">💀</div>
           <div class="af-content">
             <h4>Elimination Anxiety</h4>
-            <p>The countdown clock never stops. Pushes, alerts, and <strong>real-time notifications</strong> ping your phone every elimination. You'll check the app compulsively — because <em>you have to know</em>.</p>
+            <p>The countdown clock never stops. Pushes, alerts, and <strong>real-time notifications</strong> ping your phone every elimination. You'll check the app compulsively  because <em>you have to know</em>.</p>
           </div>
         </div>
         <div class="addiction-feature">
@@ -1625,7 +1654,7 @@ footer .f-logo {
           <div class="af-icon green">👥</div>
           <div class="af-content">
             <h4>Alliance System</h4>
-            <p>Form alliances with friends. When any alliance member wins, the <strong>entire alliance gets 5% of the jackpot</strong>. This makes every win a shared celebration — and creates viral word-of-mouth.</p>
+            <p>Form alliances with friends. When any alliance member wins, the <strong>entire alliance gets 5% of the jackpot</strong>. This makes every win a shared celebration  and creates viral word-of-mouth.</p>
           </div>
         </div>
         <div class="addiction-feature">
@@ -1639,7 +1668,7 @@ footer .f-logo {
           <div class="af-icon amber">📣</div>
           <div class="af-content">
             <h4>Social Bragging &amp; Referrals</h4>
-            <p>Share your territory map on Twitter/X. Refer a friend and earn <strong>10% of their first deposit in FC</strong>. When you win, an animated victory card auto-generates for social sharing — <em>free viral marketing</em>.</p>
+            <p>Share your territory map on Twitter/X. Refer a friend and earn <strong>10% of their first deposit in FC</strong>. When you win, an animated victory card auto-generates for social sharing  <em>free viral marketing</em>.</p>
           </div>
         </div>
       </div>
@@ -1772,7 +1801,7 @@ footer .f-logo {
             YOUR DEPOSIT ADDRESS
           </div>
 
-          <div style="font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--muted);margin-bottom:10px;" id="walletCoin">Bitcoin (BTC) — Mainnet</div>
+          <div style="font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--muted);margin-bottom:10px;" id="walletCoin">Bitcoin (BTC)  Mainnet</div>
 
           <div style="text-align:center;margin-bottom:16px;">
             <div class="qr-placeholder" id="qrDisplay">
@@ -1823,7 +1852,7 @@ footer .f-logo {
         <div class="cg-card sol">
           <div class="cg-icon">🪙</div>
           <div class="cg-title">Flag Credits (FC)</div>
-          <div class="cg-body">FC is the in-game token on <strong>Solana</strong> for fast, near-zero-fee transactions. Buy territories, use power-ups, trade — all on-chain. FC can be converted back to crypto anytime.</div>
+          <div class="cg-body">FC is the in-game token on <strong>Solana</strong> for fast, near-zero-fee transactions. Buy territories, use power-ups, trade  all on-chain. FC can be converted back to crypto anytime.</div>
         </div>
         <div class="cg-card btc">
           <div class="cg-icon">📊</div>
@@ -1870,7 +1899,7 @@ footer .f-logo {
     <!-- NFT TAB -->
     <div class="tab-content" id="tab-nft">
       <p style="font-size:17px;line-height:1.8;color:#6a8a9a;margin-bottom:30px;max-width:700px;">
-        Every territory you <strong style="color:var(--text)">win with</strong> — the last surviving flag — mints a unique <strong style="color:var(--gold)">Victory NFT</strong>. It's proof of your legend. Show it off. Sell it. Frame it.
+        Every territory you <strong style="color:var(--text)">win with</strong>  the last surviving flag  mints a unique <strong style="color:var(--gold)">Victory NFT</strong>. It's proof of your legend. Show it off. Sell it. Frame it.
       </p>
       <div class="nft-strip">
         <div class="nft-card">
@@ -1998,12 +2027,12 @@ footer .f-logo {
             <div class="play-step-num">5</div>
             <div class="play-step-content">
               <h4>Win &amp; Withdraw in Crypto</h4>
-              <p>When the last flag stands — if it's yours — the smart contract pays you <strong>automatically in 60 seconds</strong>. Choose your crypto. Done.</p>
+              <p>When the last flag stands  if it's yours  the smart contract pays you <strong>automatically in 60 seconds</strong>. Choose your crypto. Done.</p>
             </div>
           </div>
         </div>
         <div class="warning-box">
-          ⚠️ <strong>Play Responsibly.</strong> This is a game of chance. Only deposit what you can afford to lose. Last Flag Standing uses provably fair randomness — no outcome can be predicted or manipulated. If you feel you may have a gambling problem, please seek help at <strong>begambleaware.org</strong>.
+          ⚠️ <strong>Play Responsibly.</strong> This is a game of chance. Only deposit what you can afford to lose. Last Flag Standing uses provably fair randomness  no outcome can be predicted or manipulated. If you feel you may have a gambling problem, please seek help at <strong>begambleaware.org</strong>.
         </div>
       </div>
       <div>
@@ -2012,7 +2041,7 @@ footer .f-logo {
           <table class="tiers-table">
             <thead><tr><th>Tier</th><th>Entry</th><th>Territories</th><th>Extras</th></tr></thead>
             <tbody>
-              <tr><td>🌱 Scout</td><td class="gold">10 FC</td><td>1</td><td>—</td></tr>
+              <tr><td>🌱 Scout</td><td class="gold">10 FC</td><td>1</td><td></td></tr>
               <tr><td>⚔️ Soldier</td><td class="gold">50 FC</td><td>5</td><td>+5% FC bonus</td></tr>
               <tr><td>🎖️ Commander</td><td class="gold">100 FC</td><td>10</td><td>+1 Shield</td></tr>
               <tr><td>🏰 General</td><td class="gold">250 FC</td><td>25</td><td>+3 Shields + Peek</td></tr>
@@ -2089,11 +2118,11 @@ function selectCoin(el, name, icon, rate) {
   };
 
   const nets = {
-    BTC:  'Bitcoin (BTC) — Mainnet',
-    ETH:  'Ethereum (ETH) — ERC-20',
-    SOL:  'Solana (SOL) — Mainnet',
-    USDT: 'Tether (USDT) — ERC-20',
-    BNB:  'BNB Smart Chain — BEP-20'
+    BTC:  'Bitcoin (BTC)  Mainnet',
+    ETH:  'Ethereum (ETH)  ERC-20',
+    SOL:  'Solana (SOL)  Mainnet',
+    USDT: 'Tether (USDT)  ERC-20',
+    BNB:  'BNB Smart Chain  BEP-20'
   };
 
   document.getElementById('walletCoin').textContent = nets[name];
@@ -2246,17 +2275,256 @@ setInterval(() => {
   if (val) val.textContent = xp.toLocaleString() + ' / ' + xpMax.toLocaleString();
 }, 3000);
 
-// ── PARTICLE SYSTEM ──
-(function() {
-  const c = document.getElementById('heroParticles');
-  if (!c) return;
-  for (let i = 0; i < 40; i++) {
-    const p = document.createElement('div');
-    p.className = 'particle';
-    const size = Math.random() * 3 + 1;
-    p.style.cssText = `width:${size}px;height:${size}px;left:${Math.random() * 100}%;bottom:${Math.random() * 20}%;--dur:${4 + Math.random() * 8}s;--delay:${Math.random() * 8}s;`;
-    c.appendChild(p);
+// ── BATTLEFIELD CANVAS ─────────────────────────────────────────
+(function () {
+  const canvas = document.getElementById('bfCanvas');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  let W, H;
+
+  function resize() {
+    W = canvas.width  = window.innerWidth;
+    H = canvas.height = window.innerHeight;
   }
+  resize();
+  window.addEventListener('resize', resize);
+
+  /* ── Smoke clouds ── */
+  function Smoke(init) {
+    this.reset = function (fast) {
+      this.x  = Math.random() * W;
+      this.y  = fast ? Math.random() * H : H + 50;
+      this.r  = 90 + Math.random() * 240;
+      this.vx = (Math.random() - 0.5) * 0.25;
+      this.vy = -0.04 - Math.random() * 0.09;
+      this.a  = 0.04 + Math.random() * 0.07;
+      this.grow = 0.04 + Math.random() * 0.12;
+      this.life = 0;
+      this.max  = 500 + Math.random() * 400;
+    };
+    this.reset(init);
+    this.update = function () {
+      this.x += this.vx; this.y += this.vy; this.r += this.grow; this.life++;
+      if (this.life > this.max) this.reset(false);
+    };
+    this.draw = function () {
+      const t = this.life / this.max;
+      const a = this.a * (t < 0.15 ? t / 0.15 : t > 0.75 ? (1 - t) / 0.25 : 1);
+      const g = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.r);
+      g.addColorStop(0, `rgba(14,28,44,${a.toFixed(3)})`);
+      g.addColorStop(1, 'rgba(3,8,12,0)');
+      ctx.beginPath(); ctx.arc(this.x, this.y, this.r, 0, Math.PI*2);
+      ctx.fillStyle = g; ctx.fill();
+    };
+  }
+
+  /* ── Embers ── */
+  function Ember() {
+    this.reset = function () {
+      this.x = Math.random() * W;
+      this.y = H * (0.5 + Math.random() * 0.5) + 20;
+      this.vx = (Math.random() - 0.5) * 1.0;
+      this.vy = -(0.3 + Math.random() * 1.1);
+      this.sz = 0.6 + Math.random() * 2.2;
+      this.a  = 0.7 + Math.random() * 0.3;
+      this.life = 0;
+      this.max  = 120 + Math.random() * 180;
+      this.hot  = Math.random() > 0.45;
+      this.phase = Math.random() * Math.PI * 2;
+    };
+    this.reset();
+    this.update = function () {
+      this.x += this.vx + Math.sin(this.life * 0.06 + this.phase) * 0.35;
+      this.y += this.vy;
+      this.life++;
+      if (this.y < -10 || this.life > this.max) this.reset();
+    };
+    this.draw = function () {
+      const a = this.a * (1 - this.life / this.max);
+      const col = this.hot ? `rgba(255,210,60,${a.toFixed(3)})` : `rgba(255,80,20,${a.toFixed(3)})`;
+      ctx.beginPath(); ctx.arc(this.x, this.y, this.sz, 0, Math.PI*2);
+      ctx.fillStyle = col; ctx.fill();
+      const g = ctx.createRadialGradient(this.x, this.y, 0, this.x, this.y, this.sz * 5);
+      g.addColorStop(0, `rgba(255,150,20,${(a*0.35).toFixed(3)})`);
+      g.addColorStop(1, 'rgba(255,80,0,0)');
+      ctx.beginPath(); ctx.arc(this.x, this.y, this.sz * 5, 0, Math.PI*2);
+      ctx.fillStyle = g; ctx.fill();
+    };
+  }
+
+  /* ── Falling ash ── */
+  function Ash() {
+    this.reset = function () {
+      this.x = Math.random() * W;
+      this.y = Math.random() * H;
+      this.vx = (Math.random() - 0.5) * 0.3;
+      this.vy = 0.15 + Math.random() * 0.55;
+      this.sz = 0.4 + Math.random() * 1.4;
+      this.a  = 0.08 + Math.random() * 0.18;
+      this.w  = Math.random() * Math.PI * 2;
+    };
+    this.reset();
+    this.update = function () {
+      this.x += this.vx + Math.sin(this.w) * 0.18; this.y += this.vy; this.w += 0.018;
+      if (this.y > H + 8) { this.x = Math.random() * W; this.y = -5; }
+    };
+    this.draw = function () {
+      ctx.beginPath(); ctx.arc(this.x, this.y, this.sz, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(130,150,170,${this.a})`; ctx.fill();
+    };
+  }
+
+  /* ── Tracer rounds ── */
+  function Tracer() {
+    this.on = false; this.t = Math.floor(Math.random() * 220);
+    this.update = function () {
+      if (!this.on) {
+        if (--this.t <= 0) {
+          this.on = true; this.t = 70 + Math.floor(Math.random() * 100);
+          const left = Math.random() < 0.5;
+          this.x  = left ? -10 : W + 10;
+          this.y  = H * (0.28 + Math.random() * 0.48);
+          const ang = (Math.random() - 0.5) * 0.35 + (left ? 0 : Math.PI);
+          const spd = 9 + Math.random() * 14;
+          this.vx = Math.cos(ang) * spd; this.vy = Math.sin(ang) * spd - 0.8;
+          this.len = 28 + Math.random() * 72; this.a = 1;
+        }
+      } else {
+        this.x += this.vx; this.y += this.vy; this.a -= 0.016;
+        if (this.a <= 0 || this.x < -250 || this.x > W+250) {
+          this.on = false; this.t = 120 + Math.floor(Math.random() * 280);
+        }
+      }
+    };
+    this.draw = function () {
+      if (!this.on) return;
+      const ang = Math.atan2(this.vy, this.vx);
+      const tx = this.x - Math.cos(ang)*this.len, ty = this.y - Math.sin(ang)*this.len;
+      const g = ctx.createLinearGradient(this.x, this.y, tx, ty);
+      g.addColorStop(0, `rgba(255,252,210,${this.a.toFixed(3)})`);
+      g.addColorStop(1, 'rgba(255,200,80,0)');
+      ctx.save(); ctx.globalAlpha = this.a;
+      ctx.strokeStyle = g; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(this.x, this.y); ctx.lineTo(tx, ty); ctx.stroke();
+      ctx.restore();
+    };
+  }
+
+  /* ── Explosions ── */
+  const explosions = [];
+  function spawnExplosion() {
+    explosions.push({
+      x: W*(0.08 + Math.random()*0.84),
+      y: H*(0.48 + Math.random()*0.38),
+      r:0, max:35+Math.random()*90,
+      a:0.65+Math.random()*0.35,
+      life:0, maxLife:55,
+    });
+  }
+  spawnExplosion();
+  setInterval(() => { if (Math.random() < 0.65) spawnExplosion(); }, 2600);
+
+  function drawExplosions() {
+    for (let i = explosions.length-1; i >= 0; i--) {
+      const e = explosions[i];
+      e.life++; e.r = e.max*(e.life/e.maxLife);
+      if (e.life >= e.maxLife) { explosions.splice(i,1); continue; }
+      const t = e.life/e.maxLife, a = e.a*(1-t);
+      const g = ctx.createRadialGradient(e.x,e.y,0, e.x,e.y,e.r);
+      g.addColorStop(0,   `rgba(255,230,90,${a.toFixed(3)})`);
+      g.addColorStop(0.25,`rgba(255,110,20,${(a*0.65).toFixed(3)})`);
+      g.addColorStop(1,   'rgba(255,40,0,0)');
+      ctx.beginPath(); ctx.arc(e.x,e.y,e.r,0,Math.PI*2);
+      ctx.fillStyle = g; ctx.fill();
+    }
+  }
+
+  /* ── Silhouette: ruined cityscape on horizon ── */
+  function drawSilhouette() {
+    ctx.fillStyle = 'rgba(1,5,9,0.93)';
+    ctx.beginPath();
+    ctx.moveTo(0, H);
+    const pts = [
+      [0,0.82],[0.03,0.78],[0.04,0.74],[0.05,0.78],[0.07,0.82],
+      [0.10,0.80],[0.12,0.71],[0.13,0.67],[0.135,0.63],[0.14,0.67],
+      [0.145,0.71],[0.15,0.79],[0.18,0.77],[0.20,0.73],[0.21,0.73],
+      [0.22,0.69],[0.225,0.65],[0.23,0.69],[0.26,0.75],[0.28,0.81],
+      [0.30,0.78],[0.32,0.73],[0.33,0.69],[0.335,0.65],[0.34,0.61],
+      [0.345,0.57],[0.35,0.61],[0.36,0.69],[0.38,0.75],[0.40,0.81],
+      [0.42,0.78],[0.44,0.74],[0.46,0.71],[0.47,0.67],[0.475,0.63],
+      [0.48,0.59],[0.485,0.56],[0.49,0.59],[0.495,0.63],[0.50,0.67],
+      [0.51,0.71],[0.52,0.75],[0.54,0.79],[0.56,0.77],[0.58,0.73],
+      [0.60,0.69],[0.62,0.73],[0.64,0.77],[0.65,0.79],[0.67,0.81],
+      [0.70,0.77],[0.72,0.73],[0.74,0.69],[0.745,0.65],[0.75,0.61],
+      [0.755,0.65],[0.76,0.69],[0.78,0.73],[0.80,0.77],[0.82,0.75],
+      [0.84,0.71],[0.86,0.75],[0.88,0.79],[0.90,0.77],[0.92,0.74],
+      [0.94,0.78],[0.96,0.81],[0.98,0.79],[1.0,0.81],[1.0,1.0],
+    ];
+    pts.forEach(([px,py]) => ctx.lineTo(px*W, py*H));
+    ctx.closePath(); ctx.fill();
+  }
+
+  /* ── Searchlight ── */
+  let lightAngle = -0.3;
+  let lightDir = 1;
+  function drawSearchlight() {
+    lightAngle += 0.0025 * lightDir;
+    if (lightAngle > 0.6 || lightAngle < -0.6) lightDir *= -1;
+    const ox = W*0.14, oy = H*0.80, len = H*0.75, spread = 0.065;
+    const ax = ox + Math.cos(lightAngle - Math.PI/2)*len;
+    const ay = oy + Math.sin(lightAngle - Math.PI/2)*len;
+    const g = ctx.createRadialGradient(ox,oy,0, ax,ay,len*0.28);
+    g.addColorStop(0,'rgba(190,230,255,0.055)');
+    g.addColorStop(1,'rgba(190,230,255,0)');
+    ctx.beginPath(); ctx.moveTo(ox,oy);
+    ctx.arc(ox,oy,len,(-Math.PI/2+lightAngle)-spread,(-Math.PI/2+lightAngle)+spread);
+    ctx.fillStyle = g; ctx.fill();
+  }
+
+  /* ── Vignette ── */
+  function drawVignette() {
+    const g = ctx.createRadialGradient(W/2,H/2,H*0.18, W/2,H/2,H*0.90);
+    g.addColorStop(0,'rgba(3,8,12,0)');
+    g.addColorStop(1,'rgba(1,3,6,0.70)');
+    ctx.fillStyle = g; ctx.fillRect(0,0,W,H);
+  }
+
+  /* ── Horizon glow ── */
+  function drawHorizonGlow() {
+    const hy = H*0.72;
+    const g = ctx.createLinearGradient(0,hy-80,0,hy+40);
+    g.addColorStop(0,'rgba(255,80,10,0)');
+    g.addColorStop(0.5,'rgba(255,60,5,0.055)');
+    g.addColorStop(1,'rgba(255,40,0,0)');
+    ctx.fillStyle = g; ctx.fillRect(0,hy-80,W,120);
+  }
+
+  /* ── Init pools ── */
+  const smokes  = Array.from({length:15}, ()=>new Smoke(true));
+  const embers  = Array.from({length:75}, ()=>new Ember());
+  const ashes   = Array.from({length:55}, ()=>new Ash());
+  const tracers = Array.from({length:7},  ()=>new Tracer());
+
+  /* ── Render loop ── */
+  function loop() {
+    ctx.fillStyle = '#02050a';
+    ctx.fillRect(0,0,W,H);
+    smokes.forEach(s=>{s.update();s.draw();});
+    drawHorizonGlow();
+    drawSearchlight();
+    drawExplosions();
+    ashes.forEach(a=>{a.update();a.draw();});
+    embers.forEach(e=>{e.update();e.draw();});
+    tracers.forEach(t=>{t.update();t.draw();});
+    drawSilhouette();
+    drawVignette();
+    requestAnimationFrame(loop);
+  }
+  loop();
+
+  // Also keep old CSS particle divs alive for any callers
+  const c = document.getElementById('heroParticles');
+  if (c) c.style.display='none';
 })();
 
 // ── PHASE TIMELINE CYCLING ──
@@ -2272,11 +2540,11 @@ setInterval(() => {
 // ── LIVE ACTIVITY SIMULATION ──
 const actMsgs = [
   { t: '\uD83D\uDD14 NightHunter99 bought \uD83C\uDDE9\uD83C\uDDEA Germany', type: 'gold', b: '14 players now holding Germany' },
-  { t: '\uD83D\uDCB0 QueenOfFlags sold \uD83C\uDDEB\uD83C\uDDF7 France — 12.4 FC', type: 'gold', b: 'Smart move before the lock window' },
+  { t: '\uD83D\uDCB0 QueenOfFlags sold \uD83C\uDDEB\uD83C\uDDF7 France  12.4 FC', type: 'gold', b: 'Smart move before the lock window' },
   { t: '\uD83D\uDD0D CryptoWarlord purchased Intel', type: 'gold', b: 'Eyes are on Japan this round' },
   { t: '\uD83D\uDC51 AlphaPlay joined Iron Council', type: 'green', b: 'Alliance now has 8 active members' },
-  { t: '\u26A1 New player entered · jackpot +$9.70', type: 'green', b: 'Round 4 live — 142 territories remaining' },
-  { t: '\uD83D\uDC80 \uD83C\uDDE8\uD83C\uDDFA Cuba ELIMINATED', type: 'red', b: 'Round 5 begins — 141 territories remain' },
+  { t: '\u26A1 New player entered · jackpot +$9.70', type: 'green', b: 'Round 4 live  142 territories remaining' },
+  { t: '\uD83D\uDC80 \uD83C\uDDE8\uD83C\uDDFA Cuba ELIMINATED', type: 'red', b: 'Round 5 begins  141 territories remain' },
 ];
 let actIdx = 0;
 setInterval(() => {
@@ -2285,7 +2553,7 @@ setInterval(() => {
   if (m.type === 'red') triggerElimFlash();
   actIdx++;
 }, 7000);
-setTimeout(() => pushNotif('\u2691 LIVE GAME — ROUND 4', 'gold', '$138,420 jackpot · 142 territories remaining'), 1500);
+setTimeout(() => pushNotif('\u2691 LIVE GAME  ROUND 4', 'gold', '$138,420 jackpot · 142 territories remaining'), 1500);
 </script>
 
 <!-- Wallet JS -->

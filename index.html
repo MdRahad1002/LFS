@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -811,7 +811,7 @@
     <div class="round-info">
       <div class="ri-item"><span class="ri-label">ELIMINATED:</span><span class="ri-val warn" id="riElim">12</span></div>
       <div class="ri-item"><span class="ri-label">SAFE ZONES:</span><span class="ri-val good" id="riSafe">142</span></div>
-      <div class="ri-item"><span class="ri-label">GAME STARTS:</span><span class="ri-val">Round 1 — 36h ago</span></div>
+      <div class="ri-item"><span class="ri-label">GAME STARTS:</span><span class="ri-val">Round 1  36h ago</span></div>
       <div class="ri-item"><span class="ri-label">ENTRY:</span><span class="ri-val">$10 / territory</span></div>
     </div>
     <div class="map-container">
@@ -1112,7 +1112,7 @@ canvas.addEventListener('mousemove', e => {
     document.getElementById('ttName').textContent = hit.flag + ' ' + hit.name;
     document.getElementById('ttPlayers').textContent = hit.players;
     document.getElementById('ttStatus').textContent = hit.status === 'eliminated' ? '❌ ELIMINATED' : '✅ SAFE';
-    document.getElementById('ttPrice').textContent = hit.status === 'eliminated' ? '—' : '$' + hit.price;
+    document.getElementById('ttPrice').textContent = hit.status === 'eliminated' ? '' : '$' + hit.price;
     tt.style.display = 'block';
     tt.style.left = (e.clientX + 14) + 'px';
     tt.style.top = (e.clientY - 20) + 'px';
@@ -1190,7 +1190,7 @@ function renderTicker() {
   const inner = document.getElementById('tickerInner');
   const msgs = state.eliminatedIds.map(id => {
     const t = state.territories[id];
-    return `💀 ${t.flag} ${t.name} ELIMINATED — Round ${Math.floor(Math.random()*3)+1}`;
+    return `💀 ${t.flag} ${t.name} ELIMINATED  Round ${Math.floor(Math.random()*3)+1}`;
   });
   const doubled = [...msgs, ...msgs];
   inner.innerHTML = doubled.map(m=>`<span>${m}</span>`).join('');
@@ -1318,7 +1318,7 @@ function openSell(id) {
 function openPeek(id) {
   if(state.balance < state.peekCost) { notify('Insufficient balance!', 'type-elim'); return; }
   pendingAction = { type:'peek', id };
-  openModal('Buy Insider Intel', `Pay <strong style="color:var(--blue)">$${state.peekCost}</strong> to see which territory will be eliminated NEXT.<br><br>This is information only — it does not change the outcome.`);
+  openModal('Buy Insider Intel', `Pay <strong style="color:var(--blue)">$${state.peekCost}</strong> to see which territory will be eliminated NEXT.<br><br>This is information only  it does not change the outcome.`);
 }
 
 function confirmAction() {
@@ -1437,9 +1437,9 @@ renderTicker();
 updateHeader();
 
 [
-  {msg:'Game started — 154 territories available', cls:'act-buy'},
-  {msg:'💀 🇨🇺 Cuba ELIMINATED — Round 1', cls:'act-elim'},
-  {msg:'💀 🇭🇹 Haiti ELIMINATED — Round 2', cls:'act-elim'},
+  {msg:'Game started  154 territories available', cls:'act-buy'},
+  {msg:'💀 🇨🇺 Cuba ELIMINATED  Round 1', cls:'act-elim'},
+  {msg:'💀 🇭🇹 Haiti ELIMINATED  Round 2', cls:'act-elim'},
   {msg:'ShadowBet_X bought 🇺🇸 United States for $10', cls:'act-buy'},
   {msg:'YOU joined the game with 4 territories', cls:'act-buy'},
 ].forEach(e => renderActivity(e));
