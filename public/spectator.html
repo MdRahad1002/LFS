@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Spectate Live — Last Flag Standing</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+<script src="/socket.io/socket.io.js"></script>
+<style>
+:root{--bg:#03080c;--bg2:#060f18;--bg3:#0a1a26;--gold:#f5c518;--gold2:#ffdf00;--amber:#ff9900;--red:#ff2d2d;--green:#00e676;--cyan:#00e5ff;--text:#d0e8f5;--muted:#3a6070;--border:#122030;}
+*{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Barlow Condensed',sans-serif;overflow-x:hidden;height:100vh;display:flex;flex-direction:column;}
+/* NAV */
+nav{height:56px;background:rgba(3,8,12,0.95);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;flex-shrink:0;}
+.nav-left{display:flex;align-items:center;gap:16px;}
+.nav-logo{font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--gold);text-decoration:none;}
+.spectate-badge{background:rgba(255,45,45,0.15);border:1px solid rgba(255,45,45,0.3);color:var(--red);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:3px;padding:3px 8px;border-radius:2px;animation:pulseBadge 2s infinite;}
+@keyframes pulseBadge{0%,100%{opacity:1}50%{opacity:0.6}}
+.live-indicator{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--green);letter-spacing:2px;}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--green);box-shadow:0 0 6px var(--green);animation:pulse 1.5s infinite;}
+@keyframes pulse{50%{opacity:0.3;transform:scale(0.7)}}
+/* LAYOUT */
+.main-layout{flex:1;display:grid;grid-template-columns:1fr 320px;overflow:hidden;}
+/* MAP */
+.map-panel{position:relative;overflow:hidden;background:var(--bg);}
+.map-header{position:absolute;top:0;left:0;right:0;z-index:20;background:linear-gradient(rgba(3,8,12,0.9),transparent);padding:16px 20px 40px;display:flex;align-items:center;justify-content:space-between;}
+.map-title{font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:3px;color:var(--gold);}
+.map-stats{display:flex;gap:20px;}
+.map-stat{text-align:right;}
+.map-stat-value{font-family:'JetBrains Mono',monospace;font-size:16px;color:var(--gold);}
+.map-stat-label{font-size:10px;letter-spacing:3px;color:var(--muted);}
+/* WORLD MAP SVG placeholder */
+.map-container{width:100%;height:100%;display:flex;align-items:center;justify-content:center;position:relative;}
+.map-placeholder{width:90%;max-width:800px;aspect-ratio:2/1;position:relative;}
+.map-placeholder svg{width:100%;height:100%;}
+/* TERRITORY GRID (simplified map) */
+.territory-grid{display:grid;grid-template-columns:repeat(15,1fr);gap:2px;padding:80px 20px 20px;height:100%;align-content:start;}
+.t-cell{aspect-ratio:1.5;border:1px solid var(--border);background:var(--bg3);border-radius:1px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:8px;transition:all 0.3s;cursor:default;position:relative;overflow:hidden;}
+.t-cell:hover{border-color:rgba(245,197,24,0.3);}
+.t-cell.eliminated{background:rgba(255,45,45,0.06);border-color:rgba(255,45,45,0.2);opacity:0.4;}
+.t-cell.eliminated::after{content:'✗';position:absolute;font-size:14px;color:var(--red);opacity:0.5;}
+.t-cell.hot{background:rgba(245,197,24,0.08);border-color:rgba(245,197,24,0.3);}
+.t-cell.at-risk{background:rgba(255,45,45,0.08);border-color:rgba(255,45,45,0.3);animation:riskPulse 1s infinite;}
+@keyframes riskPulse{0%,100%{border-color:rgba(255,45,45,0.3)}50%{border-color:rgba(255,45,45,0.7)}}
+.t-flag{font-size:14px;line-height:1;}
+.t-slots{font-family:'JetBrains Mono',monospace;color:var(--muted);font-size:7px;margin-top:1px;}
+/* SIDEBAR */
+.sidebar{background:var(--bg2);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;}
+.sidebar-section{border-bottom:1px solid var(--border);padding:16px;}
+.sidebar-title{font-family:'Bebas Neue',cursive;font-size:13px;letter-spacing:3px;color:var(--muted);margin-bottom:12px;}
+/* JACKPOT */
+.jackpot-display{text-align:center;padding:20px 16px;}
+.jackpot-value{font-family:'Bebas Neue',cursive;font-size:48px;line-height:1;color:var(--gold);text-shadow:0 0 30px rgba(245,197,24,0.3);}
+.jackpot-label{font-size:11px;letter-spacing:4px;color:var(--muted);margin-top:4px;}
+/* COUNTDOWN */
+.countdown-strip{display:flex;gap:0;border:1px solid var(--border);}
+.cd-unit{flex:1;text-align:center;padding:10px 4px;border-right:1px solid var(--border);}
+.cd-unit:last-child{border-right:none;}
+.cd-val{font-family:'Bebas Neue',cursive;font-size:28px;color:var(--cyan);}
+.cd-label{font-size:9px;letter-spacing:3px;color:var(--muted);}
+/* ELIMINATION FEED */
+.elim-feed{flex:1;overflow-y:auto;padding:12px;}
+.elim-feed::-webkit-scrollbar{width:3px;}
+.elim-feed::-webkit-scrollbar-thumb{background:var(--border);}
+.feed-item{padding:10px;border:1px solid var(--border);border-left:2px solid transparent;margin-bottom:6px;border-radius:2px;animation:feedIn 0.4s ease both;}
+@keyframes feedIn{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+.feed-item.elim{border-left-color:var(--red);}
+.feed-item.trade{border-left-color:var(--gold);}
+.feed-item.join{border-left-color:var(--green);}
+.feed-time{font-family:'JetBrains Mono',monospace;font-size:9px;color:var(--muted);margin-bottom:3px;}
+.feed-text{font-size:13px;color:var(--text);}
+/* PLAYER COUNT */
+.player-bar{display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border:1px solid var(--border);padding:10px 14px;}
+.player-bar-val{font-family:'JetBrains Mono',monospace;font-size:16px;color:var(--green);}
+/* ROUND PROGRESS */
+.round-progress{background:var(--bg3);border:1px solid var(--border);padding:10px 14px;}
+.rp-row{display:flex;justify-content:space-between;font-size:12px;margin-bottom:6px;}
+.rp-track{height:6px;background:var(--bg);border-radius:3px;overflow:hidden;}
+.rp-fill{height:100%;background:linear-gradient(90deg,var(--red),var(--amber));transition:width 1s ease;}
+/* TOP HOLDERS */
+.holder-row{display:flex;align-items:center;gap:10px;padding:6px 0;border-bottom:1px solid rgba(18,32,48,0.5);}
+.holder-rank{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);width:18px;}
+.holder-name{font-family:'JetBrains Mono',monospace;font-size:11px;flex:1;color:var(--text);}
+.holder-slots{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold);}
+/* ELIM OVERLAY */
+.elim-overlay{position:fixed;inset:0;background:rgba(255,45,45,0.08);pointer-events:none;z-index:9000;opacity:0;transition:opacity 0.1s;}
+.elim-overlay.pop{opacity:1;}
+/* MOBILE */
+@media(max-width:900px){
+  .main-layout{grid-template-columns:1fr;}
+  .sidebar{display:none;}
+}
+</style>
+</head>
+<body>
+
+<div class="elim-overlay" id="elimOverlay"></div>
+
+<nav>
+  <div class="nav-left">
+    <a class="nav-logo" href="hub.html">⚑ LAST FLAG</a>
+    <span class="spectate-badge">SPECTATOR MODE</span>
+  </div>
+  <div class="live-indicator">
+    <span class="live-dot"></span>
+    <span>LIVE</span>
+    <span style="color:var(--muted);margin-left:8px;" id="watcherCount">— watching</span>
+  </div>
+</nav>
+
+<div class="main-layout">
+  <!-- MAP / TERRITORY GRID -->
+  <div class="map-panel">
+    <div class="map-header">
+      <div class="map-title">ROUND <span id="roundNum" style="color:var(--cyan)">—</span></div>
+      <div class="map-stats">
+        <div class="map-stat">
+          <div class="map-stat-value" id="survivingCount">—</div>
+          <div class="map-stat-label">SURVIVING</div>
+        </div>
+        <div class="map-stat">
+          <div class="map-stat-value" id="eliminatedCount" style="color:var(--red)">—</div>
+          <div class="map-stat-label">ELIMINATED</div>
+        </div>
+      </div>
+    </div>
+    <div class="territory-grid" id="territoryGrid"></div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+    <div class="jackpot-display">
+      <div class="jackpot-label">⚑ LIVE JACKPOT</div>
+      <div class="jackpot-value" id="jackpotVal">$0</div>
+      <div class="jackpot-label" style="margin-top:6px;">
+        <span class="live-dot" style="display:inline-block;margin-right:4px;"></span>
+        ROUND <span id="roundLabel">—</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-title">// NEXT ELIMINATION</div>
+      <div class="countdown-strip">
+        <div class="cd-unit"><div class="cd-val" id="cdH">00</div><div class="cd-label">HRS</div></div>
+        <div class="cd-unit"><div class="cd-val" id="cdM">00</div><div class="cd-label">MIN</div></div>
+        <div class="cd-unit"><div class="cd-val" id="cdS">00</div><div class="cd-label">SEC</div></div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-title">// ROUND SURVIVAL</div>
+      <div class="round-progress">
+        <div class="rp-row">
+          <span style="color:var(--muted)">TERRITORIES</span>
+          <span id="rpLabel" style="font-family:'JetBrains Mono',monospace;color:var(--gold)">195 / 195</span>
+        </div>
+        <div class="rp-track">
+          <div class="rp-fill" id="rpFill" style="width:100%"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-title">// PLAYERS</div>
+      <div class="player-bar">
+        <span style="font-size:12px;letter-spacing:1px;color:var(--muted);">ACTIVE</span>
+        <span class="player-bar-val" id="playerCount">—</span>
+      </div>
+    </div>
+
+    <div class="sidebar-section" style="flex:1;display:flex;flex-direction:column;border-bottom:none;overflow:hidden;padding-bottom:0;">
+      <div class="sidebar-title">// LIVE FEED</div>
+      <div class="elim-feed" id="elimFeed"></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ── TERRITORY DATA (from seed) ───────────────────────────────
+const COUNTRIES = [
+  {id:1,f:'🇦🇫'},{id:2,f:'🇦🇱'},{id:3,f:'🇩🇿'},{id:4,f:'🇦🇩'},{id:5,f:'🇦🇴'},
+  {id:6,f:'🇦🇬'},{id:7,f:'🇦🇷'},{id:8,f:'🇦🇲'},{id:9,f:'🇦🇺'},{id:10,f:'🇦🇹'},
+  {id:11,f:'🇦🇿'},{id:12,f:'🇧🇸'},{id:13,f:'🇧🇭'},{id:14,f:'🇧🇩'},{id:15,f:'🇧🇧'},
+  {id:16,f:'🇧🇾'},{id:17,f:'🇧🇪'},{id:18,f:'🇧🇿'},{id:19,f:'🇧🇯'},{id:20,f:'🇧🇹'},
+  {id:21,f:'🇧🇴'},{id:22,f:'🇧🇦'},{id:23,f:'🇧🇼'},{id:24,f:'🇧🇷'},{id:25,f:'🇧🇳'},
+  {id:26,f:'🇧🇬'},{id:27,f:'🇧🇫'},{id:28,f:'🇧🇮'},{id:29,f:'🇨🇻'},{id:30,f:'🇰🇭'},
+  {id:31,f:'🇨🇲'},{id:32,f:'🇨🇦'},{id:33,f:'🇨🇫'},{id:34,f:'🇹🇩'},{id:35,f:'🇨🇱'},
+  {id:36,f:'🇨🇳'},{id:37,f:'🇨🇴'},{id:38,f:'🇰🇲'},{id:39,f:'🇨🇬'},{id:40,f:'🇨🇷'},
+  {id:41,f:'🇨🇮'},{id:42,f:'🇭🇷'},{id:43,f:'🇨🇺'},{id:44,f:'🇨🇾'},{id:45,f:'🇨🇿'},
+  {id:46,f:'🇩🇰'},{id:47,f:'🇩🇯'},{id:48,f:'🇩🇲'},{id:49,f:'🇩🇴'},{id:50,f:'🇪🇨'},
+  {id:51,f:'🇪🇬'},{id:52,f:'🇸🇻'},{id:53,f:'🇬🇶'},{id:54,f:'🇪🇷'},{id:55,f:'🇪🇪'},
+  {id:56,f:'🇸🇿'},{id:57,f:'🇪🇹'},{id:58,f:'🇫🇯'},{id:59,f:'🇫🇮'},{id:60,f:'🇫🇷'},
+  {id:61,f:'🇬🇦'},{id:62,f:'🇬🇲'},{id:63,f:'🇬🇪'},{id:64,f:'🇩🇪'},{id:65,f:'🇬🇭'},
+  {id:66,f:'🇬🇷'},{id:67,f:'🇬🇩'},{id:68,f:'🇬🇹'},{id:69,f:'🇬🇳'},{id:70,f:'🇬🇼'},
+  {id:71,f:'🇬🇾'},{id:72,f:'🇭🇹'},{id:73,f:'🇭🇳'},{id:74,f:'🇭🇺'},{id:75,f:'🇮🇸'},
+  {id:76,f:'🇮🇳'},{id:77,f:'🇮🇩'},{id:78,f:'🇮🇷'},{id:79,f:'🇮🇶'},{id:80,f:'🇮🇪'},
+  {id:81,f:'🇮🇱'},{id:82,f:'🇮🇹'},{id:83,f:'🇯🇲'},{id:84,f:'🇯🇵'},{id:85,f:'🇯🇴'},
+  {id:86,f:'🇰🇿'},{id:87,f:'🇰🇪'},{id:88,f:'🇰🇮'},{id:89,f:'🇰🇼'},{id:90,f:'🇰🇬'},
+  {id:91,f:'🇱🇦'},{id:92,f:'🇱🇻'},{id:93,f:'🇱🇧'},{id:94,f:'🇱🇸'},{id:95,f:'🇱🇷'},
+  {id:96,f:'🇱🇾'},{id:97,f:'🇱🇮'},{id:98,f:'🇱🇹'},{id:99,f:'🇱🇺'},{id:100,f:'🇲🇬'},
+  {id:101,f:'🇲🇼'},{id:102,f:'🇲🇾'},{id:103,f:'🇲🇻'},{id:104,f:'🇲🇱'},{id:105,f:'🇲🇹'},
+  {id:106,f:'🇲🇭'},{id:107,f:'🇲🇷'},{id:108,f:'🇲🇺'},{id:109,f:'🇲🇽'},{id:110,f:'🇫🇲'},
+  {id:111,f:'🇲🇩'},{id:112,f:'🇲🇨'},{id:113,f:'🇲🇳'},{id:114,f:'🇲🇪'},{id:115,f:'🇲🇦'},
+  {id:116,f:'🇲🇿'},{id:117,f:'🇲🇲'},{id:118,f:'🇳🇦'},{id:119,f:'🇳🇷'},{id:120,f:'🇳🇵'},
+  {id:121,f:'🇳🇱'},{id:122,f:'🇳🇿'},{id:123,f:'🇳🇮'},{id:124,f:'🇳🇪'},{id:125,f:'🇳🇬'},
+  {id:126,f:'🇳🇴'},{id:127,f:'🇴🇲'},{id:128,f:'🇵🇰'},{id:129,f:'🇵🇼'},{id:130,f:'🇵🇦'},
+  {id:131,f:'🇵🇬'},{id:132,f:'🇵🇾'},{id:133,f:'🇵🇪'},{id:134,f:'🇵🇭'},{id:135,f:'🇵🇱'},
+  {id:136,f:'🇵🇹'},{id:137,f:'🇶🇦'},{id:138,f:'🇷🇴'},{id:139,f:'🇷🇺'},{id:140,f:'🇷🇼'},
+  {id:141,f:'🇰🇳'},{id:142,f:'🇱🇨'},{id:143,f:'🇻🇨'},{id:144,f:'🇼🇸'},{id:145,f:'🇸🇲'},
+  {id:146,f:'🇸🇹'},{id:147,f:'🇸🇦'},{id:148,f:'🇸🇳'},{id:149,f:'🇷🇸'},{id:150,f:'🇸🇨'},
+  {id:151,f:'🇸🇱'},{id:152,f:'🇸🇬'},{id:153,f:'🇸🇰'},{id:154,f:'🇸🇮'},{id:155,f:'🇸🇧'},
+  {id:156,f:'🇸🇴'},{id:157,f:'🇿🇦'},{id:158,f:'🇸🇸'},{id:159,f:'🇪🇸'},{id:160,f:'🇱🇰'},
+  {id:161,f:'🇸🇩'},{id:162,f:'🇸🇷'},{id:163,f:'🇸🇪'},{id:164,f:'🇨🇭'},{id:165,f:'🇸🇾'},
+  {id:166,f:'🇹🇼'},{id:167,f:'🇹🇯'},{id:168,f:'🇹🇿'},{id:169,f:'🇹🇭'},{id:170,f:'🇹🇱'},
+  {id:171,f:'🇹🇬'},{id:172,f:'🇹🇴'},{id:173,f:'🇹🇹'},{id:174,f:'🇹🇳'},{id:175,f:'🇹🇷'},
+  {id:176,f:'🇹🇲'},{id:177,f:'🇹🇻'},{id:178,f:'🇺🇬'},{id:179,f:'🇺🇦'},{id:180,f:'🇦🇪'},
+  {id:181,f:'🇬🇧'},{id:182,f:'🇺🇸'},{id:183,f:'🇺🇾'},{id:184,f:'🇺🇿'},{id:185,f:'🇻🇺'},
+  {id:186,f:'🇻🇪'},{id:187,f:'🇻🇳'},{id:188,f:'🇾🇪'},{id:189,f:'🇿🇲'},{id:190,f:'🇿🇼'},
+  {id:191,f:'🇰🇵'},{id:192,f:'🇰🇷'},{id:193,f:'🇹🇿'},{id:194,f:'🇵🇸'},{id:195,f:'🇽🇰'},
+];
+
+// ── STATE ────────────────────────────────────────────────────
+const state = {
+  jackpot:    138420,
+  players:    2847,
+  roundId:    4,
+  territories: COUNTRIES.map(c => ({ ...c, slots: Math.floor(Math.random()*8)+1, eliminated: false })),
+  secs:       2 * 3600 + 14 * 60 + 38,
+};
+
+// ── BUILD GRID ───────────────────────────────────────────────
+const grid = document.getElementById('territoryGrid');
+state.territories.forEach(t => {
+  const cell = document.createElement('div');
+  cell.className = 't-cell' + (t.slots > 5 ? ' hot' : '');
+  cell.id = 't' + t.id;
+  cell.innerHTML = `<span class="t-flag">${t.f}</span><span class="t-slots">${t.slots}</span>`;
+  grid.appendChild(cell);
+});
+
+// ── SOCKET ───────────────────────────────────────────────────
+const socket = io();
+socket.emit('spectate');
+
+socket.on('spectate_init', data => {
+  if (data) updateFromServer(data);
+});
+
+socket.on('game_update', data => {
+  updateFromServer(data);
+});
+
+socket.on('elimination', ({ territoryId, name, roundId }) => {
+  flashElim();
+  eliminateTerritory(territoryId, name);
+  addFeed(`💀 ${name} ELIMINATED · Round ${roundId}`, 'elim');
+});
+
+socket.on('player_joined', ({ name, count }) => {
+  state.players = count;
+  document.getElementById('playerCount').textContent = count.toLocaleString();
+  addFeed(`⚡ ${name} entered the game`, 'join');
+});
+
+socket.on('trade', ({ seller, buyer, territory, price }) => {
+  addFeed(`💱 ${seller} → ${buyer} sold ${territory} for ${price} FC`, 'trade');
+});
+
+// ── UPDATE FROM SERVER ────────────────────────────────────────
+function updateFromServer(data) {
+  if (data.jackpot) {
+    state.jackpot = data.jackpot;
+    document.getElementById('jackpotVal').textContent =
+      '$' + (data.jackpot >= 1000 ? Math.round(data.jackpot / 1000) + 'K' : data.jackpot.toLocaleString());
+  }
+  if (data.players) {
+    document.getElementById('playerCount').textContent = data.players.toLocaleString();
+  }
+  if (data.roundId !== undefined) {
+    document.getElementById('roundNum').textContent  = data.roundId;
+    document.getElementById('roundLabel').textContent = data.roundId;
+  }
+}
+
+// ── ELIMINATE ────────────────────────────────────────────────
+function eliminateTerritory(id, name) {
+  const t = state.territories.find(x => x.id === id);
+  if (t) t.eliminated = true;
+  const cell = document.getElementById('t' + id);
+  if (cell) { cell.classList.add('eliminated'); cell.querySelector('.t-slots').textContent = '✗'; }
+  updateSurvivors();
+}
+
+function updateSurvivors() {
+  const alive  = state.territories.filter(t => !t.eliminated).length;
+  const elimed = 195 - alive;
+  document.getElementById('survivingCount').textContent  = alive;
+  document.getElementById('eliminatedCount').textContent = elimed;
+  document.getElementById('rpLabel').textContent   = `${alive} / 195`;
+  document.getElementById('rpFill').style.width    = (alive / 195 * 100) + '%';
+}
+
+// ── FEED ─────────────────────────────────────────────────────
+function addFeed(text, type = 'trade') {
+  const feed = document.getElementById('elimFeed');
+  const item = document.createElement('div');
+  item.className = `feed-item ${type}`;
+  const t = new Date();
+  item.innerHTML = `<div class="feed-time">${String(t.getHours()).padStart(2,'0')}:${String(t.getMinutes()).padStart(2,'0')}:${String(t.getSeconds()).padStart(2,'0')}</div>
+                    <div class="feed-text">${text}</div>`;
+  feed.prepend(item);
+  // Keep max 50 items
+  while (feed.children.length > 50) feed.lastChild.remove();
+}
+
+// ── ELIM FLASH ───────────────────────────────────────────────
+function flashElim() {
+  const o = document.getElementById('elimOverlay');
+  o.classList.add('pop');
+  setTimeout(() => o.classList.remove('pop'), 500);
+}
+
+// ── COUNTDOWN ────────────────────────────────────────────────
+setInterval(() => {
+  state.secs--;
+  if (state.secs < 0) state.secs = 3600;
+  const h = String(Math.floor(state.secs / 3600)).padStart(2,'0');
+  const m = String(Math.floor((state.secs % 3600) / 60)).padStart(2,'0');
+  const s = String(state.secs % 60).padStart(2,'0');
+  document.getElementById('cdH').textContent = h;
+  document.getElementById('cdM').textContent = m;
+  document.getElementById('cdS').textContent = s;
+}, 1000);
+
+// ── JACKPOT TICKER ───────────────────────────────────────────
+setInterval(() => {
+  state.jackpot += Math.floor(Math.random() * 5);
+  const v = state.jackpot;
+  document.getElementById('jackpotVal').textContent = '$' + (v >= 1000 ? Math.round(v/1000) + 'K' : v);
+}, 2000);
+
+// ── WATCHER COUNT ────────────────────────────────────────────
+socket.on('spectator_count', n => {
+  document.getElementById('watcherCount').textContent = n + ' watching';
+});
+
+// ── SIMULATED FEED ───────────────────────────────────────────
+const feedMsgs = [
+  ['🔔 NightHunter99 bought 🇩🇪 Germany', 'trade'],
+  ['💰 QueenOfFlags sold 🇫🇷 France for 12.4 FC', 'trade'],
+  ['👑 Iron Council alliance formed', 'join'],
+  ['⚡ CryptoWarlord purchased Intel', 'trade'],
+  ['🔍 3 players watching Japan closely', 'trade'],
+];
+let fi = 0;
+setInterval(() => {
+  const [text, type] = feedMsgs[fi % feedMsgs.length];
+  addFeed(text, type);
+  fi++;
+}, 8000);
+
+// ── INIT ─────────────────────────────────────────────────────
+updateSurvivors();
+document.getElementById('roundNum').textContent   = state.roundId;
+document.getElementById('roundLabel').textContent = state.roundId;
+document.getElementById('playerCount').textContent = state.players.toLocaleString();
+document.getElementById('jackpotVal').textContent = '$' + Math.round(state.jackpot / 1000) + 'K';
+
+addFeed('👁️ You are now spectating Round ' + state.roundId, 'join');
+addFeed('🚩 142 territories surviving · 53 eliminated', 'trade');
+
+// Register service worker for push notifications
+if ('serviceWorker' in navigator) {
+  navigator.serviceWorker.register('/firebase-messaging-sw.js').catch(() => {});
+}
+</script>
+</body>
+</html>

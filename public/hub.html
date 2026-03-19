@@ -1,0 +1,2327 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LAST FLAG STANDING — Game Hub</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg:       #03080c;
+  --bg2:      #060f18;
+  --bg3:      #0a1a26;
+  --bg4:      #0d2035;
+  --gold:     #f5c518;
+  --gold2:    #ffdf00;
+  --amber:    #ff9900;
+  --red:      #ff2d2d;
+  --green:    #00e676;
+  --cyan:     #00e5ff;
+  --blue:     #2979ff;
+  --purple:   #d500f9;
+  --text:     #d0e8f5;
+  --muted:    #3a6070;
+  --border:   #122030;
+  --btc:      #f7931a;
+  --eth:      #627eea;
+  --usdt:     #26a17b;
+  --sol:      #9945ff;
+  --bnb:      #f3ba2f;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Barlow Condensed', sans-serif;
+  overflow-x: hidden;
+  cursor: crosshair;
+}
+
+/* ── CURSOR ── */
+body * { cursor: crosshair; }
+a, button, select, input, label { cursor: pointer !important; }
+
+/* ── GRAIN OVERLAY ── */
+body::after {
+  content:'';
+  position:fixed; inset:0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none;
+  z-index:9999;
+  opacity:0.5;
+}
+
+/* ── SCANLINES ── */
+body::before {
+  content:'';
+  position:fixed; inset:0;
+  background: repeating-linear-gradient(0deg, transparent, transparent 3px, rgba(0,229,255,0.012) 3px, rgba(0,229,255,0.012) 4px);
+  pointer-events:none;
+  z-index:9998;
+}
+
+/* ═══════════════════ NAV ═══════════════════ */
+nav {
+  position:fixed; top:0; left:0; right:0;
+  z-index:500;
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 0 40px;
+  height: 60px;
+  background: rgba(3,8,12,0.92);
+  border-bottom: 1px solid var(--border);
+  backdrop-filter: blur(20px);
+}
+
+.nav-logo {
+  display:flex; align-items:center; gap:10px;
+  text-decoration:none;
+}
+
+.nav-logo-text { text-align:left; line-height:1; }
+
+.nav-logo-sub {
+  font-family:'JetBrains Mono', monospace;
+  font-size:8px;
+  letter-spacing:4px;
+  color:#6a8a9a;
+  text-transform:uppercase;
+  margin-bottom:2px;
+}
+
+.nav-logo-flag {
+  font-size:20px;
+  font-weight:900;
+  font-family:'Arial Black','Impact',sans-serif;
+  background:linear-gradient(135deg, #fff9d6, #f5c518, #e09000);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  line-height:1;
+  letter-spacing:-0.5px;
+}
+
+.nav-links {
+  display:flex; gap:28px; list-style:none;
+}
+
+.nav-links a {
+  color: var(--muted);
+  text-decoration:none;
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:2px;
+  text-transform:uppercase;
+  transition: color 0.2s;
+}
+
+.nav-links a:hover { color: var(--cyan); }
+
+.nav-cta {
+  background: linear-gradient(90deg, var(--gold), var(--amber));
+  color: #000 !important;
+  padding: 8px 20px;
+  border-radius: 2px;
+  font-size:12px !important;
+  letter-spacing:2px !important;
+  font-weight:900 !important;
+  transition: filter 0.2s !important;
+}
+
+.nav-cta:hover { filter: brightness(1.2); color:#000 !important; }
+
+/* ═══════════════════ HERO ═══════════════════ */
+.hero {
+  min-height: 100vh;
+  display:flex; flex-direction:column; align-items:center; justify-content:center;
+  position:relative;
+  overflow:hidden;
+  padding: 100px 40px 60px;
+  text-align:center;
+}
+
+.hero-bg {
+  position:absolute; inset:0;
+  background:
+    radial-gradient(ellipse 80% 60% at 50% 40%, rgba(245,197,24,0.06) 0%, transparent 70%),
+    radial-gradient(ellipse 50% 40% at 20% 80%, rgba(0,229,255,0.04) 0%, transparent 60%),
+    radial-gradient(ellipse 40% 30% at 80% 20%, rgba(255,45,45,0.05) 0%, transparent 60%);
+}
+
+.hero-grid {
+  position:absolute; inset:0;
+  background-image:
+    linear-gradient(rgba(18,32,48,0.4) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(18,32,48,0.4) 1px, transparent 1px);
+  background-size: 60px 60px;
+  mask-image: radial-gradient(ellipse at center, black 20%, transparent 80%);
+}
+
+.hero-eyebrow {
+  font-family:'JetBrains Mono', monospace;
+  font-size:11px;
+  letter-spacing:5px;
+  color: var(--cyan);
+  opacity:0.7;
+  margin-bottom:20px;
+  animation: fadeUp 0.8s 0.2s both;
+}
+
+.hero-logo-wrap {
+  display:flex; flex-direction:column; align-items:center;
+  margin-bottom:10px;
+  animation: fadeUp 0.8s 0.4s both;
+}
+
+.hero-icon-wrap {
+  position:relative;
+  width:120px; height:120px;
+  margin-bottom:20px;
+}
+
+.hero-icon-spin {
+  position:absolute; inset:0;
+  animation: slowSpin 20s linear infinite;
+}
+
+.hero-icon-inner {
+  position:absolute;
+  inset:14px;
+  display:flex; align-items:center; justify-content:center;
+}
+
+.hero-wordmark { text-align:center; }
+
+.hero-word-last {
+  display:block;
+  font-family:'Georgia','Times New Roman',serif;
+  font-size:13px;
+  font-weight:normal;
+  letter-spacing:12px;
+  color:#6a8a9a;
+  text-transform:uppercase;
+  margin-bottom:2px;
+}
+
+.hero-word-flag {
+  display:block;
+  font-size:clamp(56px,10vw,96px);
+  font-weight:900;
+  font-family:'Arial Black','Impact',sans-serif;
+  letter-spacing:-1px;
+  line-height:1;
+  background:linear-gradient(165deg,#fff9d6 0%,#f5c518 35%,#e09000 65%,#7a4200 100%);
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  background-clip:text;
+  text-transform:uppercase;
+}
+
+.hero-word-standing {
+  display:block;
+  font-family:'Georgia','Times New Roman',serif;
+  font-size:13px;
+  font-weight:normal;
+  letter-spacing:12px;
+  color:#6a8a9a;
+  text-transform:uppercase;
+  margin-top:4px;
+}
+
+.hero-divider {
+  width:260px; height:1px;
+  background:linear-gradient(90deg,transparent,#f5c518,transparent);
+  margin:14px auto;
+  opacity:0.5;
+}
+
+.hero-tagline-small {
+  font-family:'JetBrains Mono',monospace;
+  font-size:10px;
+  letter-spacing:4px;
+  color:#3a5a70;
+  text-transform:uppercase;
+  margin-bottom:10px;
+}
+
+@keyframes slowSpin {
+  from { transform:rotate(0deg); }
+  to   { transform:rotate(360deg); }
+}
+
+.hero-sub {
+  font-size: clamp(18px, 3vw, 28px);
+  font-weight:300;
+  letter-spacing:6px;
+  color: var(--muted);
+  text-transform:uppercase;
+  margin-bottom:40px;
+  animation: fadeUp 0.8s 0.6s both;
+}
+
+.hero-tagline {
+  font-size:18px;
+  font-weight:400;
+  color:var(--text);
+  max-width:600px;
+  line-height:1.6;
+  margin-bottom:50px;
+  animation: fadeUp 0.8s 0.8s both;
+}
+
+.hero-tagline strong { color:var(--gold); }
+
+.hero-stats {
+  display:flex; gap:50px; justify-content:center;
+  margin-bottom:50px;
+  animation: fadeUp 0.8s 1s both;
+}
+
+.hstat {
+  text-align:center;
+}
+
+.hstat-num {
+  font-family:'Bebas Neue', cursive;
+  font-size:48px;
+  line-height:1;
+  background: linear-gradient(135deg, var(--gold2), var(--amber));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+}
+
+.hstat-label {
+  font-size:11px;
+  letter-spacing:3px;
+  color:var(--muted);
+  text-transform:uppercase;
+  margin-top:4px;
+}
+
+.hero-btns {
+  display:flex; gap:16px; flex-wrap:wrap; justify-content:center;
+  animation: fadeUp 0.8s 1.2s both;
+}
+
+.btn-hero-primary {
+  background: linear-gradient(135deg, var(--gold), var(--amber));
+  color:#000;
+  border:none;
+  padding:16px 40px;
+  font-family:'Bebas Neue', cursive;
+  font-size:18px;
+  letter-spacing:3px;
+  border-radius:2px;
+  transition: all 0.2s;
+  box-shadow: 0 0 40px rgba(245,197,24,0.3);
+}
+
+.btn-hero-primary:hover { filter:brightness(1.15); transform:scale(1.03); box-shadow:0 0 60px rgba(245,197,24,0.5); }
+
+.btn-hero-outline {
+  background:transparent;
+  color:var(--cyan);
+  border:1px solid var(--cyan);
+  padding:16px 40px;
+  font-family:'Bebas Neue', cursive;
+  font-size:18px;
+  letter-spacing:3px;
+  border-radius:2px;
+  transition:all 0.2s;
+}
+
+.btn-hero-outline:hover { background:rgba(0,229,255,0.08); }
+
+.scroll-hint {
+  position:absolute; bottom:30px; left:50%;
+  transform:translateX(-50%);
+  font-size:11px; letter-spacing:3px; color:var(--muted);
+  animation: bounce 2s infinite;
+}
+
+@keyframes bounce { 0%,100%{transform:translateX(-50%) translateY(0)} 50%{transform:translateX(-50%) translateY(8px)} }
+@keyframes fadeUp { from{opacity:0;transform:translateY(30px)} to{opacity:1;transform:translateY(0)} }
+
+/* ═══════════════════ SECTION BASE ═══════════════════ */
+section {
+  padding: 100px 0;
+  position:relative;
+}
+
+.container {
+  max-width:1100px;
+  margin:0 auto;
+  padding:0 40px;
+}
+
+.section-eyebrow {
+  font-family:'JetBrains Mono', monospace;
+  font-size:11px;
+  letter-spacing:5px;
+  color:var(--cyan);
+  text-transform:uppercase;
+  margin-bottom:10px;
+  opacity:0.7;
+}
+
+.section-title {
+  font-family:'Bebas Neue', cursive;
+  font-size: clamp(44px, 6vw, 72px);
+  letter-spacing:3px;
+  line-height:1;
+  margin-bottom:20px;
+}
+
+.section-title .accent { color:var(--gold); }
+.section-title .red { color:var(--red); }
+.section-title .cyan { color:var(--cyan); }
+
+.section-lead {
+  font-size:18px;
+  font-weight:300;
+  color:var(--muted);
+  max-width:700px;
+  line-height:1.6;
+  margin-bottom:60px;
+}
+
+/* ═══════════════════ STORY ═══════════════════ */
+#story { background: var(--bg); }
+
+.story-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:60px;
+  align-items:start;
+}
+
+.story-text p {
+  font-size:17px;
+  line-height:1.8;
+  color:#8aa5b5;
+  margin-bottom:20px;
+}
+
+.story-text p strong { color:var(--text); }
+.story-text p em { color:var(--gold); font-style:normal; font-weight:700; }
+
+.lore-box {
+  background: var(--bg2);
+  border:1px solid var(--border);
+  border-left: 3px solid var(--gold);
+  padding:30px;
+  border-radius:2px;
+  position:relative;
+  overflow:hidden;
+}
+
+.lore-box::before {
+  content:'CLASSIFIED';
+  position:absolute; top:14px; right:16px;
+  font-family:'JetBrains Mono', monospace;
+  font-size:9px;
+  letter-spacing:3px;
+  color:var(--red);
+  opacity:0.4;
+}
+
+.lore-box h3 {
+  font-family:'Bebas Neue', cursive;
+  font-size:26px;
+  letter-spacing:2px;
+  color:var(--gold);
+  margin-bottom:16px;
+}
+
+.lore-box p {
+  font-size:15px;
+  line-height:1.7;
+  color:#7090a0;
+  margin-bottom:12px;
+}
+
+/* ═══════════════════ HOW IT WORKS ═══════════════════ */
+#how { background: var(--bg2); }
+
+.steps-timeline {
+  position:relative;
+  padding-left:60px;
+}
+
+.steps-timeline::before {
+  content:'';
+  position:absolute;
+  left:20px; top:0; bottom:0;
+  width:1px;
+  background: linear-gradient(180deg, var(--gold), var(--cyan), var(--purple));
+  opacity:0.3;
+}
+
+.step {
+  position:relative;
+  margin-bottom:50px;
+  opacity:0;
+  transform:translateX(-20px);
+  transition: opacity 0.5s, transform 0.5s;
+}
+
+.step.visible { opacity:1; transform:translateX(0); }
+
+.step-num {
+  position:absolute;
+  left:-50px;
+  top:0;
+  width:40px; height:40px;
+  border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Bebas Neue', cursive;
+  font-size:18px;
+  border:1px solid;
+}
+
+.step:nth-child(1) .step-num { border-color:var(--gold); color:var(--gold); background:rgba(245,197,24,0.08); }
+.step:nth-child(2) .step-num { border-color:var(--cyan); color:var(--cyan); background:rgba(0,229,255,0.08); }
+.step:nth-child(3) .step-num { border-color:var(--green); color:var(--green); background:rgba(0,230,118,0.08); }
+.step:nth-child(4) .step-num { border-color:var(--amber); color:var(--amber); background:rgba(255,153,0,0.08); }
+.step:nth-child(5) .step-num { border-color:var(--red); color:var(--red); background:rgba(255,45,45,0.08); }
+.step:nth-child(6) .step-num { border-color:var(--gold2); color:var(--gold2); background:rgba(255,223,0,0.08); box-shadow:0 0 20px rgba(255,223,0,0.2); }
+
+.step-content {
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:24px 28px;
+  transition:border-color 0.3s;
+}
+
+.step-content:hover { border-color:rgba(245,197,24,0.3); }
+
+.step-title {
+  font-family:'Bebas Neue', cursive;
+  font-size:24px;
+  letter-spacing:2px;
+  margin-bottom:10px;
+}
+
+.step-body {
+  font-size:16px;
+  line-height:1.7;
+  color:#6a8a9a;
+}
+
+.step-body strong { color:var(--text); }
+.step-body .tag {
+  display:inline-block;
+  background:rgba(245,197,24,0.12);
+  color:var(--gold);
+  border:1px solid rgba(245,197,24,0.25);
+  font-size:11px;
+  letter-spacing:2px;
+  padding:2px 8px;
+  border-radius:2px;
+  margin:0 2px;
+  font-family:'JetBrains Mono', monospace;
+}
+
+/* ═══════════════════ RULES ═══════════════════ */
+#rules { background: var(--bg); }
+
+.rules-grid {
+  display:grid;
+  grid-template-columns:repeat(3, 1fr);
+  gap:20px;
+}
+
+.rule-card {
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:28px 24px;
+  position:relative;
+  overflow:hidden;
+  transition:all 0.3s;
+}
+
+.rule-card::after {
+  content:'';
+  position:absolute;
+  bottom:0; left:0; right:0;
+  height:2px;
+  opacity:0;
+  transition:opacity 0.3s;
+}
+
+.rule-card:hover { border-color:rgba(245,197,24,0.3); transform:translateY(-3px); }
+.rule-card:hover::after { opacity:1; }
+
+.rule-card.gold::after { background:var(--gold); }
+.rule-card.cyan::after { background:var(--cyan); }
+.rule-card.red::after { background:var(--red); }
+.rule-card.green::after { background:var(--green); }
+.rule-card.purple::after { background:var(--purple); }
+.rule-card.amber::after { background:var(--amber); }
+
+.rule-icon { font-size:32px; margin-bottom:14px; }
+
+.rule-title {
+  font-family:'Bebas Neue', cursive;
+  font-size:20px;
+  letter-spacing:2px;
+  margin-bottom:10px;
+}
+
+.rule-body {
+  font-size:14px;
+  line-height:1.7;
+  color:#5a7a8a;
+}
+
+.rule-body strong { color:var(--text); }
+
+/* ═══════════════════ ADDICTION ENGINE ═══════════════════ */
+#addiction { background: var(--bg2); }
+
+.addiction-grid {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:50px;
+  align-items:start;
+}
+
+.addiction-feature {
+  display:flex; gap:20px;
+  margin-bottom:36px;
+  opacity:0;
+  transform:translateY(20px);
+  transition:opacity 0.4s, transform 0.4s;
+}
+
+.addiction-feature.visible { opacity:1; transform:translateY(0); }
+
+.af-icon {
+  width:48px; height:48px; flex-shrink:0;
+  border-radius:4px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:22px;
+}
+
+.af-icon.gold { background:rgba(245,197,24,0.1); border:1px solid rgba(245,197,24,0.2); }
+.af-icon.red { background:rgba(255,45,45,0.1); border:1px solid rgba(255,45,45,0.2); }
+.af-icon.cyan { background:rgba(0,229,255,0.1); border:1px solid rgba(0,229,255,0.2); }
+.af-icon.green { background:rgba(0,230,118,0.1); border:1px solid rgba(0,230,118,0.2); }
+.af-icon.purple { background:rgba(213,0,249,0.1); border:1px solid rgba(213,0,249,0.2); }
+.af-icon.amber { background:rgba(255,153,0,0.1); border:1px solid rgba(255,153,0,0.2); }
+
+.af-content h4 {
+  font-family:'Bebas Neue', cursive;
+  font-size:20px;
+  letter-spacing:2px;
+  margin-bottom:6px;
+}
+
+.af-content p {
+  font-size:14px;
+  line-height:1.7;
+  color:#5a7a8a;
+}
+
+.af-content p strong { color:var(--text); }
+
+.addiction-visual {
+  position:sticky;
+  top:80px;
+}
+
+.streak-display {
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:30px;
+  text-align:center;
+  margin-bottom:20px;
+}
+
+.streak-fire { font-size:60px; line-height:1; margin-bottom:10px; animation:fireWiggle 1s infinite; }
+
+@keyframes fireWiggle {
+  0%,100%{transform:scale(1) rotate(-2deg)}
+  50%{transform:scale(1.05) rotate(2deg)}
+}
+
+.streak-num {
+  font-family:'Bebas Neue', cursive;
+  font-size:72px;
+  line-height:1;
+  color:var(--amber);
+  text-shadow:0 0 30px rgba(255,153,0,0.4);
+}
+
+.streak-label {
+  font-size:12px;
+  letter-spacing:4px;
+  color:var(--muted);
+  text-transform:uppercase;
+}
+
+.xp-bar {
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:6px;
+  padding:20px;
+  margin-bottom:16px;
+}
+
+.xp-row { display:flex; justify-content:space-between; margin-bottom:8px; font-size:13px; }
+.xp-label { color:var(--muted); letter-spacing:1px; }
+.xp-val { font-family:'JetBrains Mono', monospace; color:var(--gold); }
+
+.xp-track {
+  height:8px; background:var(--bg);
+  border-radius:4px; overflow:hidden;
+  border:1px solid var(--border);
+}
+
+.xp-fill {
+  height:100%;
+  border-radius:4px;
+  background:linear-gradient(90deg, var(--gold), var(--amber));
+  box-shadow:0 0 10px rgba(245,197,24,0.3);
+  transition:width 1s ease;
+}
+
+.rank-badge {
+  background: linear-gradient(135deg, rgba(245,197,24,0.15), rgba(255,153,0,0.08));
+  border:1px solid rgba(245,197,24,0.3);
+  border-radius:6px;
+  padding:16px 20px;
+  display:flex; align-items:center; gap:14px;
+}
+
+.rank-icon { font-size:32px; }
+.rank-name { font-family:'Bebas Neue', cursive; font-size:22px; letter-spacing:2px; color:var(--gold); }
+.rank-desc { font-size:12px; color:var(--muted); }
+
+/* ═══════════════════ CRYPTO ═══════════════════ */
+#crypto { background: var(--bg); }
+
+.crypto-tabs {
+  display:flex; gap:0;
+  margin-bottom:40px;
+  border:1px solid var(--border);
+  border-radius:4px;
+  overflow:hidden;
+}
+
+.ctab {
+  flex:1;
+  padding:14px;
+  background:transparent;
+  border:none;
+  color:var(--muted);
+  font-family:'Bebas Neue', cursive;
+  font-size:16px;
+  letter-spacing:2px;
+  transition:all 0.2s;
+  border-right:1px solid var(--border);
+  position:relative;
+  overflow:hidden;
+}
+
+.ctab:last-child { border-right:none; }
+.ctab.active { background:rgba(245,197,24,0.08); color:var(--gold); }
+.ctab:hover:not(.active) { background:rgba(255,255,255,0.02); color:var(--text); }
+
+.ctab.active::after {
+  content:'';
+  position:absolute;
+  bottom:0; left:0; right:0;
+  height:2px;
+  background:var(--gold);
+}
+
+.tab-content { display:none; }
+.tab-content.active { display:block; }
+
+/* DEPOSIT */
+.deposit-layout {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:40px;
+}
+
+.coin-selector {
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:10px;
+  margin-bottom:28px;
+}
+
+.coin-btn {
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:14px 6px;
+  text-align:center;
+  transition:all 0.2s;
+  position:relative;
+  overflow:hidden;
+}
+
+.coin-btn.active { border-color:var(--gold); background:rgba(245,197,24,0.08); }
+.coin-btn:hover { border-color:rgba(245,197,24,0.4); }
+
+.coin-icon { font-size:24px; display:block; margin-bottom:6px; }
+.coin-name { font-size:10px; letter-spacing:2px; color:var(--muted); font-family:'JetBrains Mono',monospace; }
+.coin-btn.active .coin-name { color:var(--gold); }
+
+.coin-rate {
+  font-size:11px;
+  font-family:'JetBrains Mono',monospace;
+  color:var(--green);
+  margin-top:3px;
+}
+
+.deposit-form label {
+  display:block;
+  font-size:11px;
+  letter-spacing:3px;
+  color:var(--muted);
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+
+.deposit-input {
+  width:100%;
+  background:var(--bg2);
+  border:1px solid var(--border);
+  color:var(--text);
+  font-family:'JetBrains Mono',monospace;
+  font-size:20px;
+  padding:14px 18px;
+  border-radius:4px;
+  outline:none;
+  margin-bottom:20px;
+  transition:border-color 0.2s;
+}
+
+.deposit-input:focus { border-color:var(--gold); }
+
+.amount-pills {
+  display:flex; gap:8px; margin-bottom:20px; flex-wrap:wrap;
+}
+
+.amount-pill {
+  background:var(--bg2);
+  border:1px solid var(--border);
+  color:var(--muted);
+  padding:6px 16px;
+  border-radius:20px;
+  font-size:13px;
+  font-weight:700;
+  letter-spacing:1px;
+  transition:all 0.2s;
+}
+
+.amount-pill:hover, .amount-pill.active {
+  border-color:var(--gold);
+  color:var(--gold);
+  background:rgba(245,197,24,0.08);
+}
+
+.deposit-summary {
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:20px;
+  margin-bottom:20px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:13px;
+}
+
+.ds-row {
+  display:flex; justify-content:space-between;
+  padding:6px 0;
+  border-bottom:1px solid rgba(18,32,48,0.8);
+}
+
+.ds-row:last-child { border-bottom:none; }
+.ds-label { color:var(--muted); }
+.ds-val { color:var(--text); }
+.ds-val.green { color:var(--green); }
+.ds-val.gold { color:var(--gold); }
+
+.btn-deposit {
+  width:100%;
+  background:linear-gradient(135deg, var(--gold), var(--amber));
+  color:#000;
+  border:none;
+  padding:16px;
+  font-family:'Bebas Neue',cursive;
+  font-size:20px;
+  letter-spacing:3px;
+  border-radius:4px;
+  transition:all 0.2s;
+  box-shadow:0 0 30px rgba(245,197,24,0.2);
+}
+
+.btn-deposit:hover { filter:brightness(1.15); transform:scale(1.01); box-shadow:0 0 50px rgba(245,197,24,0.4); }
+
+.wallet-panel {
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:28px;
+}
+
+.wallet-title {
+  font-family:'Bebas Neue',cursive;
+  font-size:20px;
+  letter-spacing:2px;
+  color:var(--gold);
+  margin-bottom:20px;
+  display:flex; align-items:center; gap:10px;
+}
+
+.live-dot {
+  width:8px; height:8px; border-radius:50%;
+  background:var(--green);
+  box-shadow:0 0 8px var(--green);
+  animation:livePulse 1.5s infinite;
+}
+
+@keyframes livePulse { 50%{opacity:0.4;transform:scale(0.7)} }
+
+.wallet-address {
+  background:var(--bg);
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:14px 16px;
+  font-family:'JetBrains Mono',monospace;
+  font-size:12px;
+  color:var(--cyan);
+  word-break:break-all;
+  margin-bottom:16px;
+  position:relative;
+}
+
+.copy-btn {
+  position:absolute; top:8px; right:8px;
+  background:rgba(0,229,255,0.1);
+  border:1px solid rgba(0,229,255,0.2);
+  color:var(--cyan);
+  font-size:10px;
+  letter-spacing:1px;
+  padding:4px 8px;
+  border-radius:2px;
+  font-family:'JetBrains Mono',monospace;
+  transition:all 0.2s;
+}
+
+.copy-btn:hover { background:rgba(0,229,255,0.2); }
+
+.qr-placeholder {
+  width:140px; height:140px;
+  background:white;
+  border-radius:4px;
+  margin:0 auto 16px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:11px;
+  color:#333;
+  text-align:center;
+  position:relative;
+  overflow:hidden;
+}
+
+.qr-inner {
+  display:grid;
+  grid-template-columns:repeat(7,1fr);
+  gap:2px;
+  padding:10px;
+  width:100%; height:100%;
+}
+
+.qr-cell {
+  border-radius:1px;
+}
+
+.conf-badge {
+  display:flex; align-items:center; gap:8px;
+  background:rgba(0,230,118,0.08);
+  border:1px solid rgba(0,230,118,0.2);
+  border-radius:4px;
+  padding:10px 14px;
+  font-size:13px;
+  margin-bottom:10px;
+}
+
+.conf-icon { font-size:18px; }
+.conf-text { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--green); }
+
+.crypto-bonus {
+  background:linear-gradient(135deg, rgba(213,0,249,0.08), rgba(41,121,255,0.08));
+  border:1px solid rgba(213,0,249,0.2);
+  border-radius:4px;
+  padding:20px;
+  margin-top:20px;
+}
+
+.cb-title {
+  font-family:'Bebas Neue',cursive;
+  font-size:18px;
+  letter-spacing:2px;
+  color:var(--purple);
+  margin-bottom:10px;
+}
+
+.cb-item {
+  display:flex; align-items:center; gap:10px;
+  font-size:14px;
+  padding:5px 0;
+  color:#7090a0;
+}
+
+.cb-item::before { content:'▶'; font-size:8px; color:var(--purple); }
+.cb-item strong { color:var(--text); }
+
+/* CRYPTO IN GAME */
+.crypto-game-grid {
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:20px;
+  margin-bottom:40px;
+}
+
+.cg-card {
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:4px;
+  padding:24px;
+  text-align:center;
+  transition:all 0.3s;
+  position:relative;
+  overflow:hidden;
+}
+
+.cg-card::before {
+  content:'';
+  position:absolute;
+  top:-50%; left:-50%;
+  width:200%; height:200%;
+  background:radial-gradient(circle at 50% 50%, var(--glow-color) 0%, transparent 60%);
+  opacity:0;
+  transition:opacity 0.3s;
+}
+
+.cg-card:hover::before { opacity:1; }
+.cg-card:hover { border-color:var(--glow-border); transform:translateY(-4px); }
+
+.cg-card.btc { --glow-color:rgba(247,147,26,0.06); --glow-border:rgba(247,147,26,0.4); }
+.cg-card.eth { --glow-color:rgba(98,126,234,0.06); --glow-border:rgba(98,126,234,0.4); }
+.cg-card.sol { --glow-color:rgba(153,69,255,0.06); --glow-border:rgba(153,69,255,0.4); }
+
+.cg-icon { font-size:40px; margin-bottom:14px; }
+.cg-title { font-family:'Bebas Neue',cursive; font-size:20px; letter-spacing:2px; margin-bottom:8px; }
+.cg-body { font-size:13px; line-height:1.6; color:#5a7a8a; }
+.cg-body strong { color:var(--text); }
+
+/* NFT SECTION */
+.nft-strip {
+  display:flex; gap:16px; overflow-x:auto; padding-bottom:10px;
+  scrollbar-width:thin;
+}
+
+.nft-card {
+  flex-shrink:0;
+  width:160px;
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-radius:6px;
+  overflow:hidden;
+  transition:all 0.3s;
+}
+
+.nft-card:hover { border-color:rgba(213,0,249,0.4); transform:translateY(-4px); }
+
+.nft-img {
+  height:140px;
+  display:flex; align-items:center; justify-content:center;
+  font-size:60px;
+  background: var(--bg3);
+  position:relative;
+  overflow:hidden;
+}
+
+.nft-img::after {
+  content:'';
+  position:absolute; inset:0;
+  background:linear-gradient(135deg, transparent 60%, rgba(213,0,249,0.1));
+}
+
+.nft-info { padding:12px; }
+.nft-name { font-family:'Bebas Neue',cursive; font-size:15px; letter-spacing:1px; margin-bottom:4px; }
+.nft-price { font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--purple); }
+
+/* JACKPOT POOL */
+.pool-display {
+  background:radial-gradient(ellipse at 50% 0%, rgba(245,197,24,0.1) 0%, transparent 70%);
+  border:1px solid rgba(245,197,24,0.2);
+  border-radius:8px;
+  padding:40px;
+  text-align:center;
+  margin-top:40px;
+}
+
+.pool-label {
+  font-size:12px; letter-spacing:4px; color:var(--muted); text-transform:uppercase; margin-bottom:10px;
+}
+
+.pool-amount {
+  font-family:'Bebas Neue',cursive;
+  font-size:clamp(48px,8vw,96px);
+  background:linear-gradient(180deg, #fff7c0, var(--gold2), var(--amber));
+  -webkit-background-clip:text;
+  -webkit-text-fill-color:transparent;
+  line-height:1;
+  margin-bottom:10px;
+  animation:goldPulse 2s infinite;
+}
+
+@keyframes goldPulse { 50%{ filter:brightness(1.2); } }
+
+.pool-crypto {
+  display:flex; gap:20px; justify-content:center; margin-top:20px; flex-wrap:wrap;
+}
+
+.pool-coin {
+  font-family:'JetBrains Mono',monospace;
+  font-size:13px;
+  padding:6px 14px;
+  border-radius:20px;
+}
+
+.pool-coin.btc { background:rgba(247,147,26,0.1); color:var(--btc); border:1px solid rgba(247,147,26,0.2); }
+.pool-coin.eth { background:rgba(98,126,234,0.1); color:var(--eth); border:1px solid rgba(98,126,234,0.2); }
+.pool-coin.usdt { background:rgba(38,161,123,0.1); color:var(--usdt); border:1px solid rgba(38,161,123,0.2); }
+.pool-coin.sol { background:rgba(153,69,255,0.1); color:var(--sol); border:1px solid rgba(153,69,255,0.2); }
+
+/* ═══════════════════ PLAY NOW ═══════════════════ */
+#play { background: var(--bg2); }
+
+.play-layout {
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:60px;
+  align-items:center;
+}
+
+.play-steps {
+  counter-reset:play-step;
+}
+
+.play-step {
+  display:flex; gap:20px; margin-bottom:28px;
+  counter-increment:play-step;
+}
+
+.play-step-num {
+  width:40px; height:40px; flex-shrink:0;
+  background:var(--bg3);
+  border:1px solid var(--border);
+  border-radius:50%;
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Bebas Neue',cursive;
+  font-size:18px;
+  color:var(--gold);
+}
+
+.play-step-content h4 {
+  font-family:'Bebas Neue',cursive;
+  font-size:20px; letter-spacing:2px; margin-bottom:5px;
+}
+
+.play-step-content p { font-size:14px; line-height:1.6; color:#5a7a8a; }
+.play-step-content p strong { color:var(--text); }
+
+.warning-box {
+  background:rgba(255,45,45,0.06);
+  border:1px solid rgba(255,45,45,0.2);
+  border-left:3px solid var(--red);
+  border-radius:4px;
+  padding:20px 24px;
+  font-size:13px;
+  line-height:1.7;
+  color:#7a5555;
+  margin-top:20px;
+}
+
+.warning-box strong { color:#cc6666; }
+
+.tiers-table {
+  width:100%;
+  border-collapse:collapse;
+  font-size:14px;
+}
+
+.tiers-table th {
+  font-family:'Bebas Neue',cursive;
+  font-size:14px;
+  letter-spacing:2px;
+  text-align:left;
+  color:var(--muted);
+  border-bottom:1px solid var(--border);
+  padding:10px 14px;
+}
+
+.tiers-table td {
+  padding:12px 14px;
+  border-bottom:1px solid rgba(18,32,48,0.6);
+  font-family:'JetBrains Mono',monospace;
+  font-size:13px;
+  color:#6a8a9a;
+}
+
+.tiers-table tr:hover td { background:rgba(245,197,24,0.03); color:var(--text); }
+
+.tiers-table .gold { color:var(--gold); font-weight:bold; }
+.tiers-table .green { color:var(--green); }
+
+/* ═══════════════════ FOOTER ═══════════════════ */
+footer {
+  background:var(--bg);
+  border-top:1px solid var(--border);
+  padding:40px;
+  text-align:center;
+  font-size:12px;
+  color:var(--muted);
+  letter-spacing:2px;
+}
+
+footer .f-logo {
+  display:flex; flex-direction:column; align-items:center; gap:6px;
+  margin-bottom:16px;
+}
+
+/* ═══════════════════ NOTIFICATION ═══════════════════ */
+.toast {
+  position:fixed; bottom:30px; right:30px;
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-left:3px solid var(--green);
+  border-radius:4px;
+  padding:14px 20px;
+  font-size:14px;
+  font-weight:600;
+  z-index:9000;
+  transform:translateY(100px);
+  opacity:0;
+  transition:all 0.3s;
+  max-width:300px;
+}
+
+.toast.show { transform:translateY(0); opacity:1; }
+
+/* ═══════════════════ PARTICLES ═══════════════════ */
+.hero-particles { position:absolute; inset:0; pointer-events:none; overflow:hidden; }
+.particle {
+  position:absolute; border-radius:50%;
+  background:var(--gold); opacity:0;
+  animation: particleFly var(--dur,6s) var(--delay,0s) infinite ease-in;
+}
+@keyframes particleFly {
+  0%   { opacity:0; transform:translateY(0) scale(0); }
+  10%  { opacity:0.5; }
+  90%  { opacity:0.08; }
+  100% { opacity:0; transform:translateY(-100vh) scale(1); }
+}
+
+/* ═══════════════════ ELIM FLASH ═══════════════════ */
+.elim-flash {
+  position:fixed; inset:0;
+  background:rgba(255,45,45,0.1);
+  pointer-events:none; z-index:9997;
+  opacity:0; transition:opacity 0.08s;
+}
+.elim-flash.pop { opacity:1; }
+
+/* ═══════════════════ NOTIF STACK ═══════════════════ */
+.notif-stack {
+  position:fixed; bottom:24px; right:24px;
+  display:flex; flex-direction:column-reverse; gap:10px;
+  z-index:9000; pointer-events:none;
+}
+.notif {
+  background:var(--bg2);
+  border:1px solid var(--border);
+  border-left:3px solid var(--gold);
+  border-radius:4px;
+  padding:12px 18px; max-width:320px;
+  transform:translateX(360px); opacity:0;
+  transition:all 0.35s ease;
+  pointer-events:all;
+}
+.notif.show { transform:translateX(0); opacity:1; }
+.notif.type-red  { border-left-color:var(--red); }
+.notif.type-green { border-left-color:var(--green); }
+.notif.type-ember { border-left-color:var(--amber); }
+.notif.type-cyan  { border-left-color:var(--cyan); }
+.notif-title {
+  font-family:'Bebas Neue',cursive;
+  font-size:14px; letter-spacing:1px;
+  color:var(--gold); margin-bottom:4px;
+}
+.notif.type-red .notif-title   { color:var(--red); }
+.notif.type-green .notif-title { color:var(--green); }
+.notif.type-ember .notif-title { color:var(--amber); }
+.notif.type-cyan .notif-title  { color:var(--cyan); }
+.notif-body { color:#5a7a8a; font-size:12px; line-height:1.5; }
+
+/* ═══════════════════ PHASE TIMELINE ═══════════════════ */
+.phase-timeline {
+  display:flex; gap:0; margin-bottom:60px;
+  border:1px solid var(--border); overflow:hidden;
+  border-radius:4px;
+}
+.phase {
+  flex:1; padding:20px 16px;
+  border-right:1px solid var(--border);
+  background:var(--bg3); transition:background 0.3s;
+  position:relative;
+}
+.phase:last-child { border-right:none; }
+.phase:hover { background:rgba(245,197,24,0.03); }
+.phase-active {
+  background:rgba(245,197,24,0.06) !important;
+}
+.phase-active::after {
+  content:''; position:absolute;
+  top:0; left:0; right:0; height:2px;
+  background:var(--gold);
+}
+.phase-num {
+  font-family:'JetBrains Mono',monospace;
+  font-size:9px; letter-spacing:3px; color:var(--muted); margin-bottom:6px;
+}
+.phase-name {
+  font-family:'Bebas Neue',cursive;
+  font-size:14px; letter-spacing:1px; color:var(--gold2); margin-bottom:6px;
+}
+.phase-active .phase-name { color:var(--gold); }
+.phase-desc { font-size:12px; line-height:1.5; color:#4a6a7a; }
+
+/* ═══════════════════ RESPONSIVE ═══════════════════ */
+@media(max-width:900px) {
+  .story-grid, .deposit-layout, .play-layout, .addiction-grid { grid-template-columns:1fr; }
+  .rules-grid { grid-template-columns:1fr 1fr; }
+  .crypto-game-grid { grid-template-columns:1fr 1fr; }
+  .coin-selector { grid-template-columns:repeat(3,1fr); }
+  .hero-stats { gap:24px; flex-wrap:wrap; }
+  .phase-timeline { flex-direction:column; }
+}
+</style>
+<link rel="stylesheet" href="mobile.css">
+</head>
+<body>
+<div class="elim-flash" id="elimFlash"></div>
+<div class="notif-stack" id="notifStack"></div>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#home">
+    <svg viewBox="0 0 44 44" width="36" height="36" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="22,2 40,12 40,32 22,42 4,32 4,12" fill="#0a1820" stroke="#f5c518" stroke-width="1.5"/>
+      <polygon points="22,2 40,12 40,32 22,42 4,32 4,12" fill="none" stroke="#f5c518" stroke-width="0.5" stroke-dasharray="2 4" opacity="0.3" transform="scale(1.12) translate(-2.4,-2.4)"/>
+      <rect x="14" y="8" width="2" height="28" rx="1" fill="#f5c518"/>
+      <path d="M16,10 L34,15 L31,22 L16,17 Z" fill="#f5c518"/>
+      <circle cx="22" cy="2"  r="1.5" fill="#f5c518" opacity="0.6"/>
+      <circle cx="40" cy="12" r="1.5" fill="#f5c518" opacity="0.6"/>
+      <circle cx="40" cy="32" r="1.5" fill="#f5c518" opacity="0.6"/>
+      <circle cx="22" cy="42" r="1.5" fill="#f5c518" opacity="0.6"/>
+      <circle cx="4"  cy="32" r="1.5" fill="#f5c518" opacity="0.6"/>
+      <circle cx="4"  cy="12" r="1.5" fill="#f5c518" opacity="0.6"/>
+    </svg>
+    <div class="nav-logo-text">
+      <div class="nav-logo-sub">Last · Standing</div>
+      <div class="nav-logo-flag">FLAG</div>
+    </div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="story.html">Story</a></li>
+    <li><a href="how.html">How It Works</a></li>
+    <li><a href="rules.html">Rules</a></li>
+    <li><a href="features.html">Features</a></li>
+    <li><a href="crypto.html">Crypto</a></li>
+    <li><a href="spectator.html">Spectate</a></li>
+    <li><a href="admin.html">Admin</a></li>
+    <li><a href="play.html" class="nav-cta">PLAY NOW</a></li>
+  </ul>
+  <!-- Wallet connect (desktop, in nav) -->
+  <div class="desktop-only" style="display:flex;align-items:center;gap:8px;margin-left:16px">
+    <span id="navWalletAddr" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#4ade80;display:none"></span>
+    <button class="btn-wallet btn-wallet-sm" data-wallet-connect="metamask" id="navConnectBtn">CONNECT</button>
+  </div>
+  <!-- Hamburger (mobile) -->
+  <button class="nav-hamburger mobile-only" id="navHamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+<!-- Mobile wallet bar -->
+<div class="wallet-connect-bar mobile-only" id="mobileWalletBar" style="display:none">
+  <div style="flex:1">
+    <div class="wc-address" id="mobileWalletAddr">Not connected</div>
+    <div class="wc-rank" id="mobileWalletRank">CONNECT TO PLAY</div>
+  </div>
+  <button class="btn-wallet btn-wallet-sm" data-wallet-connect="metamask" id="mobileConnectBtn">CONNECT</button>
+</div>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <div class="hero-bg"></div>
+  <div class="hero-particles" id="heroParticles"></div>
+  <div class="hero-grid"></div>
+  <div class="hero-logo-wrap">
+    <div class="hero-icon-wrap">
+      <svg class="hero-icon-spin" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="60" cy="60" r="56" fill="none" stroke="#f5c518" stroke-width="0.5" stroke-dasharray="8 6" opacity="0.3"/>
+        <polygon points="60,8 106,33 106,83 60,108 14,83 14,33" fill="none" stroke="#f5c518" stroke-width="1" opacity="0.5"/>
+        <polygon points="60,20 96,40 96,80 60,100 24,80 24,40" fill="#0a1820" stroke="#f5c518" stroke-width="1.5" opacity="0.8"/>
+        <circle cx="60" cy="8"   r="2.5" fill="#f5c518" opacity="0.6"/>
+        <circle cx="106" cy="33" r="2.5" fill="#f5c518" opacity="0.6"/>
+        <circle cx="106" cy="83" r="2.5" fill="#f5c518" opacity="0.6"/>
+        <circle cx="60" cy="108" r="2.5" fill="#f5c518" opacity="0.6"/>
+        <circle cx="14" cy="83"  r="2.5" fill="#f5c518" opacity="0.6"/>
+        <circle cx="14" cy="33"  r="2.5" fill="#f5c518" opacity="0.6"/>
+      </svg>
+      <div class="hero-icon-inner">
+        <svg viewBox="0 0 64 64" width="64" height="64" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <linearGradient id="heroFlagGrad" x1="0" y1="0" x2="1" y2="0">
+              <stop offset="0%" stop-color="#fff"/>
+              <stop offset="100%" stop-color="#e09000"/>
+            </linearGradient>
+          </defs>
+          <rect x="21" y="10" width="3" height="44" rx="1.5" fill="#f5c518"/>
+          <path d="M24,12 L52,18 L48,30 L24,24 Z" fill="#f5c518"/>
+          <path d="M24,12 L52,18 L48,30 L24,24 Z" fill="url(#heroFlagGrad)" opacity="0.4"/>
+          <circle cx="32" cy="19" r="1.5" fill="#0a1820" opacity="0.8"/>
+          <circle cx="40" cy="20.5" r="1.5" fill="#0a1820" opacity="0.8"/>
+          <circle cx="36" cy="23" r="1.5" fill="#0a1820" opacity="0.8"/>
+          <rect x="16" y="52" width="14" height="2.5" rx="1.25" fill="#f5c518" opacity="0.7"/>
+        </svg>
+      </div>
+    </div>
+    <div class="hero-wordmark">
+      <span class="hero-word-last">Last</span>
+      <span class="hero-word-flag">FLAG</span>
+      <span class="hero-word-standing">Standing</span>
+    </div>
+    <div class="hero-divider"></div>
+    <div class="hero-tagline-small">One World · One Winner · One Flag</div>
+  </div>
+  <div class="hero-sub">One World. One Winner. Everything to Lose.</div>
+  <p class="hero-tagline">
+    <strong>154 nations. Thousands of players. One jackpot.</strong><br>
+    Every hour, a country falls. Claim your territory, build your empire, outlast them all.
+    The last flag standing takes everything.
+  </p>
+  <div class="hero-stats">
+    <div class="hstat"><div class="hstat-num" id="liveJackpot">$138K</div><div class="hstat-label">Current Jackpot</div></div>
+    <div class="hstat"><div class="hstat-num" id="livePlayers">2,847</div><div class="hstat-label">Active Players</div></div>
+    <div class="hstat"><div class="hstat-num">154</div><div class="hstat-label">Territories</div></div>
+    <div class="hstat"><div class="hstat-num">3%</div><div class="hstat-label">House Cut</div></div>
+  </div>
+  <div class="hero-btns">
+    <button class="btn-hero-primary" onclick="scrollTo('#crypto')">DEPOSIT &amp; PLAY</button>
+    <button class="btn-hero-outline" onclick="scrollTo('#how')">HOW IT WORKS</button>
+  </div>
+  <div class="scroll-hint">▼ SCROLL TO LEARN MORE ▼</div>
+</section>
+
+<!-- STORY -->
+<section id="story">
+  <div class="container">
+    <div class="section-eyebrow">// origin_story.txt</div>
+    <h2 class="section-title">THE <span class="accent">LEGEND</span></h2>
+    <div class="story-grid">
+      <div class="story-text">
+        <p>In a world where borders mean everything, <strong>a secret council of global players</strong> gathers every day. They don't compete with armies — they compete with <em>flags</em>.</p>
+        <p>Each player claims a nation. They plant their flag, back it with <strong>real crypto</strong>, and watch the clock. Because every hour, the council spins the wheel of fate — and one nation <em>falls off the map forever</em>.</p>
+        <p>The survivors trade territories like warlords. They form alliances across continents. They buy <strong>intel on the next elimination</strong>. They hedge their bets, grow their empires, and wait — hearts pounding — for the clock to reach zero.</p>
+        <p>Only <em>one flag</em> will survive. Only <em>one player</em> will take the entire jackpot. <strong>Will it be yours?</strong></p>
+      </div>
+      <div class="lore-box">
+        <h3>⚑ The Council's Decree</h3>
+        <p><em>"The game began in the back rooms of the internet — a bet between five friends about which country would fall first. A decade later, it became the most-watched elimination event on earth."</em></p>
+        <p>Every game is a new world order. Old alliances crumble. New empires rise. The strongest flag doesn't always win — sometimes it's the player smart enough to sell before the storm hits.</p>
+        <p>The crypto flows. The clock ticks. The map shrinks. <strong>Welcome to the last game you'll ever need.</strong></p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section id="how">
+  <div class="container">
+    <div class="section-eyebrow">// game_mechanics.exe</div>
+    <h2 class="section-title">HOW IT <span class="cyan">WORKS</span></h2>
+    <p class="section-lead">Six steps from zero to jackpot. Simple to learn, impossible to stop playing.</p>
+
+    <!-- Phase Timeline -->
+    <div class="phase-timeline" id="phaseTimeline">
+      <div class="phase phase-active" id="ph1">
+        <div class="phase-num">PHASE 01</div>
+        <div class="phase-name">Entry Window</div>
+        <div class="phase-desc">Deposit crypto and buy territory slots for 10 FC each. No entry limit.</div>
+      </div>
+      <div class="phase" id="ph2">
+        <div class="phase-num">PHASE 02</div>
+        <div class="phase-name">Round Opens</div>
+        <div class="phase-desc">60-minute clock starts. Trading opens. Intel can be purchased.</div>
+      </div>
+      <div class="phase" id="ph3">
+        <div class="phase-num">PHASE 03</div>
+        <div class="phase-name">Lock Window</div>
+        <div class="phase-desc">All trades freeze 5 minutes before elimination. Hold your breath.</div>
+      </div>
+      <div class="phase" id="ph4">
+        <div class="phase-num">PHASE 04</div>
+        <div class="phase-name">Elimination</div>
+        <div class="phase-desc">Chainlink VRF fires. One territory falls. The jackpot grows.</div>
+      </div>
+      <div class="phase" id="ph5">
+        <div class="phase-num">PHASE 05</div>
+        <div class="phase-name">Repeat</div>
+        <div class="phase-desc">New round begins. Survivors continue. New players can buy in.</div>
+      </div>
+      <div class="phase" id="ph6">
+        <div class="phase-num">FINAL</div>
+        <div class="phase-name">Last Flag</div>
+        <div class="phase-desc">One territory remains. All holders split 97% of the jackpot in 60 seconds.</div>
+      </div>
+    </div>
+
+    <div class="steps-timeline">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">💰 Deposit Crypto</div>
+          <div class="step-body">Fund your account using <span class="tag">BTC</span><span class="tag">ETH</span><span class="tag">SOL</span><span class="tag">USDT</span><span class="tag">BNB</span>. Your crypto is converted into <strong>Flag Credits (FC)</strong> — the in-game currency. <strong>1 FC = $1 USD equivalent</strong>. First deposit gets a <strong>+20% bonus</strong>.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">🌍 Claim Your Territory</div>
+          <div class="step-body">Browse the live world map. Each territory costs <strong>10 FC</strong> to enter. You can own <strong>multiple territories</strong> — the more you own, the higher your jackpot share. Each territory you buy adds <strong>9.7 FC to the prize pool</strong> (3% house cut).</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">⏱️ The Elimination Clock</div>
+          <div class="step-body">Every <strong>60 minutes</strong>, the system selects one territory for elimination using a <strong>provably fair on-chain random function</strong>. All players holding that territory are knocked out. The map shrinks. The jackpot grows. Tension builds.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <div class="step-title">📈 Trade the Market</div>
+          <div class="step-body">Territory values fluctuate based on <strong>elimination probability</strong>. If a territory has many players, it's "safer" by volume — or a bigger target? You can <strong>sell territories</strong> to other players at market price (3% cut). Buy low, sell high, survive.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <div class="step-title">🔍 Intel &amp; Power-Ups</div>
+          <div class="step-body">Spend FC to buy <strong>Insider Intel</strong> — a peek at the next elimination target. Use <strong>Shield Tokens</strong> (earnable via streaks) to protect a territory for one round. Use <strong>Fog of War</strong> to hide your holdings from other players' radar.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">6</div>
+        <div class="step-content">
+          <div class="step-title">🏆 Last Flag Takes All</div>
+          <div class="step-body">When only <strong>one territory remains</strong>, all players holding that territory split the jackpot <strong>proportionally by their share</strong>. Own 3 of the 5 remaining slots in that territory? You get 60% of the entire pot. <strong>Win in crypto — withdraw instantly.</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- RULES -->
+<section id="rules">
+  <div class="container">
+    <div class="section-eyebrow">// ruleset_v4.2.json</div>
+    <h2 class="section-title">THE <span class="red">RULES</span></h2>
+    <p class="section-lead">Clear, fair, unbreakable. Every rule is enforced by smart contract — no human interference possible.</p>
+
+    <div class="rules-grid">
+      <div class="rule-card gold">
+        <div class="rule-icon">🎯</div>
+        <div class="rule-title">Fair Elimination</div>
+        <div class="rule-body">Eliminations are determined by a <strong>Chainlink VRF</strong> (Verifiable Random Function). The result is provably random, publicly auditable, and impossible to manipulate — not even by us.</div>
+      </div>
+      <div class="rule-card cyan">
+        <div class="rule-icon">💎</div>
+        <div class="rule-title">Entry &amp; Buy-In</div>
+        <div class="rule-body">Each territory slot costs <strong>10 FC</strong>. Each territory has <strong>unlimited slots</strong>. Multiple players can hold the same country — they split any winnings proportionally if that territory is the last one.</div>
+      </div>
+      <div class="rule-card red">
+        <div class="rule-icon">☠️</div>
+        <div class="rule-title">No Refunds on Elimination</div>
+        <div class="rule-body">When your territory is eliminated, <strong>those credits are gone</strong>. This is the game. However — you can sell before elimination using the live market. Sell fast. Sell smart.</div>
+      </div>
+      <div class="rule-card green">
+        <div class="rule-icon">🔄</div>
+        <div class="rule-title">Trading Rules</div>
+        <div class="rule-body">Territories can be traded peer-to-peer at <strong>any price you set</strong>. The house takes a <strong>3% cut</strong> on every trade. You cannot trade after the countdown reaches <strong>5 minutes</strong> (lock period).</div>
+      </div>
+      <div class="rule-card purple">
+        <div class="rule-icon">🛡️</div>
+        <div class="rule-title">Shield Tokens</div>
+        <div class="rule-body">Shields can be earned through <strong>daily streaks, referrals, or purchased</strong>. One Shield protects one territory for one elimination round. <strong>Max 1 Shield per territory per round</strong>. Shields cannot be stacked.</div>
+      </div>
+      <div class="rule-card amber">
+        <div class="rule-icon">🏆</div>
+        <div class="rule-title">Jackpot Distribution</div>
+        <div class="rule-body">The final jackpot is <strong>97% of total pool</strong>. 3% is the permanent house cut. Winners receive payout in their <strong>preferred crypto</strong> within 60 seconds of game end, via smart contract auto-execution.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ADDICTION ENGINE -->
+<section id="addiction">
+  <div class="container">
+    <div class="section-eyebrow">// engagement_engine.js</div>
+    <h2 class="section-title">BUILT TO KEEP YOU <span class="red">HOOKED</span></h2>
+    <p class="section-lead">Every feature is designed to maximize engagement, reward loyalty, and keep you coming back for the next round.</p>
+
+    <div class="addiction-grid">
+      <div>
+        <div class="addiction-feature">
+          <div class="af-icon gold">🔥</div>
+          <div class="af-content">
+            <h4>Daily Login Streaks</h4>
+            <p>Log in every day to maintain your streak. <strong>Day 7 = 1 free territory. Day 30 = Shield Token. Day 100 = Legendary status</strong> with permanent 1% jackpot bonus on every win.</p>
+          </div>
+        </div>
+        <div class="addiction-feature">
+          <div class="af-icon red">💀</div>
+          <div class="af-content">
+            <h4>Elimination Anxiety</h4>
+            <p>The countdown clock never stops. Pushes, alerts, and <strong>real-time notifications</strong> ping your phone every elimination. You'll check the app compulsively — because <em>you have to know</em>.</p>
+          </div>
+        </div>
+        <div class="addiction-feature">
+          <div class="af-icon cyan">🏅</div>
+          <div class="af-content">
+            <h4>Rank &amp; Prestige System</h4>
+            <p>From <strong>Recruit → Warlord → Emperor</strong>. Higher ranks unlock exclusive maps, bonus multipliers, early access to new territories, and a custom animated flag border that everyone can see.</p>
+          </div>
+        </div>
+        <div class="addiction-feature">
+          <div class="af-icon green">👥</div>
+          <div class="af-content">
+            <h4>Alliance System</h4>
+            <p>Form alliances with friends. When any alliance member wins, the <strong>entire alliance gets 5% of the jackpot</strong>. This makes every win a shared celebration — and creates viral word-of-mouth.</p>
+          </div>
+        </div>
+        <div class="addiction-feature">
+          <div class="af-icon purple">🌊</div>
+          <div class="af-content">
+            <h4>Season Passes &amp; Battle Pass</h4>
+            <p>Every 30 days a new Season launches with a <strong>themed world map</strong> (Ancient Empires, Space Colonies, etc.), exclusive NFT rewards, and a battle pass with 50 tiers of unlockables.</p>
+          </div>
+        </div>
+        <div class="addiction-feature">
+          <div class="af-icon amber">📣</div>
+          <div class="af-content">
+            <h4>Social Bragging &amp; Referrals</h4>
+            <p>Share your territory map on Twitter/X. Refer a friend and earn <strong>10% of their first deposit in FC</strong>. When you win, an animated victory card auto-generates for social sharing — <em>free viral marketing</em>.</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="addiction-visual">
+        <div class="streak-display">
+          <div class="streak-fire">🔥</div>
+          <div class="streak-num" id="streakNum">17</div>
+          <div class="streak-label">Day Streak</div>
+        </div>
+
+        <div class="xp-bar">
+          <div class="xp-row">
+            <span class="xp-label">⚑ RANK</span>
+            <span class="xp-val">GENERAL</span>
+          </div>
+          <div class="xp-row">
+            <span class="xp-label">XP TO NEXT</span>
+            <span class="xp-val" id="xpVal">4,200 / 5,000</span>
+          </div>
+          <div class="xp-track">
+            <div class="xp-fill" id="xpFill" style="width:84%"></div>
+          </div>
+        </div>
+
+        <div class="rank-badge">
+          <div class="rank-icon">🎖️</div>
+          <div>
+            <div class="rank-name">GENERAL RANK</div>
+            <div class="rank-desc">Unlocks: Fog of War · Alliance Leader · Custom Flag</div>
+          </div>
+        </div>
+
+        <div style="margin-top:16px;background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:18px;">
+          <div style="font-family:'Bebas Neue',cursive;font-size:16px;letter-spacing:2px;color:var(--gold);margin-bottom:12px;">🎯 DAILY MISSIONS</div>
+          <div style="font-size:13px;color:#5a7a8a;line-height:2;">
+            ✅ <span style="color:var(--green)">Buy 1 territory</span><br>
+            ✅ <span style="color:var(--green)">Watch 1 elimination</span><br>
+            ⬜ Survive 3 rounds <span style="color:var(--muted)">(2/3)</span><br>
+            ⬜ Refer a friend<br>
+            ⬜ Trade in the market
+          </div>
+          <div style="margin-top:12px;font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;">REWARD: 50 FC + 1 Shield Token</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CRYPTO -->
+<section id="crypto">
+  <div class="container">
+    <div class="section-eyebrow">// blockchain_module.sol</div>
+    <h2 class="section-title">CRYPTO <span class="accent">POWERED</span></h2>
+    <p class="section-lead">Deposit, play, and win in crypto. Every jackpot is paid out on-chain. Every elimination is provably fair.</p>
+
+    <div class="crypto-tabs">
+      <button class="ctab active" onclick="switchTab('deposit')">💰 DEPOSIT</button>
+      <button class="ctab" onclick="switchTab('ingame')">⚙️ CRYPTO IN GAME</button>
+      <button class="ctab" onclick="switchTab('nft')">🖼️ NFT TERRITORIES</button>
+      <button class="ctab" onclick="switchTab('pool')">🏆 JACKPOT POOL</button>
+    </div>
+
+    <!-- DEPOSIT TAB -->
+    <div class="tab-content active" id="tab-deposit">
+      <div class="deposit-layout">
+        <div>
+          <div class="section-eyebrow" style="margin-bottom:16px;">Select Currency</div>
+          <div class="coin-selector">
+            <div class="coin-btn active" onclick="selectCoin(this,'BTC','₿','0.00031')" id="coin-BTC">
+              <span class="coin-icon">₿</span>
+              <div class="coin-name">BTC</div>
+              <div class="coin-rate">≈ $32K</div>
+            </div>
+            <div class="coin-btn" onclick="selectCoin(this,'ETH','Ξ','0.0041')" id="coin-ETH">
+              <span class="coin-icon">Ξ</span>
+              <div class="coin-name">ETH</div>
+              <div class="coin-rate">≈ $2.4K</div>
+            </div>
+            <div class="coin-btn" onclick="selectCoin(this,'SOL','◎','0.68')" id="coin-SOL">
+              <span class="coin-icon">◎</span>
+              <div class="coin-name">SOL</div>
+              <div class="coin-rate">≈ $147</div>
+            </div>
+            <div class="coin-btn" onclick="selectCoin(this,'USDT','₮','100')" id="coin-USDT">
+              <span class="coin-icon">₮</span>
+              <div class="coin-name">USDT</div>
+              <div class="coin-rate">≈ $1.00</div>
+            </div>
+            <div class="coin-btn" onclick="selectCoin(this,'BNB','⬡','0.16')" id="coin-BNB">
+              <span class="coin-icon">⬡</span>
+              <div class="coin-name">BNB</div>
+              <div class="coin-rate">≈ $620</div>
+            </div>
+          </div>
+
+          <label>Amount (USD)</label>
+          <input type="number" class="deposit-input" id="depositAmt" value="100" min="10" oninput="updateDeposit()">
+
+          <div class="amount-pills">
+            <button class="amount-pill" onclick="setAmt(50)">$50</button>
+            <button class="amount-pill active" onclick="setAmt(100)">$100</button>
+            <button class="amount-pill" onclick="setAmt(250)">$250</button>
+            <button class="amount-pill" onclick="setAmt(500)">$500</button>
+            <button class="amount-pill" onclick="setAmt(1000)">$1000</button>
+          </div>
+
+          <div class="deposit-summary">
+            <div class="ds-row"><span class="ds-label">You Send</span><span class="ds-val" id="dsSend">0.00310 BTC</span></div>
+            <div class="ds-row"><span class="ds-label">You Receive</span><span class="ds-val green" id="dsReceive">120 FC</span></div>
+            <div class="ds-row"><span class="ds-label">Bonus (First Deposit)</span><span class="ds-val gold">+20 FC 🎁</span></div>
+            <div class="ds-row"><span class="ds-label">Territories You Can Buy</span><span class="ds-val" id="dsTerrits">12 territories</span></div>
+            <div class="ds-row"><span class="ds-label">Network Fee (est.)</span><span class="ds-val">~$1.20</span></div>
+          </div>
+
+          <button class="btn-deposit" onclick="simulateDeposit()">⚡ DEPOSIT &amp; GET CREDITS</button>
+
+          <div class="crypto-bonus">
+            <div class="cb-title">🎁 Deposit Bonuses</div>
+            <div class="cb-item"><strong>First Deposit:</strong> +20% FC bonus</div>
+            <div class="cb-item"><strong>$500+ Deposit:</strong> 2x FC + 1 free Shield Token</div>
+            <div class="cb-item"><strong>$1000+ Deposit:</strong> 3x FC + VIP rank + Priority withdrawal</div>
+            <div class="cb-item"><strong>BTC payments:</strong> Extra +5% on top of any bonus</div>
+          </div>
+        </div>
+
+        <div class="wallet-panel">
+          <div class="wallet-title">
+            <span class="live-dot"></span>
+            YOUR DEPOSIT ADDRESS
+          </div>
+
+          <div style="font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--muted);margin-bottom:10px;" id="walletCoin">Bitcoin (BTC) — Mainnet</div>
+
+          <div style="text-align:center;margin-bottom:16px;">
+            <div class="qr-placeholder" id="qrDisplay">
+              <div class="qr-inner" id="qrInner"></div>
+            </div>
+          </div>
+
+          <div class="wallet-address" id="walletAddr">
+            bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh
+            <button class="copy-btn" onclick="copyAddr()">COPY</button>
+          </div>
+
+          <div class="conf-badge">
+            <span class="conf-icon">🔒</span>
+            <span class="conf-text">2 confirmations required · ~10 min</span>
+          </div>
+          <div class="conf-badge" style="background:rgba(245,197,24,0.06);border-color:rgba(245,197,24,0.2);">
+            <span class="conf-icon">⚡</span>
+            <span class="conf-text" style="color:var(--gold);">FC credited instantly after 1st confirmation</span>
+          </div>
+          <div class="conf-badge" style="background:rgba(0,229,255,0.05);border-color:rgba(0,229,255,0.15);">
+            <span class="conf-icon">🔗</span>
+            <span class="conf-text" style="color:var(--cyan);">Withdrawals: Smart contract · Auto · 60 sec</span>
+          </div>
+
+          <div style="margin-top:16px;font-size:12px;font-family:'JetBrains Mono',monospace;color:var(--muted);text-align:center;line-height:1.8;">
+            Minimum deposit: <span style="color:var(--gold)">$10</span><br>
+            Each address is unique to your account<br>
+            Do NOT send from exchange wallets
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- IN GAME TAB -->
+    <div class="tab-content" id="tab-ingame">
+      <div class="crypto-game-grid">
+        <div class="cg-card btc">
+          <div class="cg-icon">🔗</div>
+          <div class="cg-title">Provably Fair</div>
+          <div class="cg-body">Every elimination uses <strong>Chainlink VRF</strong> on-chain randomness. The seed is committed before the draw and revealed after. Anyone can verify any elimination in history.</div>
+        </div>
+        <div class="cg-card eth">
+          <div class="cg-icon">📜</div>
+          <div class="cg-title">Smart Contracts</div>
+          <div class="cg-body">The jackpot pool lives in an <strong>audited Ethereum smart contract</strong>. No human can touch it. When the last flag falls, the contract auto-pays every winner in seconds.</div>
+        </div>
+        <div class="cg-card sol">
+          <div class="cg-icon">🪙</div>
+          <div class="cg-title">Flag Credits (FC)</div>
+          <div class="cg-body">FC is the in-game token on <strong>Solana</strong> for fast, near-zero-fee transactions. Buy territories, use power-ups, trade — all on-chain. FC can be converted back to crypto anytime.</div>
+        </div>
+        <div class="cg-card btc">
+          <div class="cg-icon">📊</div>
+          <div class="cg-title">Territory Trading</div>
+          <div class="cg-body">Territory ownership is recorded on-chain as <strong>semi-fungible tokens</strong>. The live market shows real bids and asks. Trade volume affects territory "heat" shown on the map.</div>
+        </div>
+        <div class="cg-card eth">
+          <div class="cg-icon">🏛️</div>
+          <div class="cg-title">DAO Governance</div>
+          <div class="cg-body">Top 100 players by all-time winnings get <strong>governance tokens</strong>. Vote on new rules, new maps, fee changes, and charity donations from house profits.</div>
+        </div>
+        <div class="cg-card sol">
+          <div class="cg-icon">⚡</div>
+          <div class="cg-title">Instant Withdrawals</div>
+          <div class="cg-body">Win and get paid in <strong>under 60 seconds</strong>. Choose BTC, ETH, SOL, USDT, or BNB. Withdrawals are gas-optimized via Solana bridge. No waiting. No paperwork.</div>
+        </div>
+      </div>
+
+      <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:30px;">
+        <div class="section-eyebrow" style="margin-bottom:16px;">FC Token Economy</div>
+        <table class="tiers-table">
+          <thead>
+            <tr>
+              <th>Action</th>
+              <th>FC Cost / Earn</th>
+              <th>House Cut</th>
+              <th>On-Chain?</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>Buy Territory Slot</td><td class="gold">-10 FC</td><td>3% (0.30 FC)</td><td class="green">Yes</td></tr>
+            <tr><td>Sell Territory</td><td class="gold">Market price</td><td>3%</td><td class="green">Yes</td></tr>
+            <tr><td>Insider Intel (Peek)</td><td class="gold">-25 FC</td><td>100%</td><td class="green">Yes</td></tr>
+            <tr><td>Shield Token (buy)</td><td class="gold">-50 FC</td><td>100%</td><td class="green">Yes</td></tr>
+            <tr><td>Fog of War</td><td class="gold">-30 FC</td><td>100%</td><td class="green">Yes</td></tr>
+            <tr><td>Daily Login Streak</td><td class="green">+5–100 FC</td><td>0%</td><td>Off-chain</td></tr>
+            <tr><td>Referral Bonus</td><td class="green">+10% of referee</td><td>0%</td><td class="green">Yes</td></tr>
+            <tr><td>Win Jackpot Share</td><td class="green">97% of pool</td><td>3%</td><td class="green">Yes</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- NFT TAB -->
+    <div class="tab-content" id="tab-nft">
+      <p style="font-size:17px;line-height:1.8;color:#6a8a9a;margin-bottom:30px;max-width:700px;">
+        Every territory you <strong style="color:var(--text)">win with</strong> — the last surviving flag — mints a unique <strong style="color:var(--gold)">Victory NFT</strong>. It's proof of your legend. Show it off. Sell it. Frame it.
+      </p>
+      <div class="nft-strip">
+        <div class="nft-card">
+          <div class="nft-img">🇺🇸<div style="position:absolute;bottom:6px;right:6px;font-size:10px;background:rgba(213,0,249,0.6);padding:2px 6px;border-radius:2px;font-family:JetBrains Mono;color:white;">LEGENDARY</div></div>
+          <div class="nft-info"><div class="nft-name">🇺🇸 USA VICTOR</div><div class="nft-price">◎ 2.4 SOL</div></div>
+        </div>
+        <div class="nft-card">
+          <div class="nft-img">🇯🇵<div style="position:absolute;bottom:6px;right:6px;font-size:10px;background:rgba(0,229,255,0.6);padding:2px 6px;border-radius:2px;font-family:JetBrains Mono;color:white;">EPIC</div></div>
+          <div class="nft-info"><div class="nft-name">🇯🇵 JAPAN VICTOR</div><div class="nft-price">◎ 1.1 SOL</div></div>
+        </div>
+        <div class="nft-card">
+          <div class="nft-img">🇩🇪<div style="position:absolute;bottom:6px;right:6px;font-size:10px;background:rgba(245,197,24,0.7);padding:2px 6px;border-radius:2px;font-family:JetBrains Mono;color:black;">RARE</div></div>
+          <div class="nft-info"><div class="nft-name">🇩🇪 GERMANY VICTOR</div><div class="nft-price">◎ 0.7 SOL</div></div>
+        </div>
+        <div class="nft-card">
+          <div class="nft-img">🇧🇷<div style="position:absolute;bottom:6px;right:6px;font-size:10px;background:rgba(0,230,118,0.6);padding:2px 6px;border-radius:2px;font-family:JetBrains Mono;color:white;">UNCOMMON</div></div>
+          <div class="nft-info"><div class="nft-name">🇧🇷 BRAZIL VICTOR</div><div class="nft-price">◎ 0.3 SOL</div></div>
+        </div>
+        <div class="nft-card">
+          <div class="nft-img">🇫🇷</div>
+          <div class="nft-info"><div class="nft-name">🇫🇷 FRANCE VICTOR</div><div class="nft-price">◎ 0.5 SOL</div></div>
+        </div>
+        <div class="nft-card">
+          <div class="nft-img">🇦🇺</div>
+          <div class="nft-info"><div class="nft-name">🇦🇺 AUSTRALIA VICTOR</div><div class="nft-price">◎ 0.2 SOL</div></div>
+        </div>
+        <div class="nft-card">
+          <div class="nft-img" style="background:linear-gradient(135deg,var(--bg3),rgba(213,0,249,0.1))">🏆<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;font-family:JetBrains Mono;color:var(--purple);letter-spacing:2px;padding-top:80px;">SEASON PASS</div></div>
+          <div class="nft-info"><div class="nft-name">⚑ SEASON 1 PASS</div><div class="nft-price">◎ 5.0 SOL</div></div>
+        </div>
+      </div>
+
+      <div style="margin-top:30px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:28px;">
+        <h3 style="font-family:'Bebas Neue',cursive;font-size:24px;letter-spacing:2px;color:var(--purple);margin-bottom:16px;">🖼️ NFT Rarity Tiers</h3>
+        <table class="tiers-table">
+          <thead><tr><th>Tier</th><th>Trigger</th><th>Bonus Effect</th><th>Floor Price</th></tr></thead>
+          <tbody>
+            <tr><td>🟤 Common</td><td>Survive 5+ rounds</td><td>+1% jackpot on next win</td><td class="gold">0.05 SOL</td></tr>
+            <tr><td>🟢 Uncommon</td><td>Last 10 territories</td><td>+3% jackpot on next win</td><td class="gold">0.2 SOL</td></tr>
+            <tr><td>🔵 Rare</td><td>Last 5 territories</td><td>+5% jackpot + Shield Token</td><td class="gold">0.5 SOL</td></tr>
+            <tr><td>🟣 Epic</td><td>Last 2 territories</td><td>+10% jackpot + Custom map skin</td><td class="gold">1.0 SOL</td></tr>
+            <tr><td>🟡 Legendary</td><td>WINNER</td><td>Governance token + DAO seat</td><td class="green">2.0+ SOL</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- JACKPOT POOL TAB -->
+    <div class="tab-content" id="tab-pool">
+      <div class="pool-display">
+        <div class="pool-label">⚑ Live Jackpot Pool</div>
+        <div class="pool-amount" id="poolAmt">$138,420</div>
+        <div style="font-size:14px;color:var(--muted);font-family:'JetBrains Mono',monospace;">97% of $142,700 total collected</div>
+        <div class="pool-crypto">
+          <span class="pool-coin btc">₿ 1.423 BTC</span>
+          <span class="pool-coin eth">Ξ 22.4 ETH</span>
+          <span class="pool-coin usdt">₮ 48,200 USDT</span>
+          <span class="pool-coin sol">◎ 280 SOL</span>
+        </div>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-top:30px;">
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:24px;">
+          <h3 style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--gold);margin-bottom:16px;">📊 Pool Growth (Last 24h)</h3>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#5a7a8a;line-height:2.2;">
+            <div style="display:flex;justify-content:space-between;"><span>Deposits</span><span style="color:var(--green)">+$14,200</span></div>
+            <div style="display:flex;justify-content:space-between;"><span>Territory trades</span><span style="color:var(--green)">+$3,100</span></div>
+            <div style="display:flex;justify-content:space-between;"><span>Power-ups sold</span><span style="color:var(--green)">+$890</span></div>
+            <div style="display:flex;justify-content:space-between;border-top:1px solid var(--border);padding-top:6px;margin-top:4px;"><span style="color:var(--text)">Net Pool Growth</span><span style="color:var(--gold);font-size:16px;">+$18,190</span></div>
+          </div>
+        </div>
+        <div style="background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:24px;">
+          <h3 style="font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--gold);margin-bottom:16px;">🏠 House Revenue (24h)</h3>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:#5a7a8a;line-height:2.2;">
+            <div style="display:flex;justify-content:space-between;"><span>3% on deposits</span><span style="color:var(--amber)">+$426</span></div>
+            <div style="display:flex;justify-content:space-between;"><span>3% on trades</span><span style="color:var(--amber)">+$93</span></div>
+            <div style="display:flex;justify-content:space-between;"><span>Power-up sales</span><span style="color:var(--amber)">+$890</span></div>
+            <div style="display:flex;justify-content:space-between;"><span>NFT royalties (5%)</span><span style="color:var(--amber)">+$210</span></div>
+            <div style="display:flex;justify-content:space-between;border-top:1px solid var(--border);padding-top:6px;margin-top:4px;"><span style="color:var(--text)">Total House Revenue</span><span style="color:var(--amber);font-size:16px;">$1,619</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PLAY NOW -->
+<section id="play">
+  <div class="container">
+    <div class="section-eyebrow">// onboarding.exe</div>
+    <h2 class="section-title">READY TO <span class="accent">PLAY?</span></h2>
+    <div class="play-layout">
+      <div>
+        <p class="section-lead" style="margin-bottom:40px;">Five minutes from zero to owning your first territory. Here's exactly what to do.</p>
+        <div class="play-steps">
+          <div class="play-step">
+            <div class="play-step-num">1</div>
+            <div class="play-step-content">
+              <h4>Create Your Account</h4>
+              <p>Sign up with email or connect your <strong>MetaMask / Phantom wallet</strong> directly. No KYC required under $2,000 lifetime deposits.</p>
+            </div>
+          </div>
+          <div class="play-step">
+            <div class="play-step-num">2</div>
+            <div class="play-step-content">
+              <h4>Make Your First Deposit</h4>
+              <p>Choose your crypto, send to your unique address, and receive <strong>Flag Credits + 20% bonus</strong> within minutes.</p>
+            </div>
+          </div>
+          <div class="play-step">
+            <div class="play-step-num">3</div>
+            <div class="play-step-content">
+              <h4>Claim Your First Territory</h4>
+              <p>Open the live map. Pick a country you believe in. Pay <strong>10 FC</strong>. Watch it glow on the map. You're in the game.</p>
+            </div>
+          </div>
+          <div class="play-step">
+            <div class="play-step-num">4</div>
+            <div class="play-step-content">
+              <h4>Watch. Trade. Survive.</h4>
+              <p>Monitor the countdown. Buy more territories to hedge. <strong>Sell before elimination</strong> if you smell danger. Use Peek to get the edge.</p>
+            </div>
+          </div>
+          <div class="play-step">
+            <div class="play-step-num">5</div>
+            <div class="play-step-content">
+              <h4>Win &amp; Withdraw in Crypto</h4>
+              <p>When the last flag stands — if it's yours — the smart contract pays you <strong>automatically in 60 seconds</strong>. Choose your crypto. Done.</p>
+            </div>
+          </div>
+        </div>
+        <div class="warning-box">
+          ⚠️ <strong>Play Responsibly.</strong> This is a game of chance. Only deposit what you can afford to lose. Last Flag Standing uses provably fair randomness — no outcome can be predicted or manipulated. If you feel you may have a gambling problem, please seek help at <strong>begambleaware.org</strong>.
+        </div>
+      </div>
+      <div>
+        <div style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:30px;margin-bottom:20px;">
+          <h3 style="font-family:'Bebas Neue',cursive;font-size:24px;letter-spacing:2px;margin-bottom:20px;">💰 Entry Tiers</h3>
+          <table class="tiers-table">
+            <thead><tr><th>Tier</th><th>Entry</th><th>Territories</th><th>Extras</th></tr></thead>
+            <tbody>
+              <tr><td>🌱 Scout</td><td class="gold">10 FC</td><td>1</td><td>—</td></tr>
+              <tr><td>⚔️ Soldier</td><td class="gold">50 FC</td><td>5</td><td>+5% FC bonus</td></tr>
+              <tr><td>🎖️ Commander</td><td class="gold">100 FC</td><td>10</td><td>+1 Shield</td></tr>
+              <tr><td>🏰 General</td><td class="gold">250 FC</td><td>25</td><td>+3 Shields + Peek</td></tr>
+              <tr><td>👑 Emperor</td><td class="gold">1000 FC</td><td>100</td><td>VIP + DAO Token</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="background:linear-gradient(135deg, rgba(245,197,24,0.08), rgba(255,153,0,0.05));border:1px solid rgba(245,197,24,0.25);border-radius:6px;padding:30px;text-align:center;">
+          <div style="font-family:'Bebas Neue',cursive;font-size:18px;letter-spacing:3px;color:var(--gold);margin-bottom:6px;">⚑ A GAME IS LIVE RIGHT NOW</div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--muted);margin-bottom:20px;">Round 4/15 · 142 territories remaining · $138K jackpot</div>
+          <button class="btn-hero-primary" style="width:100%;font-size:22px;padding:18px;" onclick="showToast('🚀 Redirecting to game...', 'green')">⚡ JOIN THE CURRENT GAME</button>
+          <div style="margin-top:14px;font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;">Next game starts in: <span id="nextGame" style="color:var(--gold)">02:14:38</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="f-logo">
+    <svg viewBox="0 0 50 50" width="44" height="44" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="25,2 46,14 46,36 25,48 4,36 4,14" fill="none" stroke="#f5c518" stroke-width="1.5" opacity="0.8"/>
+      <polygon points="25,2 46,14 46,36 25,48 4,36 4,14" fill="none" stroke="#f5c518" stroke-width="0.5" stroke-dasharray="2 4" opacity="0.2" transform="scale(1.12) translate(-2.7,-2.7)"/>
+      <rect x="16" y="10" width="2.5" height="30" rx="1.25" fill="#f5c518"/>
+      <path d="M18.5,12 L38,18 L35,26 L18.5,20 Z" fill="#f5c518"/>
+      <circle cx="25" cy="2"  r="1.5" fill="#f5c518" opacity="0.7"/>
+      <circle cx="46" cy="14" r="1.5" fill="#f5c518" opacity="0.7"/>
+      <circle cx="46" cy="36" r="1.5" fill="#f5c518" opacity="0.7"/>
+      <circle cx="25" cy="48" r="1.5" fill="#f5c518" opacity="0.7"/>
+      <circle cx="4"  cy="36" r="1.5" fill="#f5c518" opacity="0.7"/>
+      <circle cx="4"  cy="14" r="1.5" fill="#f5c518" opacity="0.7"/>
+    </svg>
+    <div style="font-size:22px;font-weight:900;font-family:'Arial Black',sans-serif;background:linear-gradient(135deg,#fff9d6,#f5c518,#e09000);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;letter-spacing:-0.5px;">FLAG</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:4px;color:rgba(106,138,154,0.6);text-transform:uppercase;">Last · Standing</div>
+  </div>
+  <div style="margin-bottom:10px;">The World's First Real-Time Elimination Lottery · Powered by Blockchain</div>
+  <div style="display:flex;gap:30px;justify-content:center;margin-bottom:16px;flex-wrap:wrap;">
+    <a href="#" style="color:var(--muted);text-decoration:none;">Terms of Service</a>
+    <a href="#" style="color:var(--muted);text-decoration:none;">Privacy Policy</a>
+    <a href="#" style="color:var(--muted);text-decoration:none;">Provably Fair</a>
+    <a href="#" style="color:var(--muted);text-decoration:none;">Responsible Gaming</a>
+    <a href="#" style="color:var(--muted);text-decoration:none;">Smart Contract Audit</a>
+  </div>
+  <div style="font-size:10px;color:rgba(58,96,112,0.5);">© 2026 LAST FLAG STANDING · All rights reserved · 18+ Only · Play Responsibly</div>
+</footer>
+
+<!-- TOAST -->
+<div class="toast" id="toastEl"></div>
+
+<script>
+// ── TABS ──
+function switchTab(tab) {
+  document.querySelectorAll('.ctab').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+}
+
+// ── COIN SELECT ──
+let selectedCoin = { name: 'BTC', icon: '₿', rate: '0.00031' };
+
+function selectCoin(el, name, icon, rate) {
+  document.querySelectorAll('.coin-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  selectedCoin = { name, icon, rate };
+
+  const addrs = {
+    BTC:  'bc1qxy2kgdygjrsqtzq2n0yrf2493p83kkfjhx0wlh',
+    ETH:  '0x71C7656EC7ab88b098defB751B7401B5f6d8976F',
+    SOL:  '7xKXtg2CW87d97TXJSDpbD5jBkheTqA83TZRuJosgAsU',
+    USDT: '0x71C7656EC7ab88b098defB751B7401B5f6d8976F',
+    BNB:  'bnb136ns6lfw4zs5hg4n85vdthaad7hq5m4gtkgf23'
+  };
+
+  const nets = {
+    BTC:  'Bitcoin (BTC) — Mainnet',
+    ETH:  'Ethereum (ETH) — ERC-20',
+    SOL:  'Solana (SOL) — Mainnet',
+    USDT: 'Tether (USDT) — ERC-20',
+    BNB:  'BNB Smart Chain — BEP-20'
+  };
+
+  document.getElementById('walletCoin').textContent = nets[name];
+  document.getElementById('walletAddr').innerHTML = addrs[name] + `<button class="copy-btn" onclick="copyAddr()">COPY</button>`;
+  generateQR(name);
+  updateDeposit();
+}
+
+// ── QR GENERATOR (visual fake) ──
+function generateQR(seed) {
+  const inner = document.getElementById('qrInner');
+  let html = '';
+  let hash = 0;
+  for (let c of seed) hash = ((hash << 5) - hash) + c.charCodeAt(0);
+  for (let i = 0; i < 49; i++) {
+    const r = (hash >> i) & 1;
+    const corner = (i < 7 && (Math.floor(i / 7) < 1 || i % 7 < 1)) || (i > 41 && i % 7 > 5);
+    html += `<div class="qr-cell" style="background:${(r || corner) ? '#111' : 'white'}"></div>`;
+  }
+  inner.innerHTML = html;
+}
+
+generateQR('BTC');
+
+// ── DEPOSIT CALC ──
+const rates = { BTC: 0.000031, ETH: 0.00041, SOL: 0.068, USDT: 1, BNB: 0.0016 };
+
+function updateDeposit() {
+  const amt = parseFloat(document.getElementById('depositAmt').value) || 0;
+  const r = rates[selectedCoin.name] || 0.000031;
+  const crypto = (amt * r).toFixed(6);
+  const fc = Math.floor(amt * 1.2);
+  const territs = Math.floor(fc / 10);
+
+  document.getElementById('dsSend').textContent = `${crypto} ${selectedCoin.name}`;
+  document.getElementById('dsReceive').textContent = `${fc} FC`;
+  document.getElementById('dsTerrits').textContent = `${territs} territories`;
+}
+
+function setAmt(val) {
+  document.querySelectorAll('.amount-pill').forEach(p => p.classList.remove('active'));
+  event.target.classList.add('active');
+  document.getElementById('depositAmt').value = val;
+  updateDeposit();
+}
+
+// ── COPY ADDR ──
+function copyAddr() {
+  const addr = document.getElementById('walletAddr').textContent.trim().replace('COPY', '').trim();
+  navigator.clipboard.writeText(addr).catch(() => {});
+  showToast('📋 Address copied to clipboard!', 'cyan');
+}
+
+// ── SIMULATE DEPOSIT ──
+function simulateDeposit() {
+  const amt = parseFloat(document.getElementById('depositAmt').value) || 100;
+  const fc = Math.floor(amt * 1.2);
+  showToast(`⚡ Deposit initiated! ${fc} FC will be credited after confirmation.`, 'gold');
+  setTimeout(() => showToast('✅ Confirmed! Your FC balance has been updated.', 'green'), 3000);
+}
+
+// ── NOTIF STACK ──
+const notifQ = []; let notifRunning = false;
+
+function pushNotif(title, type, body) {
+  notifQ.push({ title, type, body });
+  if (!notifRunning) runNotif();
+}
+
+function runNotif() {
+  if (!notifQ.length) { notifRunning = false; return; }
+  notifRunning = true;
+  const { title, type, body } = notifQ.shift();
+  const stack = document.getElementById('notifStack');
+  const n = document.createElement('div');
+  n.className = `notif type-${type}`;
+  n.innerHTML = `<div class="notif-title">${title}</div>${body ? `<div class="notif-body">${body}</div>` : ''}`;
+  stack.prepend(n);
+  requestAnimationFrame(() => requestAnimationFrame(() => n.classList.add('show')));
+  setTimeout(() => {
+    n.classList.remove('show');
+    setTimeout(() => n.remove(), 400);
+    setTimeout(runNotif, 200);
+  }, 3800);
+}
+
+// Backwards-compatible wrapper
+function showToast(msg, color = 'green') {
+  const map = { green: 'green', gold: 'gold', cyan: 'gold', red: 'red', amber: 'ember' };
+  pushNotif(msg, map[color] || 'gold', '');
+}
+
+// ── ELIM FLASH ──
+function triggerElimFlash() {
+  const f = document.getElementById('elimFlash');
+  f.classList.add('pop');
+  setTimeout(() => f.classList.remove('pop'), 450);
+}
+
+// ── SCROLL ──
+function scrollTo(selector) {
+  document.querySelector(selector)?.scrollIntoView({ behavior: 'smooth' });
+}
+
+// ── INTERSECTION OBSERVER ──
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('.step, .addiction-feature').forEach(el => observer.observe(el));
+
+// ── LIVE COUNTERS ──
+let jackpot = 138420;
+let players = 2847;
+
+setInterval(() => {
+  jackpot += Math.floor(Math.random() * 5);
+  players += Math.random() > 0.5 ? 1 : 0;
+  document.getElementById('liveJackpot').textContent = '$' + (jackpot >= 1000 ? Math.round(jackpot / 1000) + 'K' : jackpot);
+  document.getElementById('livePlayers').textContent = players.toLocaleString();
+  const poolEl = document.getElementById('poolAmt');
+  if (poolEl) poolEl.textContent = '$' + jackpot.toLocaleString();
+}, 2000);
+
+// ── NEXT GAME COUNTDOWN ──
+let nextGameSecs = 2 * 3600 + 14 * 60 + 38;
+setInterval(() => {
+  nextGameSecs--;
+  if (nextGameSecs < 0) nextGameSecs = 3 * 3600;
+  const h = String(Math.floor(nextGameSecs / 3600)).padStart(2, '0');
+  const m = String(Math.floor((nextGameSecs % 3600) / 60)).padStart(2, '0');
+  const s = String(nextGameSecs % 60).padStart(2, '0');
+  const el = document.getElementById('nextGame');
+  if (el) el.textContent = `${h}:${m}:${s}`;
+}, 1000);
+
+// ── STREAK GLOW ANIMATION ──
+setInterval(() => {
+  const el = document.getElementById('streakNum');
+  if (el) el.style.textShadow = `0 0 ${30 + Math.sin(Date.now() / 500) * 10}px rgba(255,153,0,0.4)`;
+}, 100);
+
+// ── XP ANIMATION ──
+let xp = 4200, xpMax = 5000;
+setInterval(() => {
+  xp = Math.min(xp + Math.floor(Math.random() * 3), xpMax);
+  const fill = document.getElementById('xpFill');
+  const val = document.getElementById('xpVal');
+  if (fill) fill.style.width = (xp / xpMax * 100) + '%';
+  if (val) val.textContent = xp.toLocaleString() + ' / ' + xpMax.toLocaleString();
+}, 3000);
+
+// ── PARTICLE SYSTEM ──
+(function() {
+  const c = document.getElementById('heroParticles');
+  if (!c) return;
+  for (let i = 0; i < 40; i++) {
+    const p = document.createElement('div');
+    p.className = 'particle';
+    const size = Math.random() * 3 + 1;
+    p.style.cssText = `width:${size}px;height:${size}px;left:${Math.random() * 100}%;bottom:${Math.random() * 20}%;--dur:${4 + Math.random() * 8}s;--delay:${Math.random() * 8}s;`;
+    c.appendChild(p);
+  }
+})();
+
+// ── PHASE TIMELINE CYCLING ──
+let phaseIdx = 0;
+const phaseIds = ['ph1','ph2','ph3','ph4','ph5','ph6'];
+setInterval(() => {
+  document.querySelectorAll('.phase').forEach(p => p.classList.remove('phase-active'));
+  phaseIdx = (phaseIdx + 1) % 6;
+  const el = document.getElementById(phaseIds[phaseIdx]);
+  if (el) el.classList.add('phase-active');
+}, 2800);
+
+// ── LIVE ACTIVITY SIMULATION ──
+const actMsgs = [
+  { t: '\uD83D\uDD14 NightHunter99 bought \uD83C\uDDE9\uD83C\uDDEA Germany', type: 'gold', b: '14 players now holding Germany' },
+  { t: '\uD83D\uDCB0 QueenOfFlags sold \uD83C\uDDEB\uD83C\uDDF7 France — 12.4 FC', type: 'gold', b: 'Smart move before the lock window' },
+  { t: '\uD83D\uDD0D CryptoWarlord purchased Intel', type: 'gold', b: 'Eyes are on Japan this round' },
+  { t: '\uD83D\uDC51 AlphaPlay joined Iron Council', type: 'green', b: 'Alliance now has 8 active members' },
+  { t: '\u26A1 New player entered · jackpot +$9.70', type: 'green', b: 'Round 4 live — 142 territories remaining' },
+  { t: '\uD83D\uDC80 \uD83C\uDDE8\uD83C\uDDFA Cuba ELIMINATED', type: 'red', b: 'Round 5 begins — 141 territories remain' },
+];
+let actIdx = 0;
+setInterval(() => {
+  const m = actMsgs[actIdx % actMsgs.length];
+  pushNotif(m.t, m.type, m.b);
+  if (m.type === 'red') triggerElimFlash();
+  actIdx++;
+}, 7000);
+setTimeout(() => pushNotif('\u2691 LIVE GAME — ROUND 4', 'gold', '$138,420 jackpot · 142 territories remaining'), 1500);
+</script>
+
+<!-- Wallet JS -->
+<script src="/wallet.js"></script>
+<script>
+// Hamburger menu toggle
+const ham = document.getElementById('navHamburger');
+const navEl = document.querySelector('nav');
+if (ham && navEl) {
+  ham.addEventListener('click', () => navEl.classList.toggle('nav-open'));
+  document.addEventListener('click', e => {
+    if (!navEl.contains(e.target)) navEl.classList.remove('nav-open');
+  });
+}
+
+// Wire wallet UI in hub
+document.addEventListener('wallet:connected', e => {
+  const addr = e.detail && e.detail.address ? e.detail.address : '';
+  const short = addr ? addr.slice(0,6)+'...'+addr.slice(-4) : '';
+  const addrEl = document.getElementById('navWalletAddr');
+  const btn = document.getElementById('navConnectBtn');
+  const mAddr = document.getElementById('mobileWalletAddr');
+  const mBar = document.getElementById('mobileWalletBar');
+  if (addrEl) { addrEl.textContent = short; addrEl.style.display = 'inline'; }
+  if (btn) { btn.textContent = 'SIGN IN'; }
+  if (mAddr) mAddr.textContent = short;
+  if (mBar) mBar.style.display = 'flex';
+});
+document.addEventListener('wallet:signedIn', e => {
+  const btn = document.getElementById('navConnectBtn');
+  const mBtn = document.getElementById('mobileConnectBtn');
+  const mRank = document.getElementById('mobileWalletRank');
+  if (btn) { btn.textContent = 'PLAY'; btn.onclick = () => location.href='play.html'; }
+  if (mBtn) { mBtn.textContent = 'PLAY'; mBtn.onclick = () => location.href='play.html'; }
+  if (mRank && e.detail && e.detail.rank) mRank.textContent = e.detail.rank;
+});
+</script>
+</body>
+</html>

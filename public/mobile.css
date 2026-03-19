@@ -1,0 +1,238 @@
+/**
+ * mobile.css — Last Flag Standing
+ * Shared mobile-responsive overrides for all pages.
+ * Include AFTER the page's own <style> block or primary stylesheet.
+ *
+ * Breakpoints:
+ *   1200px — large tablet / small laptop
+ *    900px — tablet (iPad)
+ *    600px — large phone
+ *    400px — small phone
+ */
+
+/* ── NAVIGATION ─────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  nav {
+    padding: 0 16px !important;
+    height: 52px !important;
+  }
+  .nav-links {
+    display: none !important;
+  }
+  /* Hamburger reveal — toggle .nav-open on <nav> via JS */
+  nav.nav-open .nav-links {
+    display: flex !important;
+    flex-direction: column;
+    position: fixed;
+    top: 52px;
+    left: 0; right: 0;
+    background: rgba(3, 8, 12, 0.98);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 24px 24px;
+    gap: 16px;
+    z-index: 600;
+  }
+  .nav-hamburger {
+    display: flex !important;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+    padding: 6px;
+  }
+  .nav-hamburger span {
+    display: block;
+    width: 22px;
+    height: 1.5px;
+    background: var(--muted);
+    transition: all 0.2s;
+  }
+}
+@media (min-width: 901px) {
+  .nav-hamburger { display: none !important; }
+}
+
+/* ── WALLET CONNECT BUTTON ───────────────────────────────────── */
+.wallet-connect-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  margin: 0 16px 16px;
+}
+.wallet-connect-bar .wc-address {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  color: var(--green);
+}
+.wallet-connect-bar .wc-rank {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  color: var(--muted);
+  letter-spacing: 2px;
+}
+.btn-wallet {
+  background: linear-gradient(90deg, var(--gold), var(--amber));
+  color: #000 !important;
+  border: none;
+  padding: 8px 18px;
+  font-family: 'Bebas Neue', cursive;
+  font-size: 14px;
+  letter-spacing: 2px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: filter 0.2s;
+  white-space: nowrap;
+}
+.btn-wallet:hover { filter: brightness(1.15); }
+.btn-wallet:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.btn-wallet-sm {
+  font-size: 11px;
+  padding: 5px 12px;
+}
+
+/* ── HERO SECTIONS ───────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .hero-title,
+  .banner-title {
+    font-size: clamp(36px, 10vw, 72px) !important;
+  }
+  .hero-cta-group {
+    flex-direction: column;
+    align-items: center;
+  }
+  .hero-cta-group a,
+  .hero-cta-group button {
+    width: 100%;
+    max-width: 320px;
+    text-align: center;
+  }
+  .page-banner {
+    padding: 70px 16px 40px !important;
+  }
+}
+
+/* ── GRID LAYOUTS ────────────────────────────────────────────── */
+@media (max-width: 1200px) {
+  .addiction-grid { grid-template-columns: 1fr !important; }
+  .addiction-visual { position: static !important; top: auto !important; }
+}
+
+@media (max-width: 900px) {
+  /* features.html */
+  .addiction-grid { grid-template-columns: 1fr !important; }
+
+  /* hub.html stats row */
+  .live-stats-grid {
+    grid-template-columns: 1fr 1fr !important;
+    gap: 10px !important;
+  }
+
+  /* hub.html how-section */
+  .how-steps { grid-template-columns: 1fr !important; }
+
+  /* Hub game panels */
+  .game-panels { grid-template-columns: 1fr !important; }
+
+  /* Season pass grid */
+  [style*="grid-template-columns: 1fr 1fr"] {
+    grid-template-columns: 1fr !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .live-stats-grid {
+    grid-template-columns: 1fr !important;
+  }
+  .container { padding: 0 12px !important; }
+  section { padding: 60px 0 !important; }
+  .section-title { font-size: clamp(32px, 9vw, 56px) !important; }
+  .section-lead { font-size: 15px !important; }
+
+  /* Features rank table */
+  .rank-table { font-size: 11px !important; }
+  .rank-table th, .rank-table td { padding: 8px 6px !important; }
+
+  /* Streak calendar */
+  .sc-day { width: 14px !important; height: 14px !important; }
+}
+
+/* ── PLAY PAGE ───────────────────────────────────────────────── */
+@media (max-width: 900px) {
+  .play-layout {
+    flex-direction: column !important;
+  }
+  .map-sidebar {
+    width: 100% !important;
+    max-width: none !important;
+    border-left: none !important;
+    border-top: 1px solid var(--border) !important;
+  }
+  .territory-map {
+    height: 50vw !important;
+    min-height: 240px !important;
+  }
+}
+
+/* ── HUB PAGE ────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  .hub-jackpot-value {
+    font-size: clamp(48px, 15vw, 96px) !important;
+  }
+  .phase-timeline {
+    overflow-x: auto;
+    flex-wrap: nowrap !important;
+    padding-bottom: 8px;
+  }
+  .phase-step { min-width: 100px; }
+}
+
+/* ── MARKET / ORDER BOOK ─────────────────────────────────────── */
+@media (max-width: 900px) {
+  .market-layout { grid-template-columns: 1fr !important; }
+}
+
+/* ── FOOTER ──────────────────────────────────────────────────── */
+@media (max-width: 600px) {
+  footer { padding: 28px 16px !important; }
+  footer [style*="display:flex;gap:30px"] {
+    flex-direction: column;
+    gap: 12px !important;
+    align-items: center;
+  }
+}
+
+/* ── UTILITIES ───────────────────────────────────────────────── */
+.mobile-only { display: none !important; }
+@media (max-width: 900px) {
+  .mobile-only   { display: block !important; }
+  .desktop-only  { display: none !important; }
+}
+
+/* Prevent horizontal scroll globally */
+html { overflow-x: hidden; }
+
+/* Better tap targets on mobile */
+@media (max-width: 900px) {
+  button, a, [role="button"] {
+    min-height: 36px;
+  }
+}
+
+/* ── TOAST STACK (mobile) ────────────────────────────────────── */
+@media (max-width: 600px) {
+  .notif-stack {
+    right: 8px !important;
+    left: 8px !important;
+    bottom: 16px !important;
+  }
+  .notif-item {
+    min-width: unset !important;
+    width: 100% !important;
+  }
+}

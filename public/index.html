@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LAST FLAG STANDING</title>
+<link href="https://fonts.googleapis.com/css2?family=Black+Ops+One&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #050a0e; --bg2: #0a1520; --bg3: #0f1e2e; --panel: #071015;
+    --gold: #f0b429; --gold2: #ffd700; --red: #ff3a3a; --green: #00ff88;
+    --blue: #00b4ff; --cyan: #00ffe0; --text: #c8dde8; --muted: #4a6a7a;
+    --border: #1a3a50; --elim: #ff2020; --safe: #00cc66;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:'Rajdhani',sans-serif; min-height:100vh; overflow-x:hidden; }
+  body::before { content:''; position:fixed; inset:0; background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,180,255,0.015) 2px,rgba(0,180,255,0.015) 4px); pointer-events:none; z-index:9999; }
+
+  /* ── HEADER ── */
+  .header { display:flex; align-items:center; justify-content:space-between; padding:16px 28px; background:linear-gradient(180deg,rgba(0,180,255,0.07) 0%,transparent 100%); border-bottom:1px solid var(--border); position:sticky; top:0; z-index:100; backdrop-filter:blur(10px); }
+  .logo { font-family:'Black Ops One',cursive; font-size:22px; letter-spacing:3px; background:linear-gradient(90deg,var(--gold),var(--gold2),var(--gold)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; animation:shimmer 3s infinite; }
+  @keyframes shimmer { 0%,100%{ filter:brightness(1); } 50%{ filter:brightness(1.3); } }
+  .header-stats { display:flex; gap:28px; align-items:center; }
+  .hstat { text-align:center; }
+  .hstat-label { font-size:10px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; }
+  .hstat-val { font-family:'Share Tech Mono',monospace; font-size:18px; color:var(--gold); line-height:1.1; }
+  .hstat-val.green { color:var(--green); } .hstat-val.blue { color:var(--blue); }
+  .pulse-dot { display:inline-block; width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 8px var(--green); animation:pulse 1.5s infinite; margin-right:6px; vertical-align:middle; }
+  @keyframes pulse { 0%,100%{ opacity:1; transform:scale(1); } 50%{ opacity:0.5; transform:scale(0.7); } }
+
+  /* ── LAYOUT ── */
+  .main { display:grid; grid-template-columns:280px 1fr 300px; height:calc(100vh - 65px); }
+  .panel { background:var(--panel); border-right:1px solid var(--border); display:flex; flex-direction:column; overflow:hidden; }
+  .panel-title { font-family:'Black Ops One',cursive; font-size:11px; letter-spacing:3px; color:var(--muted); padding:14px 18px 10px; border-bottom:1px solid var(--border); text-transform:uppercase; }
+
+  /* ── LEFT PANEL ── */
+  .territory-list { overflow-y:auto; flex:1; padding:10px; }
+  .territory-card { background:var(--bg3); border:1px solid var(--border); border-radius:6px; padding:12px; margin-bottom:8px; cursor:pointer; transition:all 0.2s; position:relative; overflow:hidden; }
+  .territory-card::before { content:''; position:absolute; left:0; top:0; bottom:0; width:3px; background:var(--safe); }
+  .territory-card.at-risk::before { background:var(--gold); }
+  .territory-card.eliminated::before { background:var(--elim); }
+  .territory-card:hover { border-color:var(--blue); transform:translateX(2px); }
+  .tc-top { display:flex; justify-content:space-between; align-items:center; margin-bottom:6px; }
+  .tc-flag { font-size:20px; } .tc-name { font-weight:700; font-size:14px; flex:1; margin-left:8px; }
+  .tc-badge { font-size:10px; padding:2px 7px; border-radius:10px; font-family:'Share Tech Mono',monospace; letter-spacing:1px; }
+  .badge-safe { background:rgba(0,204,102,0.15); color:var(--safe); border:1px solid rgba(0,204,102,0.3); }
+  .badge-risk { background:rgba(240,180,41,0.15); color:var(--gold); border:1px solid rgba(240,180,41,0.3); }
+  .badge-elim { background:rgba(255,50,50,0.15); color:var(--elim); border:1px solid rgba(255,50,50,0.3); }
+  .tc-meta { display:flex; justify-content:space-between; font-size:11px; color:var(--muted); font-family:'Share Tech Mono',monospace; }
+  .tc-actions { display:flex; gap:6px; margin-top:8px; }
+  .btn-sm { flex:1; padding:5px 0; font-family:'Rajdhani',sans-serif; font-size:11px; font-weight:700; letter-spacing:1px; border:none; border-radius:4px; cursor:pointer; transition:all 0.15s; text-transform:uppercase; }
+  .btn-sell { background:rgba(240,180,41,0.15); color:var(--gold); border:1px solid rgba(240,180,41,0.4); }
+  .btn-sell:hover { background:rgba(240,180,41,0.3); }
+  .btn-peek { background:rgba(0,180,255,0.1); color:var(--blue); border:1px solid rgba(0,180,255,0.3); }
+  .btn-peek:hover { background:rgba(0,180,255,0.25); }
+  .buy-section { padding:12px; border-top:1px solid var(--border); background:var(--bg2); }
+  .buy-row { display:flex; gap:8px; align-items:center; }
+  .buy-select { flex:1; background:var(--bg3); border:1px solid var(--border); color:var(--text); padding:8px 10px; border-radius:4px; font-family:'Rajdhani',sans-serif; font-size:13px; font-weight:600; outline:none; cursor:pointer; }
+  .buy-select:focus { border-color:var(--blue); }
+  .btn-buy { background:linear-gradient(135deg,var(--gold),#e09000); color:#000; border:none; padding:8px 16px; font-family:'Black Ops One',cursive; font-size:12px; letter-spacing:1px; border-radius:4px; cursor:pointer; transition:all 0.15s; white-space:nowrap; }
+  .btn-buy:hover { filter:brightness(1.2); transform:scale(1.02); }
+  .balance-row { display:flex; justify-content:space-between; align-items:center; margin-bottom:8px; font-size:12px; }
+  .balance-label { color:var(--muted); letter-spacing:1px; text-transform:uppercase; }
+  .balance-val { font-family:'Share Tech Mono',monospace; color:var(--green); font-size:16px; }
+  .house-info { padding:10px 14px; border-top:1px solid var(--border); display:flex; justify-content:space-between; font-size:11px; color:var(--muted); font-family:'Share Tech Mono',monospace; background:var(--bg2); }
+  .house-cut { color:var(--gold); }
+
+  /* ── CENTER ── */
+  .center-panel { background:var(--bg); display:flex; flex-direction:column; overflow:hidden; }
+  .map-container { flex:1; position:relative; overflow:hidden; }
+  #worldMap { width:100%; height:100%; }
+  .elim-ticker { background:rgba(255,30,30,0.08); border-top:1px solid rgba(255,30,30,0.3); border-bottom:1px solid rgba(255,30,30,0.3); padding:6px 0; overflow:hidden; height:32px; flex-shrink:0; }
+  .ticker-inner { display:flex; gap:60px; white-space:nowrap; animation:ticker 30s linear infinite; font-family:'Share Tech Mono',monospace; font-size:12px; color:var(--elim); padding:0 20px; line-height:20px; }
+  @keyframes ticker { 0%{ transform:translateX(0); } 100%{ transform:translateX(-50%); } }
+  .countdown-bar { padding:10px 20px; background:var(--bg2); border-bottom:1px solid var(--border); display:flex; align-items:center; gap:20px; }
+  .countdown-label { font-size:11px; letter-spacing:2px; color:var(--muted); text-transform:uppercase; flex-shrink:0; }
+  .countdown-clock { font-family:'Share Tech Mono',monospace; font-size:28px; color:var(--cyan); letter-spacing:4px; text-shadow:0 0 20px rgba(0,255,224,0.4); flex-shrink:0; }
+  .countdown-clock.danger { color:var(--red); text-shadow:0 0 20px rgba(255,50,50,0.5); animation:blink 0.5s infinite; }
+  @keyframes blink { 50%{ opacity:0.5; } }
+  .progress-track { flex:1; height:6px; background:var(--bg3); border-radius:3px; overflow:hidden; border:1px solid var(--border); }
+  .progress-fill { height:100%; background:linear-gradient(90deg,var(--cyan),var(--blue)); border-radius:3px; transition:width 1s linear; box-shadow:0 0 10px rgba(0,180,255,0.4); }
+  .next-elim-hint { font-size:12px; font-family:'Share Tech Mono',monospace; color:var(--muted); flex-shrink:0; }
+  .round-info { display:flex; gap:16px; padding:10px 20px; background:var(--bg2); border-bottom:1px solid var(--border); }
+  .ri-item { font-size:12px; font-family:'Share Tech Mono',monospace; }
+  .ri-label { color:var(--muted); margin-right:6px; }
+  .ri-val { color:var(--text); } .ri-val.warn { color:var(--gold); } .ri-val.good { color:var(--green); }
+
+  /* ── RIGHT PANEL ── */
+  .right-panel { border-left:1px solid var(--border); border-right:none; display:flex; flex-direction:column; }
+  .jackpot-display { padding:20px; text-align:center; background:radial-gradient(ellipse at 50% 0%,rgba(240,180,41,0.12) 0%,transparent 70%); border-bottom:1px solid var(--border); }
+  .jackpot-label { font-family:'Black Ops One',cursive; font-size:11px; letter-spacing:4px; color:var(--gold); opacity:0.7; margin-bottom:4px; }
+  .jackpot-amount { font-family:'Black Ops One',cursive; font-size:36px; background:linear-gradient(180deg,#fff7c0,var(--gold2),#e09000); -webkit-background-clip:text; -webkit-text-fill-color:transparent; line-height:1; margin-bottom:4px; animation:goldPulse 2s infinite; }
+  @keyframes goldPulse { 0%,100%{ filter:brightness(1); } 50%{ filter:brightness(1.2); } }
+  .jackpot-sub { font-size:11px; color:var(--muted); font-family:'Share Tech Mono',monospace; }
+  .leaderboard { flex:1; overflow-y:auto; padding:8px; }
+  .lb-item { display:flex; align-items:center; padding:8px 10px; border-radius:5px; margin-bottom:4px; transition:background 0.2s; border:1px solid transparent; }
+  .lb-item:hover { background:var(--bg3); border-color:var(--border); }
+  .lb-item.is-you { background:rgba(0,180,255,0.08); border-color:rgba(0,180,255,0.25); }
+  .lb-rank { font-family:'Share Tech Mono',monospace; font-size:13px; color:var(--muted); width:24px; flex-shrink:0; }
+  .lb-rank.gold { color:var(--gold2); } .lb-rank.silver { color:#aaa; } .lb-rank.bronze { color:#cd7f32; }
+  .lb-flags { flex:1; font-size:14px; margin:0 8px; letter-spacing:2px; }
+  .lb-name { font-size:13px; font-weight:600; flex:1; margin:0 6px; }
+  .lb-terr { font-family:'Share Tech Mono',monospace; font-size:12px; color:var(--blue); width:20px; text-align:right; }
+  .activity-feed { height:180px; overflow-y:auto; padding:8px 12px; border-top:1px solid var(--border); background:var(--bg2); }
+  .activity-item { font-size:12px; font-family:'Share Tech Mono',monospace; padding:4px 0; border-bottom:1px solid rgba(26,58,80,0.5); line-height:1.5; opacity:0; animation:fadeIn 0.4s forwards; }
+  @keyframes fadeIn { to{ opacity:1; } }
+  .act-time { color:var(--muted); margin-right:6px; }
+  .act-elim { color:var(--elim); } .act-buy { color:var(--green); } .act-sell { color:var(--gold); } .act-peek { color:var(--blue); } .act-join { color:var(--cyan); }
+
+  /* ── TOOLTIP ── */
+  .map-tooltip { position:fixed; background:var(--bg3); border:1px solid var(--border); border-radius:6px; padding:10px 14px; font-size:13px; pointer-events:none; z-index:1000; display:none; box-shadow:0 4px 20px rgba(0,0,0,0.6); min-width:160px; }
+  .tooltip-name { font-weight:700; font-size:15px; margin-bottom:4px; }
+  .tooltip-row { display:flex; justify-content:space-between; gap:20px; font-size:12px; color:var(--muted); }
+  .tooltip-val { color:var(--text); font-family:'Share Tech Mono',monospace; }
+
+  /* ── MODAL ── */
+  .modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.85); display:none; align-items:center; justify-content:center; z-index:2000; backdrop-filter:blur(4px); }
+  .modal-overlay.active { display:flex; }
+  .modal { background:var(--bg2); border:1px solid var(--border); border-radius:10px; padding:30px; max-width:420px; width:90%; position:relative; box-shadow:0 0 60px rgba(0,180,255,0.1); }
+  .modal h2 { font-family:'Black Ops One',cursive; font-size:20px; letter-spacing:2px; margin-bottom:16px; color:var(--gold); }
+  .modal p { font-size:14px; line-height:1.6; color:var(--text); margin-bottom:16px; }
+  .modal-close { position:absolute; top:14px; right:16px; background:none; border:none; color:var(--muted); font-size:22px; cursor:pointer; }
+  .modal-close:hover { color:var(--text); }
+  .modal-actions { display:flex; gap:10px; margin-top:20px; }
+  .btn-primary { flex:1; padding:12px; background:linear-gradient(135deg,var(--gold),#c07800); color:#000; border:none; border-radius:5px; font-family:'Black Ops One',cursive; font-size:14px; letter-spacing:1px; cursor:pointer; transition:all 0.15s; }
+  .btn-primary:hover { filter:brightness(1.15); }
+  .btn-cancel { padding:12px 20px; background:transparent; color:var(--muted); border:1px solid var(--border); border-radius:5px; font-family:'Rajdhani',sans-serif; font-weight:700; font-size:14px; cursor:pointer; }
+  .btn-cancel:hover { color:var(--text); border-color:var(--text); }
+  .peek-result { background:rgba(0,180,255,0.08); border:1px solid rgba(0,180,255,0.3); border-radius:6px; padding:14px; margin-top:12px; font-family:'Share Tech Mono',monospace; font-size:13px; display:none; }
+  .peek-result.show { display:block; }
+  .peek-territory { font-size:22px; text-align:center; margin:6px 0; color:var(--elim); }
+
+  /* ── NOTIFICATION ── */
+  .notification { position:fixed; top:80px; right:20px; background:var(--bg2); border-radius:8px; padding:14px 20px; font-size:14px; font-weight:600; z-index:3000; transform:translateX(400px); transition:transform 0.3s ease; max-width:320px; box-shadow:0 4px 20px rgba(0,0,0,0.5); }
+  .notification.show { transform:translateX(0); }
+  .notification.type-elim { border-left:4px solid var(--elim); }
+  .notification.type-buy  { border-left:4px solid var(--green); }
+  .notification.type-sell { border-left:4px solid var(--gold); }
+  .notification.type-peek { border-left:4px solid var(--blue); }
+  .notification.type-win  { border-left:4px solid var(--gold2); }
+
+  /* ── MISC ── */
+  .elim-flash { position:fixed; inset:0; background:rgba(255,0,0,0.12); pointer-events:none; z-index:5000; opacity:0; transition:opacity 0.1s; }
+  .elim-flash.active { opacity:1; }
+  ::-webkit-scrollbar { width:4px; }
+  ::-webkit-scrollbar-track { background:var(--bg); }
+  ::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+  ::-webkit-scrollbar-thumb:hover { background:var(--muted); }
+
+  /* ── NAME ENTRY SCREEN ── */
+  .name-screen { position:fixed; inset:0; background:var(--bg); display:flex; align-items:center; justify-content:center; z-index:10000; flex-direction:column; gap:20px; }
+  .name-screen h1 { font-family:'Black Ops One',cursive; font-size:42px; background:linear-gradient(90deg,var(--gold),var(--gold2)); -webkit-background-clip:text; -webkit-text-fill-color:transparent; letter-spacing:4px; text-align:center; }
+  .name-screen p { color:var(--muted); font-size:16px; letter-spacing:1px; text-align:center; max-width:400px; line-height:1.6; }
+  .name-input { background:var(--bg3); border:1px solid var(--border); color:var(--text); padding:14px 20px; font-family:'Rajdhani',sans-serif; font-size:18px; font-weight:600; border-radius:6px; outline:none; width:320px; text-align:center; }
+  .name-input:focus { border-color:var(--blue); }
+  .btn-enter { background:linear-gradient(135deg,var(--gold),#c07800); color:#000; border:none; padding:14px 40px; font-family:'Black Ops One',cursive; font-size:16px; letter-spacing:2px; border-radius:6px; cursor:pointer; transition:all 0.2s; }
+  .btn-enter:hover { filter:brightness(1.15); transform:scale(1.03); }
+</style>
+</head>
+<body>
+
+<!-- NAME ENTRY -->
+<div class="name-screen" id="nameScreen">
+  <h1>⚑ LAST FLAG<br>STANDING</h1>
+  <p>The World's First Real-Time Elimination Lottery.<br>Claim territories. Survive eliminations. Win the jackpot.</p>
+  <input class="name-input" id="nameInput" placeholder="Enter your player name" maxlength="20" />
+  <button class="btn-enter" onclick="enterGame()">ENTER THE ARENA</button>
+</div>
+
+<div class="elim-flash" id="elimFlash"></div>
+
+<div class="map-tooltip" id="mapTooltip">
+  <div class="tooltip-name" id="ttName"></div>
+  <div class="tooltip-row"><span>Players</span><span class="tooltip-val" id="ttPlayers"></span></div>
+  <div class="tooltip-row"><span>Status</span><span class="tooltip-val" id="ttStatus"></span></div>
+  <div class="tooltip-row"><span>Entry Price</span><span class="tooltip-val" id="ttPrice"></span></div>
+</div>
+
+<!-- HEADER -->
+<div class="header">
+  <div class="logo">⚑ LAST FLAG STANDING</div>
+  <div class="header-stats">
+    <div class="hstat"><div class="hstat-label">Round</div><div class="hstat-val blue" id="hRound">—</div></div>
+    <div class="hstat"><div class="hstat-label">Players</div><div class="hstat-val" id="hPlayers">—</div></div>
+    <div class="hstat"><div class="hstat-label">Territories Left</div><div class="hstat-val green" id="hTerr">—</div></div>
+    <div class="hstat"><div class="hstat-label">Status</div><div class="hstat-val"><span class="pulse-dot"></span><span id="connStatus">CONNECTING</span></div></div>
+  </div>
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="main">
+
+  <!-- LEFT -->
+  <div class="panel left-panel">
+    <div class="panel-title">⚑ My Territories</div>
+    <div class="territory-list" id="myTerrList"><div style="padding:20px;color:var(--muted);text-align:center;font-size:13px;">Connecting to server…</div></div>
+    <div class="buy-section">
+      <div class="balance-row">
+        <span class="balance-label">Balance</span>
+        <span class="balance-val" id="userBalance">$—</span>
+      </div>
+      <div class="buy-row">
+        <select class="buy-select" id="buySelect"></select>
+        <button class="btn-buy" onclick="buyTerritory()">BUY $10</button>
+      </div>
+    </div>
+    <div class="house-info">
+      <span>House cut: <span class="house-cut" id="houseCutPct">3%</span></span>
+      <span>Total earned: <span class="house-cut" id="houseEarned">$—</span></span>
+    </div>
+  </div>
+
+  <!-- CENTER -->
+  <div class="center-panel">
+    <div class="elim-ticker"><div class="ticker-inner" id="tickerInner"></div></div>
+    <div class="countdown-bar">
+      <span class="countdown-label">Next Elimination</span>
+      <div class="countdown-clock" id="countdown">--:--</div>
+      <div class="progress-track"><div class="progress-fill" id="progressFill" style="width:100%"></div></div>
+      <div class="next-elim-hint" id="nextHint">?? unknown</div>
+    </div>
+    <div class="round-info">
+      <div class="ri-item"><span class="ri-label">ELIM:</span><span class="ri-val warn" id="riElim">0</span></div>
+      <div class="ri-item"><span class="ri-label">SAFE:</span><span class="ri-val good" id="riSafe">—</span></div>
+      <div class="ri-item"><span class="ri-label">ENTRY:</span><span class="ri-val">$10 / territory</span></div>
+    </div>
+    <div class="map-container"><canvas id="worldMap"></canvas></div>
+  </div>
+
+  <!-- RIGHT -->
+  <div class="panel right-panel">
+    <div class="jackpot-display">
+      <div class="jackpot-label">🏆 Current Jackpot</div>
+      <div class="jackpot-amount" id="jackpotAmt">$—</div>
+      <div class="jackpot-sub">97% of total pool · 3% house cut</div>
+    </div>
+    <div class="panel-title">🏅 Leaderboard</div>
+    <div class="leaderboard" id="leaderboard"></div>
+    <div class="panel-title" style="border-top:1px solid var(--border)">📡 Live Activity</div>
+    <div class="activity-feed" id="activityFeed"></div>
+  </div>
+
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h2 id="modalTitle">Confirm Action</h2>
+    <p id="modalBody"></p>
+    <div class="peek-result" id="peekResult">
+      <div style="text-align:center;font-size:11px;color:var(--muted);margin-bottom:4px;">INSIDER INTEL: NEXT ELIMINATION</div>
+      <div class="peek-territory" id="peekTerritory"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn-primary" id="modalConfirm">CONFIRM</button>
+      <button class="btn-cancel" onclick="closeModal()">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<div class="notification" id="notification"></div>
+
+<!-- Socket.io client (served by the server) -->
+<script src="/socket.io/socket.io.js"></script>
+<script>
+// ─── CLIENT STATE ────────────────────────────────────────
+let myId       = null;
+let myTerrs    = new Set();
+let myBalance  = 0;
+let allTerrs   = {};   // id -> territory object
+let peekCost   = 25;
+let totalTime  = 60;
+let pendingAction = null;
+let socket     = null;
+let playerName = '';
+
+// ─── NAME ENTRY ──────────────────────────────────────────
+document.getElementById('nameInput').addEventListener('keydown', e => {
+  if(e.key === 'Enter') enterGame();
+});
+
+function enterGame() {
+  playerName = document.getElementById('nameInput').value.trim() || 'Wanderer';
+  document.getElementById('nameScreen').style.display = 'none';
+  initSocket();
+}
+
+// ─── SOCKET INIT ─────────────────────────────────────────
+function initSocket() {
+  socket = io();
+
+  socket.on('connect', () => {
+    document.getElementById('connStatus').textContent = 'LIVE';
+    socket.emit('join', { name: playerName });
+  });
+
+  socket.on('disconnect', () => {
+    document.getElementById('connStatus').textContent = 'OFFLINE';
+  });
+
+  // Full snapshot on first join
+  socket.on('init', data => {
+    applyFullState(data);
+  });
+
+  // Partial state updates after buy/sell/elimination
+  socket.on('state_update', data => {
+    applyStateUpdate(data);
+  });
+
+  // Every-second tick
+  socket.on('tick', ({ countdown, jackpot, totalPlayers }) => {
+    applyTick(countdown, jackpot, totalPlayers);
+  });
+
+  // New activity entry from any player
+  socket.on('activity', entry => {
+    renderActivity(entry.msg, entry.type);
+  });
+
+  // Alert: one of MY territories was just eliminated
+  socket.on('territory_lost', ({ id, name, flag }) => {
+    myTerrs.delete(id);
+    flashScreen();
+    notify(`💀 ${flag} ${name} was eliminated!`, 'type-elim');
+    renderMyTerritories();
+  });
+
+  // Game over
+  socket.on('game_over', ({ winner, jackpot }) => {
+    const isMe = winner === playerName;
+    notify(isMe
+      ? `🏆 YOU WON $${jackpot.toFixed(2)}!`
+      : `🏁 ${winner} won the jackpot of $${jackpot.toFixed(2)}`,
+      'type-win');
+  });
+
+  // Buy response
+  socket.on('buy_result', res => {
+    if(!res.ok) { notify('❌ ' + res.error, 'type-elim'); return; }
+    myBalance = res.balance;
+    renderBalance();
+    closeModal();
+  });
+
+  // Sell response
+  socket.on('sell_result', res => {
+    if(!res.ok) { notify('❌ ' + res.error, 'type-elim'); return; }
+    myBalance = res.balance;
+    renderBalance();
+    closeModal();
+  });
+
+  // Peek response
+  socket.on('peek_result', res => {
+    if(!res.ok) { notify('❌ ' + res.error, 'type-elim'); return; }
+    myBalance = res.balance;
+    renderBalance();
+    if(res.hint) {
+      document.getElementById('peekTerritory').textContent = `${res.hint.flag} ${res.hint.name}`;
+      document.getElementById('peekResult').classList.add('show');
+      document.getElementById('modalConfirm').style.display = 'none';
+    }
+  });
+}
+
+// ─── STATE APPLIERS ──────────────────────────────────────
+function applyFullState(data) {
+  // Player data
+  if(data.player) {
+    myId      = data.player.id;
+    myBalance = data.player.balance;
+    myTerrs   = new Set(data.player.territories);
+  }
+  peekCost  = data.peekCost  || 25;
+  totalTime = 60;
+
+  // Territories
+  allTerrs = {};
+  (data.territories || []).forEach(t => { allTerrs[t.id] = t; });
+
+  renderBalance();
+  renderMyTerritories();
+  renderBuySelect();
+  renderLeaderboard(data.leaderboard || []);
+  renderTicker(data.eliminatedIds || []);
+  updateHeader(data);
+  applyTick(data.countdown, data.jackpot, data.totalPlayers);
+  drawMap();
+
+  // Seed activity log
+  (data.activityLog || []).slice(-8).forEach(e => renderActivity(e.msg, e.type));
+  document.getElementById('houseEarned').textContent = '$' + Math.round(data.houseTotal || 0).toLocaleString();
+}
+
+function applyStateUpdate(data) {
+  if(data.territories) {
+    data.territories.forEach(t => { allTerrs[t.id] = t; });
+  }
+  if(data.leaderboard)   renderLeaderboard(data.leaderboard);
+  if(data.eliminatedIds) renderTicker(data.eliminatedIds);
+  updateHeader(data);
+  renderMyTerritories();
+  renderBuySelect();
+  drawMap();
+  if(data.houseTotal !== undefined) {
+    document.getElementById('houseEarned').textContent = '$' + Math.round(data.houseTotal).toLocaleString();
+  }
+}
+
+function applyTick(countdown, jackpot, totalPlayers) {
+  const pct = Math.round((countdown / totalTime) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  const mm = String(Math.floor(countdown / 60)).padStart(2, '0');
+  const ss = String(countdown % 60).padStart(2, '0');
+  const el = document.getElementById('countdown');
+  el.textContent = `${mm}:${ss}`;
+  el.className = 'countdown-clock' + (countdown < 10 ? ' danger' : '');
+  document.getElementById('jackpotAmt').textContent = '$' + Math.round(jackpot || 0).toLocaleString();
+  if(totalPlayers !== undefined) document.getElementById('hPlayers').textContent = totalPlayers.toLocaleString();
+}
+
+function updateHeader(data) {
+  if(data.round     !== undefined) document.getElementById('hRound').textContent = data.round;
+  if(data.totalPlayers !== undefined) document.getElementById('hPlayers').textContent = data.totalPlayers.toLocaleString();
+  const active = Object.values(allTerrs).filter(t => t.status !== 'eliminated').length;
+  const elim   = Object.values(allTerrs).filter(t => t.status === 'eliminated').length;
+  document.getElementById('hTerr').textContent  = active;
+  document.getElementById('riSafe').textContent = active;
+  document.getElementById('riElim').textContent = elim;
+}
+
+// ─── CANVAS MAP ──────────────────────────────────────────
+const canvas = document.getElementById('worldMap');
+const ctx    = canvas.getContext('2d');
+
+function resizeCanvas() {
+  canvas.width  = canvas.parentElement.offsetWidth;
+  canvas.height = canvas.parentElement.offsetHeight;
+  drawMap();
+}
+
+function hashCode(str) {
+  let h = 5381;
+  for(let i = 0; i < str.length; i++) h = ((h << 5) + h) + str.charCodeAt(i);
+  return Math.abs(h);
+}
+
+function drawMap() {
+  const W = canvas.width, H = canvas.height;
+  if(!W || !H) return;
+  ctx.clearRect(0, 0, W, H);
+
+  // grid
+  ctx.strokeStyle = 'rgba(26,58,80,0.3)'; ctx.lineWidth = 0.5;
+  for(let x = 0; x < W; x += 40){ ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,H); ctx.stroke(); }
+  for(let y = 0; y < H; y += 40){ ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(W,y); ctx.stroke(); }
+
+  const terrList = Object.values(allTerrs);
+  terrList.forEach(t => {
+    const seed = hashCode(t.id);
+    const x    = 50 + ((seed * 7919) % (W - 100));
+    const y    = 50 + ((seed * 6271) % (H - 100));
+    const r    = 8 + Math.min((t.playerCount || 1) * 1.5, 20);
+    t._x = x; t._y = y; t._r = r;
+
+    if(t.status === 'eliminated') {
+      ctx.beginPath(); ctx.arc(x, y, r * 0.6, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(80,0,0,0.3)'; ctx.fill();
+      ctx.strokeStyle = 'rgba(120,20,20,0.4)'; ctx.lineWidth = 1; ctx.stroke();
+      ctx.strokeStyle = 'rgba(180,30,30,0.6)'; ctx.lineWidth = 1.5;
+      ctx.beginPath(); ctx.moveTo(x-4,y-4); ctx.lineTo(x+4,y+4); ctx.stroke();
+      ctx.beginPath(); ctx.moveTo(x+4,y-4); ctx.lineTo(x-4,y+4); ctx.stroke();
+    } else {
+      const isMine = myTerrs.has(t.id);
+      if(isMine) {
+        const g = ctx.createRadialGradient(x,y,0,x,y,r*2);
+        g.addColorStop(0,'rgba(0,180,255,0.3)'); g.addColorStop(1,'transparent');
+        ctx.beginPath(); ctx.arc(x,y,r*2,0,Math.PI*2); ctx.fillStyle = g; ctx.fill();
+      }
+      ctx.beginPath(); ctx.arc(x,y,r,0,Math.PI*2);
+      ctx.fillStyle   = isMine ? 'rgba(0,100,200,0.4)' : 'rgba(0,50,80,0.6)';
+      ctx.strokeStyle = isMine ? '#00b4ff' : 'rgba(0,180,100,0.5)';
+      ctx.lineWidth   = isMine ? 2 : 1;
+      ctx.fill(); ctx.stroke();
+      ctx.font = `${Math.max(10, r * 0.9)}px serif`;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillStyle = 'white';
+      ctx.fillText(t.flag, x, y);
+    }
+  });
+
+  // lines between my territories
+  const myCoords = [...myTerrs]
+    .filter(id => allTerrs[id]?.status !== 'eliminated' && allTerrs[id]?._x)
+    .map(id => ({ x: allTerrs[id]._x, y: allTerrs[id]._y }));
+  for(let i = 0; i < myCoords.length; i++) {
+    for(let j = i+1; j < myCoords.length; j++) {
+      ctx.beginPath(); ctx.moveTo(myCoords[i].x, myCoords[i].y); ctx.lineTo(myCoords[j].x, myCoords[j].y);
+      ctx.strokeStyle = 'rgba(0,180,255,0.12)'; ctx.lineWidth = 1; ctx.setLineDash([4,4]); ctx.stroke(); ctx.setLineDash([]);
+    }
+  }
+
+  const active = terrList.filter(t => t.status !== 'eliminated').length;
+  const elim   = terrList.filter(t => t.status === 'eliminated').length;
+  ctx.font = '11px Rajdhani,sans-serif'; ctx.textAlign = 'left'; ctx.textBaseline = 'top';
+  ctx.fillStyle = 'rgba(74,106,122,0.8)';
+  ctx.fillText(`${active} territories active  |  ${elim} eliminated`, 14, H - 20);
+}
+
+canvas.addEventListener('mousemove', e => {
+  const rect = canvas.getBoundingClientRect();
+  const mx = e.clientX - rect.left, my = e.clientY - rect.top;
+  const tt = document.getElementById('mapTooltip');
+  let hit = null;
+  for(const t of Object.values(allTerrs)) {
+    if(!t._x) continue;
+    if(Math.hypot(mx - t._x, my - t._y) < (t._r || 12) + 4) { hit = t; break; }
+  }
+  if(hit) {
+    document.getElementById('ttName').textContent    = hit.flag + ' ' + hit.name;
+    document.getElementById('ttPlayers').textContent = hit.playerCount || '—';
+    document.getElementById('ttStatus').textContent  = hit.status === 'eliminated' ? '❌ ELIMINATED' : '✅ SAFE';
+    document.getElementById('ttPrice').textContent   = hit.status === 'eliminated' ? '—' : '$' + (hit.price || 10);
+    tt.style.display = 'block'; tt.style.left = (e.clientX+14)+'px'; tt.style.top = (e.clientY-20)+'px';
+  } else { tt.style.display = 'none'; }
+});
+canvas.addEventListener('mouseleave', () => { document.getElementById('mapTooltip').style.display = 'none'; });
+
+// ─── UI RENDERERS ────────────────────────────────────────
+function renderMyTerritories() {
+  const list = document.getElementById('myTerrList');
+  if(myTerrs.size === 0) {
+    list.innerHTML = '<div style="padding:20px;color:var(--muted);text-align:center;font-size:13px;">No territories owned.<br>Buy one below!</div>';
+    return;
+  }
+  list.innerHTML = [...myTerrs].map(id => {
+    const t = allTerrs[id]; if(!t) return '';
+    const isElim = t.status === 'eliminated';
+    const cardClass  = isElim ? 'eliminated' : '';
+    const badgeClass = isElim ? 'badge-elim' : 'badge-safe';
+    const badgeText  = isElim ? 'ELIMINATED' : 'SAFE';
+    return `
+    <div class="territory-card ${cardClass}">
+      <div class="tc-top">
+        <span class="tc-flag">${t.flag}</span>
+        <span class="tc-name">${t.name}</span>
+        <span class="tc-badge ${badgeClass}">${badgeText}</span>
+      </div>
+      <div class="tc-meta"><span>${t.playerCount || 1} players</span><span>Entry: $${t.price || 10}</span></div>
+      ${!isElim ? `
+      <div class="tc-actions">
+        <button class="btn-sm btn-sell" onclick="openSell('${id}')">SELL</button>
+        <button class="btn-sm btn-peek" onclick="openPeekModal()">PEEK $${peekCost}</button>
+      </div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+function renderBuySelect() {
+  const sel = document.getElementById('buySelect');
+  const available = Object.values(allTerrs)
+    .filter(t => !myTerrs.has(t.id) && t.status !== 'eliminated')
+    .slice(0, 80);
+  sel.innerHTML = available.map(t => `<option value="${t.id}">${t.flag} ${t.name}</option>`).join('');
+}
+
+function renderBalance() {
+  document.getElementById('userBalance').textContent = '$' + myBalance.toFixed(2);
+}
+
+function renderLeaderboard(lb) {
+  document.getElementById('leaderboard').innerHTML = lb.map((p, i) => {
+    const rankClass  = i===0?'gold':i===1?'silver':i===2?'bronze':'';
+    const rankLabel  = i===0?'🥇':i===1?'🥈':i===2?'🥉':`${i+1}`;
+    const isYou = p.id === myId;
+    return `
+    <div class="lb-item ${isYou?'is-you':''}">
+      <div class="lb-rank ${rankClass}">${rankLabel}</div>
+      <div class="lb-flags">${(p.flags||[]).slice(0,3).join('')}</div>
+      <div class="lb-name">${isYou?'<span style="color:var(--blue)">▶ YOU</span>':p.name}</div>
+      <div class="lb-terr">${p.territories}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderTicker(elimIds) {
+  const inner = document.getElementById('tickerInner');
+  const msgs  = (elimIds || []).map(id => {
+    const t = allTerrs[id];
+    return t ? `💀 ${t.flag} ${t.name} ELIMINATED` : '';
+  }).filter(Boolean);
+  if(msgs.length === 0) return;
+  const doubled = [...msgs, ...msgs];
+  inner.innerHTML = doubled.map(m => `<span>${m}</span>`).join('');
+}
+
+function renderActivity(msg, type) {
+  const feed = document.getElementById('activityFeed');
+  const div  = document.createElement('div');
+  div.className = 'activity-item';
+  const now = new Date();
+  const ts  = `${now.getHours().toString().padStart(2,'0')}:${now.getMinutes().toString().padStart(2,'0')}:${now.getSeconds().toString().padStart(2,'0')}`;
+  const cls = type === 'elim' ? 'act-elim' : type === 'buy' ? 'act-buy' : type === 'sell' ? 'act-sell' : type === 'peek' ? 'act-peek' : 'act-join';
+  div.innerHTML = `<span class="act-time">${ts}</span><span class="${cls}">${msg}</span>`;
+  feed.insertBefore(div, feed.firstChild);
+  while(feed.children.length > 40) feed.removeChild(feed.lastChild);
+}
+
+// ─── ACTIONS ─────────────────────────────────────────────
+function buyTerritory() {
+  const id = document.getElementById('buySelect').value;
+  if(!id || !socket) return;
+  const t = allTerrs[id];
+  if(!t) return;
+  pendingAction = { type: 'buy', id };
+  openModal('Confirm Purchase',
+    `Buy <strong>${t.flag} ${t.name}</strong> for <strong style="color:var(--gold)">$${t.price||10}</strong>?<br><br>
+     <strong>${t.playerCount||1} players</strong> currently hold this territory.<br>
+     House takes 3% of all prize pools.`);
+}
+
+function openSell(id) {
+  const t = allTerrs[id]; if(!t) return;
+  const sp = ((t.price||10) * 0.97).toFixed(2);
+  pendingAction = { type: 'sell', id };
+  openModal('Sell Territory',
+    `Sell <strong>${t.flag} ${t.name}</strong>?<br><br>
+     You'll receive <strong style="color:var(--green)">$${sp}</strong> (3% house cut applied).`);
+}
+
+function openPeekModal() {
+  if(!socket) return;
+  pendingAction = { type: 'peek' };
+  openModal('Buy Insider Intel',
+    `Pay <strong style="color:var(--blue)">$${peekCost}</strong> to see which territory will be eliminated NEXT.<br><br>
+     This is information only — it does not change the outcome.`);
+}
+
+function confirmAction() {
+  if(!pendingAction || !socket) return;
+  const { type, id } = pendingAction;
+  if(type === 'buy')  socket.emit('buy',  { territoryId: id });
+  if(type === 'sell') socket.emit('sell', { territoryId: id });
+  if(type === 'peek') socket.emit('peek');
+  if(type !== 'peek') pendingAction = null;
+}
+
+// ─── MODAL / NOTIFY ──────────────────────────────────────
+function openModal(title, body) {
+  document.getElementById('modalTitle').textContent  = title;
+  document.getElementById('modalBody').innerHTML      = body;
+  document.getElementById('peekResult').classList.remove('show');
+  document.getElementById('modalConfirm').style.display = '';
+  document.getElementById('modalOverlay').classList.add('active');
+  document.getElementById('modalConfirm').onclick = confirmAction;
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('active');
+  pendingAction = null;
+}
+
+let notifTimer = null;
+function notify(msg, type) {
+  const n = document.getElementById('notification');
+  n.textContent = msg;
+  n.className = `notification ${type} show`;
+  clearTimeout(notifTimer);
+  notifTimer = setTimeout(() => n.classList.remove('show'), 3500);
+}
+
+function flashScreen() {
+  const f = document.getElementById('elimFlash');
+  f.classList.add('active');
+  setTimeout(() => f.classList.remove('active'), 300);
+}
+
+// ─── INIT ─────────────────────────────────────────────────
+window.addEventListener('resize', resizeCanvas);
+</script>
+</body>
+</html>

@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Rules — Last Flag Standing</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#03080c;--bg2:#060f18;--bg3:#0a1a26;--gold:#f5c518;--gold2:#ffdf00;--amber:#ff9900;--red:#ff2d2d;--green:#00e676;--cyan:#00e5ff;--purple:#d500f9;--text:#d0e8f5;--muted:#3a6070;--border:#122030;}
+*{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Barlow Condensed',sans-serif;overflow-x:hidden;cursor:crosshair;}
+body *{cursor:crosshair;}a,button,select,input,label{cursor:pointer !important;}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:0.5;}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,229,255,0.012) 3px,rgba(0,229,255,0.012) 4px);pointer-events:none;z-index:9998;}
+nav{position:fixed;top:0;left:0;right:0;z-index:500;display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:60px;background:rgba(3,8,12,0.92);border-bottom:1px solid var(--border);backdrop-filter:blur(20px);}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.nav-logo-text{text-align:left;line-height:1;}
+.nav-logo-sub{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:4px;color:#6a8a9a;text-transform:uppercase;margin-bottom:2px;}
+.nav-logo-flag{font-size:20px;font-weight:900;font-family:'Arial Black','Impact',sans-serif;background:linear-gradient(135deg,#fff9d6,#f5c518,#e09000);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;letter-spacing:-0.5px;}
+.nav-links{display:flex;gap:28px;list-style:none;}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;transition:color 0.2s;}
+.nav-links a:hover{color:var(--cyan);}
+.nav-links a.active-page{color:var(--gold);}
+.nav-cta{background:linear-gradient(90deg,var(--gold),var(--amber));color:#000 !important;padding:8px 20px;border-radius:2px;font-size:12px !important;letter-spacing:2px !important;font-weight:900 !important;transition:filter 0.2s !important;}
+.nav-cta:hover{filter:brightness(1.2);color:#000 !important;}
+.page-banner{min-height:55vh;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:80px 40px 60px;text-align:center;}
+.banner-bg{position:absolute;inset:0;background:radial-gradient(ellipse 70% 50% at 50% 40%,rgba(255,45,45,0.06) 0%,transparent 70%),radial-gradient(ellipse 40% 30% at 20% 70%,rgba(245,197,24,0.04) 0%,transparent 60%);}
+.banner-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(18,32,48,0.4) 1px,transparent 1px),linear-gradient(90deg,rgba(18,32,48,0.4) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse at center,black 20%,transparent 80%);}
+.banner-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:5px;color:var(--red);opacity:0.8;margin-bottom:16px;animation:fadeUp 0.8s 0.1s both;}
+.banner-title{font-family:'Bebas Neue',cursive;font-size:clamp(56px,10vw,120px);line-height:0.95;letter-spacing:4px;color:#fff;margin-bottom:20px;animation:fadeUp 0.8s 0.3s both;}
+.banner-title .red{color:var(--red);}
+.banner-desc{font-size:18px;font-weight:300;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:36px;animation:fadeUp 0.8s 0.5s both;max-width:600px;}
+.banner-nav{display:flex;gap:12px;justify-content:center;animation:fadeUp 0.8s 0.7s both;}
+.btn-back{background:transparent;border:1px solid var(--border);color:var(--muted);padding:10px 24px;font-family:'Bebas Neue',cursive;font-size:14px;letter-spacing:2px;border-radius:2px;text-decoration:none;transition:all 0.2s;}
+.btn-back:hover{border-color:var(--muted);color:var(--text);}
+.btn-next{background:linear-gradient(90deg,var(--gold),var(--amber));color:#000;padding:10px 24px;font-family:'Bebas Neue',cursive;font-size:14px;letter-spacing:2px;border-radius:2px;text-decoration:none;transition:filter 0.2s;}
+.btn-next:hover{filter:brightness(1.15);}
+section{padding:100px 0;position:relative;}
+.container{max-width:1100px;margin:0 auto;padding:0 40px;}
+.section-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:5px;color:var(--cyan);text-transform:uppercase;margin-bottom:10px;opacity:0.7;}
+.section-title{font-family:'Bebas Neue',cursive;font-size:clamp(44px,6vw,72px);letter-spacing:3px;line-height:1;margin-bottom:20px;}
+.section-title .accent{color:var(--gold);}
+.section-title .red{color:var(--red);}
+.section-lead{font-size:18px;font-weight:300;color:var(--muted);max-width:700px;line-height:1.6;margin-bottom:60px;}
+/* RULES */
+.rules-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;}
+.rule-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:28px 24px;position:relative;overflow:hidden;transition:all 0.3s;}
+.rule-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;opacity:0;transition:opacity 0.3s;}
+.rule-card:hover{border-color:rgba(245,197,24,0.3);transform:translateY(-3px);}
+.rule-card:hover::after{opacity:1;}
+.rule-card.gold::after{background:var(--gold);}
+.rule-card.cyan::after{background:var(--cyan);}
+.rule-card.red::after{background:var(--red);}
+.rule-card.green::after{background:var(--green);}
+.rule-card.purple::after{background:var(--purple);}
+.rule-card.amber::after{background:var(--amber);}
+.rule-icon{font-size:32px;margin-bottom:14px;}
+.rule-title{font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;margin-bottom:10px;}
+.rule-body{font-size:14px;line-height:1.7;color:#5a7a8a;}
+.rule-body strong{color:var(--text);}
+/* SMART CONTRACT */
+.contract-bar{display:grid;grid-template-columns:repeat(4,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:4px;overflow:hidden;margin-top:60px;}
+.cb-item{background:var(--bg2);padding:24px;text-align:center;}
+.cb-icon{font-size:28px;margin-bottom:8px;}
+.cb-val{font-family:'Bebas Neue',cursive;font-size:28px;color:var(--gold);margin-bottom:4px;}
+.cb-label{font-size:11px;letter-spacing:2px;color:var(--muted);text-transform:uppercase;}
+/* BREAKDOWN TABLE */
+.breakdown-table{width:100%;border-collapse:collapse;font-size:14px;}
+.breakdown-table th{font-family:'Bebas Neue',cursive;font-size:14px;letter-spacing:2px;text-align:left;color:var(--muted);border-bottom:1px solid var(--border);padding:10px 14px;}
+.breakdown-table td{padding:14px;border-bottom:1px solid rgba(18,32,48,0.6);font-family:'JetBrains Mono',monospace;font-size:13px;color:#6a8a9a;}
+.breakdown-table tr:hover td{background:rgba(245,197,24,0.03);color:var(--text);}
+.breakdown-table .gold{color:var(--gold);}
+.breakdown-table .green{color:var(--green);}
+.breakdown-table .red{color:var(--red);}
+/* FAIRNESS PROOF */
+.proof-box{background:var(--bg2);border:1px solid rgba(0,230,118,0.2);border-left:3px solid var(--green);border-radius:4px;padding:30px;margin-top:60px;}
+.proof-title{font-family:'Bebas Neue',cursive;font-size:28px;letter-spacing:2px;color:var(--green);margin-bottom:16px;}
+.proof-steps{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:20px;}
+.proof-step{background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:20px;text-align:center;}
+.proof-step-num{font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--green);margin-bottom:8px;}
+.proof-step-title{font-family:'Bebas Neue',cursive;font-size:18px;letter-spacing:1px;margin-bottom:8px;}
+.proof-step-body{font-size:13px;line-height:1.6;color:#5a7a8a;}
+footer{background:var(--bg);border-top:1px solid var(--border);padding:40px;text-align:center;font-size:12px;color:var(--muted);letter-spacing:2px;}
+footer .f-logo{display:flex;flex-direction:column;align-items:center;gap:6px;margin-bottom:16px;}
+.toast{position:fixed;bottom:30px;right:30px;background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:4px;padding:14px 20px;font-size:14px;font-weight:600;z-index:9000;transform:translateY(100px);opacity:0;transition:all 0.3s;max-width:300px;}
+.toast.show{transform:translateY(0);opacity:1;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:900px){.rules-grid{grid-template-columns:1fr 1fr;}.contract-bar{grid-template-columns:1fr 1fr;}.proof-steps{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="hub.html">
+    <svg viewBox="0 0 44 44" width="36" height="36" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="22,2 40,12 40,32 22,42 4,32 4,12" fill="#0a1820" stroke="#f5c518" stroke-width="1.5"/>
+      <polygon points="22,2 40,12 40,32 22,42 4,32 4,12" fill="none" stroke="#f5c518" stroke-width="0.5" stroke-dasharray="2 4" opacity="0.3" transform="scale(1.12) translate(-2.4,-2.4)"/>
+      <rect x="14" y="8" width="2" height="28" rx="1" fill="#f5c518"/>
+      <path d="M16,10 L34,15 L31,22 L16,17 Z" fill="#f5c518"/>
+      <circle cx="22" cy="2"  r="1.5" fill="#f5c518" opacity="0.6"/>
+      <circle cx="40" cy="12" r="1.5" fill="#f5c518" opacity="0.6"/>
+      <circle cx="40" cy="32" r="1.5" fill="#f5c518" opacity="0.6"/>
+      <circle cx="22" cy="42" r="1.5" fill="#f5c518" opacity="0.6"/>
+      <circle cx="4"  cy="32" r="1.5" fill="#f5c518" opacity="0.6"/>
+      <circle cx="4"  cy="12" r="1.5" fill="#f5c518" opacity="0.6"/>
+    </svg>
+    <div class="nav-logo-text">
+      <div class="nav-logo-sub">Last · Standing</div>
+      <div class="nav-logo-flag">FLAG</div>
+    </div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="story.html">Story</a></li>
+    <li><a href="how.html">How It Works</a></li>
+    <li><a href="rules.html" class="active-page">Rules</a></li>
+    <li><a href="features.html">Features</a></li>
+    <li><a href="crypto.html">Crypto</a></li>
+    <li><a href="play.html" class="nav-cta">PLAY NOW</a></li>
+  </ul>
+</nav>
+
+<section class="page-banner">
+  <div class="banner-bg"></div>
+  <div class="banner-grid"></div>
+  <div class="banner-eyebrow">// ruleset_v4.2.json — ENFORCED BY SMART CONTRACT</div>
+  <h1 class="banner-title">THE <span class="red">RULES</span></h1>
+  <p class="banner-desc">Clear, fair, unbreakable. Every rule is code — not policy.</p>
+  <div class="banner-nav">
+    <a href="how.html" class="btn-back">← HOW IT WORKS</a>
+    <a href="features.html" class="btn-next">NEXT: FEATURES →</a>
+  </div>
+</section>
+
+<!-- RULES GRID -->
+<section style="background:var(--bg);">
+  <div class="container">
+    <div class="section-eyebrow">// core_ruleset</div>
+    <h2 class="section-title">SIX <span class="accent">LAWS</span></h2>
+    <p class="section-lead">Clear, fair, unbreakable. Every rule is enforced by smart contract — no human interference possible.</p>
+    <div class="rules-grid">
+      <div class="rule-card gold">
+        <div class="rule-icon">🎯</div>
+        <div class="rule-title">Fair Elimination</div>
+        <div class="rule-body">Eliminations are determined by a <strong>Chainlink VRF</strong> (Verifiable Random Function). The result is provably random, publicly auditable, and impossible to manipulate — not even by us.</div>
+      </div>
+      <div class="rule-card cyan">
+        <div class="rule-icon">💎</div>
+        <div class="rule-title">Entry &amp; Buy-In</div>
+        <div class="rule-body">Each territory slot costs <strong>10 FC</strong>. Each territory has <strong>unlimited slots</strong>. Multiple players can hold the same country — they split any winnings proportionally if that territory is the last one.</div>
+      </div>
+      <div class="rule-card red">
+        <div class="rule-icon">☠️</div>
+        <div class="rule-title">No Refunds on Elimination</div>
+        <div class="rule-body">When your territory is eliminated, <strong>those credits are gone</strong>. This is the game. However — you can sell before elimination using the live market. Sell fast. Sell smart.</div>
+      </div>
+      <div class="rule-card green">
+        <div class="rule-icon">🔄</div>
+        <div class="rule-title">Trading Rules</div>
+        <div class="rule-body">Territories can be traded peer-to-peer at <strong>any price you set</strong>. The house takes a <strong>3% cut</strong> on every trade. You cannot trade after the countdown reaches <strong>5 minutes</strong> (lock period).</div>
+      </div>
+      <div class="rule-card purple">
+        <div class="rule-icon">🛡️</div>
+        <div class="rule-title">Shield Tokens</div>
+        <div class="rule-body">Shields can be earned through <strong>daily streaks, referrals, or purchased</strong>. One Shield protects one territory for one elimination round. <strong>Max 1 Shield per territory per round</strong>. Shields cannot be stacked.</div>
+      </div>
+      <div class="rule-card amber">
+        <div class="rule-icon">🏆</div>
+        <div class="rule-title">Jackpot Distribution</div>
+        <div class="rule-body">The final jackpot is <strong>97% of total pool</strong>. 3% is the permanent house cut. Winners receive payout in their <strong>preferred crypto</strong> within 60 seconds of game end, via smart contract auto-execution.</div>
+      </div>
+    </div>
+
+    <!-- SMART CONTRACT STATS -->
+    <div class="contract-bar">
+      <div class="cb-item">
+        <div class="cb-icon">🔗</div>
+        <div class="cb-val">100%</div>
+        <div class="cb-label">On-Chain Audited</div>
+      </div>
+      <div class="cb-item">
+        <div class="cb-icon">⚡</div>
+        <div class="cb-val">60s</div>
+        <div class="cb-label">Max Payout Time</div>
+      </div>
+      <div class="cb-item">
+        <div class="cb-icon">🎲</div>
+        <div class="cb-val">VRF</div>
+        <div class="cb-label">Chainlink Random</div>
+      </div>
+      <div class="cb-item">
+        <div class="cb-icon">🏠</div>
+        <div class="cb-val">3%</div>
+        <div class="cb-label">Max House Take</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COST BREAKDOWN -->
+<section style="background:var(--bg2);">
+  <div class="container">
+    <div class="section-eyebrow">// cost_structure.json</div>
+    <h2 class="section-title">COST <span class="accent">BREAKDOWN</span></h2>
+    <p class="section-lead">Every FC spent — and earned — is on-chain. Here's exactly where the money goes.</p>
+    <div style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:24px;">
+      <table class="breakdown-table">
+        <thead>
+          <tr><th>Action</th><th>FC Cost / Earn</th><th>House Cut</th><th>Pool Impact</th><th>On-Chain?</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Buy Territory Slot</td><td class="gold">−10 FC</td><td>3% (0.30 FC)</td><td class="green">+9.70 FC to pool</td><td class="green">Yes</td></tr>
+          <tr><td>Sell Territory</td><td class="gold">Market price</td><td>3% of sale</td><td>—</td><td class="green">Yes</td></tr>
+          <tr><td>Insider Intel (Peek)</td><td class="gold">−25 FC</td><td>100% (house)</td><td>—</td><td class="green">Yes</td></tr>
+          <tr><td>Shield Token (buy)</td><td class="gold">−50 FC</td><td>100% (house)</td><td>—</td><td class="green">Yes</td></tr>
+          <tr><td>Fog of War</td><td class="gold">−30 FC</td><td>100% (house)</td><td>—</td><td class="green">Yes</td></tr>
+          <tr><td>Daily Login Streak</td><td class="green">+5–100 FC</td><td>0%</td><td>—</td><td>Off-chain</td></tr>
+          <tr><td>Referral Bonus</td><td class="green">+10% of referee</td><td>0%</td><td>—</td><td class="green">Yes</td></tr>
+          <tr><td>Win Jackpot Share</td><td class="green">97% of pool</td><td>3%</td><td>Pool emptied</td><td class="green">Yes</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
+
+<!-- PROVABLY FAIR -->
+<section style="background:var(--bg);">
+  <div class="container">
+    <div class="section-eyebrow">// fairness_proof.sol</div>
+    <h2 class="section-title">PROVABLY <span class="accent">FAIR</span></h2>
+    <p class="section-lead">We can't manipulate the outcome. Neither can anyone else. Here's why.</p>
+    <div class="proof-box">
+      <div class="proof-title">🔗 Chainlink VRF Verification Process</div>
+      <p style="font-size:15px;line-height:1.7;color:#6a8a9a;margin-bottom:20px;">Every elimination follows a cryptographically verifiable 3-step process. Any player can verify any elimination on the blockchain — past, present, or future.</p>
+      <div class="proof-steps">
+        <div class="proof-step">
+          <div class="proof-step-num">STEP_01</div>
+          <div class="proof-step-title">Commit</div>
+          <div class="proof-step-body">Before each elimination, a <strong style="color:var(--text)">seed hash is committed</strong> to the blockchain. This locks the randomness input before any player can respond to it.</div>
+        </div>
+        <div class="proof-step">
+          <div class="proof-step-num">STEP_02</div>
+          <div class="proof-step-title">Reveal</div>
+          <div class="proof-step-body">At elimination time, the <strong style="color:var(--text)">seed is revealed</strong> and combined with Chainlink's VRF output. The result is a cryptographic proof that the selection was truly random.</div>
+        </div>
+        <div class="proof-step">
+          <div class="proof-step-num">STEP_03</div>
+          <div class="proof-step-title">Verify</div>
+          <div class="proof-step-body">Anyone can take the <strong style="color:var(--text)">commit + reveal + VRF proof</strong> and independently verify that the elimination result couldn't have been predicted or tampered with before the reveal.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="f-logo">
+    <svg viewBox="0 0 50 50" width="40" height="40" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="25,2 46,14 46,36 25,48 4,36 4,14" fill="none" stroke="#f5c518" stroke-width="1.5" opacity="0.8"/>
+      <rect x="16" y="10" width="2.5" height="30" rx="1.25" fill="#f5c518"/>
+      <path d="M18.5,12 L38,18 L35,26 L18.5,20 Z" fill="#f5c518"/>
+    </svg>
+    <div style="font-size:20px;font-weight:900;font-family:'Arial Black',sans-serif;background:linear-gradient(135deg,#fff9d6,#f5c518,#e09000);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;">FLAG</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:4px;color:rgba(106,138,154,0.6);text-transform:uppercase;">Last · Standing</div>
+  </div>
+  <div style="margin-bottom:10px;">The World's First Real-Time Elimination Lottery · Powered by Blockchain</div>
+  <div style="display:flex;gap:30px;justify-content:center;margin-bottom:16px;flex-wrap:wrap;">
+    <a href="#" style="color:var(--muted);text-decoration:none;">Terms of Service</a>
+    <a href="#" style="color:var(--muted);text-decoration:none;">Privacy Policy</a>
+    <a href="#" style="color:var(--muted);text-decoration:none;">Provably Fair</a>
+    <a href="#" style="color:var(--muted);text-decoration:none;">Responsible Gaming</a>
+  </div>
+  <div style="font-size:10px;color:rgba(58,96,112,0.5);">© 2026 LAST FLAG STANDING · All rights reserved · 18+ Only · Play Responsibly</div>
+</footer>
+<div class="toast" id="toastEl"></div>
+<script>
+function showToast(msg,color='green'){const colors={green:'var(--green)',gold:'var(--gold)',cyan:'var(--cyan)',red:'var(--red)'};const el=document.getElementById('toastEl');el.textContent=msg;el.style.borderLeftColor=colors[color]||colors.green;el.classList.add('show');clearTimeout(el._timeout);el._timeout=setTimeout(()=>el.classList.remove('show'),3500);}
+</script>
+</body>
+</html>

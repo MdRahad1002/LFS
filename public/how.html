@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How It Works — Last Flag Standing</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,300;0,400;0,600;0,700;0,900;1,700&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#03080c;--bg2:#060f18;--bg3:#0a1a26;--bg4:#0d2035;--gold:#f5c518;--gold2:#ffdf00;--amber:#ff9900;--red:#ff2d2d;--green:#00e676;--cyan:#00e5ff;--blue:#2979ff;--purple:#d500f9;--text:#d0e8f5;--muted:#3a6070;--border:#122030;}
+*{margin:0;padding:0;box-sizing:border-box;}html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Barlow Condensed',sans-serif;overflow-x:hidden;cursor:crosshair;}
+body *{cursor:crosshair;}a,button,select,input,label{cursor:pointer !important;}
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");pointer-events:none;z-index:9999;opacity:0.5;}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(0,229,255,0.012) 3px,rgba(0,229,255,0.012) 4px);pointer-events:none;z-index:9998;}
+nav{position:fixed;top:0;left:0;right:0;z-index:500;display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:60px;background:rgba(3,8,12,0.92);border-bottom:1px solid var(--border);backdrop-filter:blur(20px);}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;}
+.nav-logo-text{text-align:left;line-height:1;}
+.nav-logo-sub{font-family:'JetBrains Mono',monospace;font-size:8px;letter-spacing:4px;color:#6a8a9a;text-transform:uppercase;margin-bottom:2px;}
+.nav-logo-flag{font-size:20px;font-weight:900;font-family:'Arial Black','Impact',sans-serif;background:linear-gradient(135deg,#fff9d6,#f5c518,#e09000);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;letter-spacing:-0.5px;}
+.nav-links{display:flex;gap:28px;list-style:none;}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:13px;font-weight:700;letter-spacing:2px;text-transform:uppercase;transition:color 0.2s;}
+.nav-links a:hover{color:var(--cyan);}
+.nav-links a.active-page{color:var(--gold);}
+.nav-cta{background:linear-gradient(90deg,var(--gold),var(--amber));color:#000 !important;padding:8px 20px;border-radius:2px;font-size:12px !important;letter-spacing:2px !important;font-weight:900 !important;transition:filter 0.2s !important;}
+.nav-cta:hover{filter:brightness(1.2);color:#000 !important;}
+.page-banner{min-height:55vh;display:flex;flex-direction:column;align-items:center;justify-content:center;position:relative;overflow:hidden;padding:80px 40px 60px;text-align:center;}
+.banner-bg{position:absolute;inset:0;background:radial-gradient(ellipse 70% 50% at 50% 40%,rgba(0,229,255,0.06) 0%,transparent 70%),radial-gradient(ellipse 40% 30% at 80% 80%,rgba(245,197,24,0.04) 0%,transparent 60%);}
+.banner-grid{position:absolute;inset:0;background-image:linear-gradient(rgba(18,32,48,0.4) 1px,transparent 1px),linear-gradient(90deg,rgba(18,32,48,0.4) 1px,transparent 1px);background-size:60px 60px;mask-image:radial-gradient(ellipse at center,black 20%,transparent 80%);}
+.banner-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:5px;color:var(--cyan);opacity:0.7;margin-bottom:16px;animation:fadeUp 0.8s 0.1s both;}
+.banner-title{font-family:'Bebas Neue',cursive;font-size:clamp(56px,10vw,120px);line-height:0.95;letter-spacing:4px;color:#fff;margin-bottom:20px;animation:fadeUp 0.8s 0.3s both;}
+.banner-title .cyan{color:var(--cyan);}
+.banner-desc{font-size:18px;font-weight:300;letter-spacing:2px;color:var(--muted);text-transform:uppercase;margin-bottom:36px;animation:fadeUp 0.8s 0.5s both;max-width:600px;}
+.banner-nav{display:flex;gap:12px;justify-content:center;animation:fadeUp 0.8s 0.7s both;}
+.btn-back{background:transparent;border:1px solid var(--border);color:var(--muted);padding:10px 24px;font-family:'Bebas Neue',cursive;font-size:14px;letter-spacing:2px;border-radius:2px;text-decoration:none;transition:all 0.2s;}
+.btn-back:hover{border-color:var(--muted);color:var(--text);}
+.btn-next{background:linear-gradient(90deg,var(--gold),var(--amber));color:#000;padding:10px 24px;font-family:'Bebas Neue',cursive;font-size:14px;letter-spacing:2px;border-radius:2px;text-decoration:none;transition:filter 0.2s;}
+.btn-next:hover{filter:brightness(1.15);}
+section{padding:100px 0;position:relative;}
+.container{max-width:1100px;margin:0 auto;padding:0 40px;}
+.section-eyebrow{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:5px;color:var(--cyan);text-transform:uppercase;margin-bottom:10px;opacity:0.7;}
+.section-title{font-family:'Bebas Neue',cursive;font-size:clamp(44px,6vw,72px);letter-spacing:3px;line-height:1;margin-bottom:20px;}
+.section-title .accent{color:var(--gold);}
+.section-title .cyan{color:var(--cyan);}
+.section-lead{font-size:18px;font-weight:300;color:var(--muted);max-width:700px;line-height:1.6;margin-bottom:60px;}
+/* TIMELINE */
+.steps-timeline{position:relative;padding-left:60px;}
+.steps-timeline::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:1px;background:linear-gradient(180deg,var(--gold),var(--cyan),var(--purple));opacity:0.3;}
+.step{position:relative;margin-bottom:50px;opacity:0;transform:translateX(-20px);transition:opacity 0.5s,transform 0.5s;}
+.step.visible{opacity:1;transform:translateX(0);}
+.step-num{position:absolute;left:-50px;top:0;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-family:'Bebas Neue',cursive;font-size:18px;border:1px solid;}
+.step:nth-child(1) .step-num{border-color:var(--gold);color:var(--gold);background:rgba(245,197,24,0.08);}
+.step:nth-child(2) .step-num{border-color:var(--cyan);color:var(--cyan);background:rgba(0,229,255,0.08);}
+.step:nth-child(3) .step-num{border-color:var(--green);color:var(--green);background:rgba(0,230,118,0.08);}
+.step:nth-child(4) .step-num{border-color:var(--amber);color:var(--amber);background:rgba(255,153,0,0.08);}
+.step:nth-child(5) .step-num{border-color:var(--red);color:var(--red);background:rgba(255,45,45,0.08);}
+.step:nth-child(6) .step-num{border-color:var(--gold2);color:var(--gold2);background:rgba(255,223,0,0.08);box-shadow:0 0 20px rgba(255,223,0,0.2);}
+.step-content{background:var(--bg3);border:1px solid var(--border);border-radius:4px;padding:24px 28px;transition:border-color 0.3s;}
+.step-content:hover{border-color:rgba(245,197,24,0.3);}
+.step-title{font-family:'Bebas Neue',cursive;font-size:24px;letter-spacing:2px;margin-bottom:10px;}
+.step-body{font-size:16px;line-height:1.7;color:#6a8a9a;}
+.step-body strong{color:var(--text);}
+.step-body .tag{display:inline-block;background:rgba(245,197,24,0.12);color:var(--gold);border:1px solid rgba(245,197,24,0.25);font-size:11px;letter-spacing:2px;padding:2px 8px;border-radius:2px;margin:0 2px;font-family:'JetBrains Mono',monospace;}
+/* MECHANICS GRID */
+.mechanics-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px;margin-top:20px;}
+.mech-card{background:var(--bg2);border:1px solid var(--border);border-radius:4px;padding:24px;transition:all 0.3s;}
+.mech-card:hover{border-color:rgba(0,229,255,0.3);transform:translateY(-3px);}
+.mech-num{font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:3px;color:var(--cyan);margin-bottom:8px;}
+.mech-title{font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;margin-bottom:8px;}
+.mech-body{font-size:14px;line-height:1.7;color:#5a7a8a;}
+.mech-body strong{color:var(--text);}
+/* FAQ */
+.faq-list{margin-top:20px;}
+.faq-item{border:1px solid var(--border);border-radius:4px;margin-bottom:10px;overflow:hidden;}
+.faq-q{background:var(--bg2);padding:18px 24px;font-family:'Bebas Neue',cursive;font-size:18px;letter-spacing:2px;display:flex;justify-content:space-between;align-items:center;cursor:pointer !important;transition:background 0.2s;}
+.faq-q:hover{background:var(--bg3);}
+.faq-q .toggle{color:var(--gold);font-size:20px;transition:transform 0.3s;}
+.faq-item.open .faq-q .toggle{transform:rotate(45deg);}
+.faq-a{display:none;padding:16px 24px 20px;font-size:15px;line-height:1.7;color:#5a7a8a;background:var(--bg);}
+.faq-a strong{color:var(--text);}
+.faq-item.open .faq-a{display:block;}
+footer{background:var(--bg);border-top:1px solid var(--border);padding:40px;text-align:center;font-size:12px;color:var(--muted);letter-spacing:2px;}
+footer .f-logo{display:flex;flex-direction:column;align-items:center;gap:6px;margin-bottom:16px;}
+.toast{position:fixed;bottom:30px;right:30px;background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--green);border-radius:4px;padding:14px 20px;font-size:14px;font-weight:600;z-index:9000;transform:translateY(100px);opacity:0;transition:all 0.3s;max-width:300px;}
+.toast.show{transform:translateY(0);opacity:1;}
+@keyframes fadeUp{from{opacity:0;transform:translateY(30px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:900px){.mechanics-grid{grid-template-columns:1fr 1fr;}}
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="hub.html">
+    <svg viewBox="0 0 44 44" width="36" height="36" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="22,2 40,12 40,32 22,42 4,32 4,12" fill="#0a1820" stroke="#f5c518" stroke-width="1.5"/>
+      <polygon points="22,2 40,12 40,32 22,42 4,32 4,12" fill="none" stroke="#f5c518" stroke-width="0.5" stroke-dasharray="2 4" opacity="0.3" transform="scale(1.12) translate(-2.4,-2.4)"/>
+      <rect x="14" y="8" width="2" height="28" rx="1" fill="#f5c518"/>
+      <path d="M16,10 L34,15 L31,22 L16,17 Z" fill="#f5c518"/>
+      <circle cx="22" cy="2"  r="1.5" fill="#f5c518" opacity="0.6"/>
+      <circle cx="40" cy="12" r="1.5" fill="#f5c518" opacity="0.6"/>
+      <circle cx="40" cy="32" r="1.5" fill="#f5c518" opacity="0.6"/>
+      <circle cx="22" cy="42" r="1.5" fill="#f5c518" opacity="0.6"/>
+      <circle cx="4"  cy="32" r="1.5" fill="#f5c518" opacity="0.6"/>
+      <circle cx="4"  cy="12" r="1.5" fill="#f5c518" opacity="0.6"/>
+    </svg>
+    <div class="nav-logo-text">
+      <div class="nav-logo-sub">Last · Standing</div>
+      <div class="nav-logo-flag">FLAG</div>
+    </div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="story.html">Story</a></li>
+    <li><a href="how.html" class="active-page">How It Works</a></li>
+    <li><a href="rules.html">Rules</a></li>
+    <li><a href="features.html">Features</a></li>
+    <li><a href="crypto.html">Crypto</a></li>
+    <li><a href="play.html" class="nav-cta">PLAY NOW</a></li>
+  </ul>
+</nav>
+
+<section class="page-banner">
+  <div class="banner-bg"></div>
+  <div class="banner-grid"></div>
+  <div class="banner-eyebrow">// game_mechanics.exe — LOADING</div>
+  <h1 class="banner-title">HOW IT <span class="cyan">WORKS</span></h1>
+  <p class="banner-desc">Six steps from zero to jackpot. Simple to learn, impossible to stop.</p>
+  <div class="banner-nav">
+    <a href="story.html" class="btn-back">← STORY</a>
+    <a href="rules.html" class="btn-next">NEXT: THE RULES →</a>
+  </div>
+</section>
+
+<!-- 6-STEP TIMELINE -->
+<section style="background:var(--bg2);">
+  <div class="container">
+    <div class="section-eyebrow">// six_steps_to_glory</div>
+    <h2 class="section-title">THE <span class="accent">PLAYBOOK</span></h2>
+    <p class="section-lead">Six steps from zero to jackpot. Simple to learn, impossible to stop playing.</p>
+    <div class="steps-timeline">
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-content">
+          <div class="step-title">💰 Deposit Crypto</div>
+          <div class="step-body">Fund your account using <span class="tag">BTC</span><span class="tag">ETH</span><span class="tag">SOL</span><span class="tag">USDT</span><span class="tag">BNB</span>. Your crypto is converted into <strong>Flag Credits (FC)</strong> — the in-game currency. <strong>1 FC = $1 USD equivalent</strong>. First deposit gets a <strong>+20% bonus</strong>. Minimum deposit $10.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-content">
+          <div class="step-title">🌍 Claim Your Territory</div>
+          <div class="step-body">Browse the live world map. Each territory costs <strong>10 FC</strong> to enter. You can own <strong>multiple territories</strong> — the more you own, the higher your jackpot share. Each territory you buy adds <strong>9.7 FC to the prize pool</strong> (3% house cut). Multiple players can hold the same territory and split winnings.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-content">
+          <div class="step-title">⏱️ The Elimination Clock</div>
+          <div class="step-body">Every <strong>60 minutes</strong>, the system selects one territory for elimination using a <strong>provably fair on-chain random function</strong>. All players holding that territory are knocked out — their credits are gone. The map shrinks. The jackpot grows. Tension builds with every tick.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-content">
+          <div class="step-title">📈 Trade the Market</div>
+          <div class="step-body">Territory values fluctuate based on <strong>elimination probability and demand</strong>. Is a territory "safe" because many players hold it — or is it a bigger target? You can <strong>sell territories</strong> to other players at market price (3% cut applied). Buy low, sell high, survive the longest. Trading locks <strong>5 minutes before each elimination</strong>.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-content">
+          <div class="step-title">🔍 Intel &amp; Power-Ups</div>
+          <div class="step-body">Spend FC to buy <strong>Insider Intel</strong> (25 FC) — a peek at the next elimination target before anyone else. Use <strong>Shield Tokens</strong> to protect a territory for one round. Use <strong>Fog of War</strong> (30 FC) to hide your holdings from other players' radar. Stack advantages. Outlast the competition.</div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">6</div>
+        <div class="step-content">
+          <div class="step-title">🏆 Last Flag Takes All</div>
+          <div class="step-body">When only <strong>one territory remains</strong>, all players holding that territory split the jackpot <strong>proportionally by their share</strong>. Own 3 of the 5 remaining slots in that territory? You get 60% of the entire pot. <strong>Win in crypto — smart contract pays in 60 seconds.</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- KEY MECHANICS -->
+<section style="background:var(--bg);">
+  <div class="container">
+    <div class="section-eyebrow">// core_mechanics.json</div>
+    <h2 class="section-title">KEY <span class="accent">MECHANICS</span></h2>
+    <p class="section-lead">The systems that make every game different from the last.</p>
+    <div class="mechanics-grid">
+      <div class="mech-card">
+        <div class="mech-num">MECHANIC_01</div>
+        <div class="mech-title">Proportional Winnings</div>
+        <div class="mech-body">Your jackpot share = your slots ÷ total slots in the winning territory. <strong>More slots = bigger cut</strong>. Buy 10 slots in the final territory and own 50% of the pool while others own fewer.</div>
+      </div>
+      <div class="mech-card">
+        <div class="mech-num">MECHANIC_02</div>
+        <div class="mech-title">Dynamic Market Prices</div>
+        <div class="mech-body">Territories near potential elimination become <strong>cheap sells and dangerous buys</strong>. Hot territories command premium prices. The market reflects collective intelligence — or collective panic.</div>
+      </div>
+      <div class="mech-card">
+        <div class="mech-num">MECHANIC_03</div>
+        <div class="mech-title">Shield Mechanics</div>
+        <div class="mech-body">A Shield Token absorbs one elimination for a territory. <strong>Max 1 per territory per round.</strong> Earn them via streaks, referrals, or buy them at 50 FC each. Use them wisely — they're the difference between surviving and losing everything.</div>
+      </div>
+      <div class="mech-card">
+        <div class="mech-num">MECHANIC_04</div>
+        <div class="mech-title">Insider Intel (Peek)</div>
+        <div class="mech-body">Pay <strong>25 FC</strong> to see the next elimination target before the clock hits zero. Use this to sell your at-risk territory, buy a safer one, or warn your Alliance — <em>for a price</em>.</div>
+      </div>
+      <div class="mech-card">
+        <div class="mech-num">MECHANIC_05</div>
+        <div class="mech-title">5-Minute Lock Period</div>
+        <div class="mech-body">Trading halts <strong>5 minutes before each elimination</strong>. This prevents last-second dumps and creates a final window of pure tension — watching your flag's fate hang on the next selection.</div>
+      </div>
+      <div class="mech-card">
+        <div class="mech-num">MECHANIC_06</div>
+        <div class="mech-title">Fog of War</div>
+        <div class="mech-body">Spend <strong>30 FC</strong> to hide your territory holdings from the live map for one round. Other players can't see how exposed you are — or where your strengths lie. Information is power. Obscure yours.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section style="background:var(--bg2);">
+  <div class="container">
+    <div class="section-eyebrow">// faq.txt</div>
+    <h2 class="section-title">COMMON <span class="cyan">QUESTIONS</span></h2>
+    <div class="faq-list">
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Can I join a game that's already in progress? <span class="toggle">+</span></div>
+        <div class="faq-a">Yes. You can enter any active game at any point before the final 5 territories remain. <strong>Territories still cost 10 FC</strong>, but their relative value depends on how many rounds have passed and how many territories remain.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">What happens if I hold multiple territories and one gets eliminated? <span class="toggle">+</span></div>
+        <div class="faq-a">Only the eliminated territory's slots are lost. <strong>Your other territories survive unaffected.</strong> This is why diversifying across multiple territories is a valid strategy — spread risk, maintain presence.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">How long does a full game typically last? <span class="toggle">+</span></div>
+        <div class="faq-a">With 154 territories and eliminations every 60 minutes, a full game lasts approximately <strong>6–7 days</strong>. Games with accelerated modes (Express: 30-min eliminations) last ~3 days. Special "Lightning" modes run 15-minute eliminations for weekend events.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">Can I play multiple games simultaneously? <span class="toggle">+</span></div>
+        <div class="faq-a">Yes. Multiple concurrent games run at all times. You can hold positions across <strong>as many active games as your FC balance allows</strong>. Your dashboard shows all active positions and upcoming eliminations across every game.</div>
+      </div>
+      <div class="faq-item">
+        <div class="faq-q" onclick="toggleFaq(this)">What if I miss an elimination while offline? <span class="toggle">+</span></div>
+        <div class="faq-a">Push notifications alert you before every elimination (configurable). If you miss one and your territory is eliminated, <strong>the loss is final</strong>. This is by design — the game rewards active players. Set your alerts. Stay plugged in.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="f-logo">
+    <svg viewBox="0 0 50 50" width="40" height="40" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="25,2 46,14 46,36 25,48 4,36 4,14" fill="none" stroke="#f5c518" stroke-width="1.5" opacity="0.8"/>
+      <rect x="16" y="10" width="2.5" height="30" rx="1.25" fill="#f5c518"/>
+      <path d="M18.5,12 L38,18 L35,26 L18.5,20 Z" fill="#f5c518"/>
+    </svg>
+    <div style="font-size:20px;font-weight:900;font-family:'Arial Black',sans-serif;background:linear-gradient(135deg,#fff9d6,#f5c518,#e09000);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;">FLAG</div>
+    <div style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:4px;color:rgba(106,138,154,0.6);text-transform:uppercase;">Last · Standing</div>
+  </div>
+  <div style="margin-bottom:10px;">The World's First Real-Time Elimination Lottery · Powered by Blockchain</div>
+  <div style="display:flex;gap:30px;justify-content:center;margin-bottom:16px;flex-wrap:wrap;">
+    <a href="#" style="color:var(--muted);text-decoration:none;">Terms of Service</a>
+    <a href="#" style="color:var(--muted);text-decoration:none;">Privacy Policy</a>
+    <a href="#" style="color:var(--muted);text-decoration:none;">Provably Fair</a>
+    <a href="#" style="color:var(--muted);text-decoration:none;">Responsible Gaming</a>
+  </div>
+  <div style="font-size:10px;color:rgba(58,96,112,0.5);">© 2026 LAST FLAG STANDING · All rights reserved · 18+ Only · Play Responsibly</div>
+</footer>
+<div class="toast" id="toastEl"></div>
+<script>
+function showToast(msg,color='green'){const colors={green:'var(--green)',gold:'var(--gold)',cyan:'var(--cyan)',red:'var(--red)'};const el=document.getElementById('toastEl');el.textContent=msg;el.style.borderLeftColor=colors[color]||colors.green;el.classList.add('show');clearTimeout(el._timeout);el._timeout=setTimeout(()=>el.classList.remove('show'),3500);}
+function toggleFaq(el){const item=el.parentElement;item.classList.toggle('open');}
+const observer=new IntersectionObserver(entries=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible');});},{threshold:0.15});
+document.querySelectorAll('.step').forEach(el=>observer.observe(el));
+</script>
+</body>
+</html>
