@@ -98,64 +98,90 @@ function requireKYC(req, res, next) {
   next();
 }
 
-// ─── Game instance ───────────────────────────────────────────────────────────
-const game = new GameEngine(io);
+// ─── Game instances ─────────────────────────────────────────────────────────
+// Run a Standard game + a Flash War simultaneously
+const game      = new GameEngine(io, 'standard');
+const flashGame = new GameEngine(io, 'flash');
 
-// Hook game events → push notifications
-game.on && game.on('elimination', async ({ roundId, territoryName, survivorsCount }) => {
-  try {
-    await broadcastToRound(roundId,
-      `💀 ${territoryName} ELIMINATED`,
-      `${survivorsCount} territories remain. Round continues.`,
-      { type: 'elimination', url: '/public/play.html', tag: 'elimination' }
-    );
-  } catch (err) {
-    console.error('[push] elimination broadcast failed:', err.message);
-  }
-});
+// Helper: attach push-notification hooks to any GameEngine instance
+function hookGameEvents(g) {
+  g.on('elimination', async ({ roundId, territoryName, survivorsCount }) => {
+    try {
+      await broadcastToRound(roundId,
+        `💀 ${territoryName} ELIMINATED`,
+        `${survivorsCount} territories remain.`,
+        { type: 'elimination', url: '/play.html', tag: 'elimination' }
+      );
+    } catch (err) { console.error('[push] elimination:', err.message); }
+  });
 
-game.on && game.on('lock-window', async ({ roundId, secondsLeft }) => {
-  try {
-    await broadcastToRound(roundId,
-      '🔒 LOCK WINDOW — 5 min to elimination',
-      'All trades are frozen. Hold your territories.',
-      { type: 'alert', url: '/public/play.html', tag: 'lock', vibrate: [300, 100, 300, 100, 300] }
-    );
-  } catch { /* non-critical */ }
-});
+  g.on('lock-window', async ({ roundId, secondsLeft }) => {
+    try {
+      await broadcastToRound(roundId,
+        `🔒 LOCK WINDOW — ${secondsLeft}s to elimination`,
+        'All trades are frozen. Hold your territories.',
+        { type: 'alert', url: '/play.html', tag: 'lock', vibrate: [300,100,300,100,300] }
+      );
+    } catch { /* non-critical */ }
+  });
+}
+hookGameEvents(game);
+hookGameEvents(flashGame);
 
 // ─── Socket.io events ────────────────────────────────────────────────────────
 io.on('connection', socket => {
   console.log(`[+] ${socket.id} connected  (${io.engine.clientsCount} total)`);
 
-  socket.on('join', ({ name } = {}) => {
-    const playerData = game.addPlayer(socket.id, name);
-    socket.emit('init', game.fullState(socket.id));
+  // Client specifies which game to join: 'standard' | 'flash' | 'championship'
+  socket.on('join', ({ name, gameType = 'standard' } = {}) => {
+    const g = gameType === 'flash' ? flashGame : game;
+    g.addPlayer(socket.id, name);
+    socket.emit('init', g.fullState(socket.id));
   });
 
-  socket.on('buy', ({ territoryId }) => {
-    const result = game.buyTerritory(socket.id, territoryId);
-    socket.emit('buy_result', result);
+  socket.on('buy', ({ territoryId, gameType = 'standard' }) => {
+    const g = gameType === 'flash' ? flashGame : game;
+    socket.emit('buy_result', g.buyTerritory(socket.id, territoryId));
   });
 
-  socket.on('sell', ({ territoryId }) => {
-    const result = game.sellTerritory(socket.id, territoryId);
-    socket.emit('sell_result', result);
+  socket.on('sell', ({ territoryId, gameType = 'standard' }) => {
+    const g = gameType === 'flash' ? flashGame : game;
+    socket.emit('sell_result', g.sellTerritory(socket.id, territoryId));
   });
 
-  socket.on('peek', () => {
-    const result = game.buyPeek(socket.id);
-    socket.emit('peek_result', result);
+  socket.on('peek', ({ gameType = 'standard' } = {}) => {
+    const g = gameType === 'flash' ? flashGame : game;
+    socket.emit('peek_result', g.buyPeek(socket.id));
   });
 
-  // Spectator room — no game state mutations
-  socket.on('spectate', () => {
+  socket.on('shield', ({ territoryId, gameType = 'standard' }) => {
+    const g = gameType === 'flash' ? flashGame : game;
+    socket.emit('shield_result', g.buyShield(socket.id, territoryId));
+  });
+
+  socket.on('fog', ({ gameType = 'standard' } = {}) => {
+    const g = gameType === 'flash' ? flashGame : game;
+    socket.emit('fog_result', g.buyFog(socket.id));
+  });
+
+  // Spectator room — no mutations
+  socket.on('spectate', ({ gameType = 'standard' } = {}) => {
     socket.join('spectators');
-    socket.emit('spectate_init', game.publicState());
+    const g = gameType === 'flash' ? flashGame : game;
+    socket.emit('spectate_init', g.publicState());
+  });
+
+  // Dashboard: return both active games
+  socket.on('games_list', () => {
+    socket.emit('games_list', [
+      game.publicState(),
+      flashGame.publicState(),
+    ]);
   });
 
   socket.on('disconnect', () => {
     game.removePlayer(socket.id);
+    flashGame.removePlayer(socket.id);
     console.log(`[-] ${socket.id} disconnected  (${io.engine.clientsCount} total)`);
   });
 });

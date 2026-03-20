@@ -1321,7 +1321,224 @@ footer .f-logo {
   .phase-timeline { flex-direction:column; }
 }
 
-/* ══ BATTLEFIELD CANVAS ══════════════════════════════════════════ */
+/* ══ HEAT SPIKE ALERT BAR ═══════════════════════════════════════ */
+#heatSpikeBar {
+  display: none;
+  position: fixed;
+  top: 60px; left: 0; right: 0;
+  z-index: 490;
+  background: linear-gradient(90deg, rgba(255,80,0,0.97), rgba(255,150,0,0.97));
+  border-bottom: 2px solid #ff4400;
+  padding: 10px 24px;
+  font-family: 'Bebas Neue', cursive;
+  font-size: 17px;
+  letter-spacing: 3px;
+  color: #fff;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  animation: heatPulse 0.8s ease-in-out infinite alternate;
+}
+#heatSpikeBar.active { display: flex !important; }
+@keyframes heatPulse {
+  from { box-shadow: 0 0 0 rgba(255,80,0,0); }
+  to   { box-shadow: 0 6px 30px rgba(255,80,0,0.6); }
+}
+.heat-flag  { font-size: 26px; }
+.heat-label { flex: 1; }
+.heat-timer { font-family: 'JetBrains Mono', monospace; font-size: 22px; color: #fff3; min-width: 40px; text-align: right; }
+.heat-actions { display: flex; gap: 8px; }
+.btn-heat-sell, .btn-heat-shield {
+  background: rgba(0,0,0,0.35);
+  border: 1px solid rgba(255,255,255,0.4);
+  color: #fff;
+  font-family: 'Bebas Neue', cursive;
+  font-size: 13px;
+  letter-spacing: 2px;
+  padding: 5px 14px;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.btn-heat-sell:hover   { background: rgba(255,0,0,0.5); }
+.btn-heat-shield:hover { background: rgba(0,200,100,0.4); }
+
+/* ══ ENTRY WINDOW BANNER ═══════════════════════════════════════ */
+#entryBanner {
+  background: linear-gradient(90deg, rgba(6,15,24,0.97), rgba(10,26,38,0.97));
+  border-bottom: 1px solid rgba(0,229,255,0.18);
+  padding: 10px 32px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  position: relative;
+  z-index: 10;
+}
+.entry-label   { font-family: 'Bebas Neue', cursive; letter-spacing: 3px; font-size: 13px; color: var(--muted); }
+.entry-jackpot { font-family: 'JetBrains Mono', monospace; font-size: 22px; color: var(--gold); font-weight: 700; }
+.entry-timer   { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--cyan); }
+.entry-sep     { color: var(--border); margin: 0 4px; }
+.game-type-badge {
+  font-family: 'Bebas Neue', cursive;
+  letter-spacing: 3px;
+  font-size: 11px;
+  padding: 4px 12px;
+  border-radius: 2px;
+  border: 1px solid;
+}
+.game-type-badge.standard     { color: var(--gold);   border-color: var(--gold);   background: rgba(245,197,24,0.08); }
+.game-type-badge.flash         { color: var(--cyan);   border-color: var(--cyan);   background: rgba(0,229,255,0.08); }
+.game-type-badge.championship  { color: var(--purple); border-color: var(--purple); background: rgba(213,0,249,0.08); }
+.entry-players { font-family: 'JetBrains Mono', monospace; font-size: 12px; color: var(--muted); margin-left: auto; }
+
+/* ══ AT RISK DISPLAY ════════════════════════════════════════════ */
+.hstat.at-risk .hstat-num {
+  color: var(--amber) !important;
+  animation: riskPulse 1.8s ease-in-out infinite;
+}
+@keyframes riskPulse {
+  0%,100% { text-shadow: 0 0 8px rgba(255,153,0,0.3); }
+  50%     { text-shadow: 0 0 24px rgba(255,100,0,0.9); }
+}
+
+/* ══ NEAR MISS FLASH ═════════════════════════════════════════════ */
+#nearMissToast {
+  display: none;
+  position: fixed;
+  bottom: 80px; right: 20px;
+  background: rgba(6,15,24,0.96);
+  border: 1px solid var(--amber);
+  border-left: 4px solid var(--amber);
+  padding: 12px 16px;
+  max-width: 280px;
+  z-index: 600;
+  font-size: 13px;
+  line-height: 1.6;
+  border-radius: 3px;
+}
+#nearMissToast.show { display: block; animation: fadeUp 0.3s ease; }
+.nm-title  { font-family: 'Bebas Neue', cursive; letter-spacing: 2px; color: var(--amber); margin-bottom: 4px; }
+.nm-body   { color: var(--muted); font-size: 12px; }
+
+/* ══ THREE-LAYER TIME DISPLAY ════════════════════════════════════ */
+.time-layers {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin: 40px 0;
+}
+.tl-card {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 24px 20px;
+  position: relative;
+  overflow: hidden;
+}
+.tl-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+}
+.tl-card.micro::before  { background: var(--amber); }
+.tl-card.daily::before  { background: var(--gold); }
+.tl-card.season::before { background: var(--purple); }
+.tl-layer  { font-family: 'Bebas Neue', cursive; font-size: 10px; letter-spacing: 4px; color: var(--muted); margin-bottom: 6px; }
+.tl-title  { font-family: 'Bebas Neue', cursive; font-size: 22px; letter-spacing: 2px; margin-bottom: 8px; }
+.tl-card.micro  .tl-title { color: var(--amber); }
+.tl-card.daily  .tl-title { color: var(--gold);  }
+.tl-card.season .tl-title { color: var(--purple); }
+.tl-body   { font-size: 14px; color: var(--muted); line-height: 1.6; }
+.tl-stat   { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--cyan); margin-top: 8px; }
+@media(max-width:900px){ .time-layers { grid-template-columns:1fr!important; } }
+
+/* ══ LOCK WINDOW OVERLAY ═════════════════════════════════════════ */
+#lockBanner {
+  display: none;
+  position: fixed;
+  top: 60px; left: 0; right: 0;
+  z-index: 488;
+  background: rgba(20,0,0,0.97);
+  border-bottom: 2px solid var(--red);
+  padding: 9px 24px;
+  font-family: 'Bebas Neue', cursive;
+  font-size: 15px;
+  letter-spacing: 3px;
+  color: var(--red);
+  text-align: center;
+}
+#lockBanner.active { display: block !important; }
+
+/* ══ GAME-TYPE SELECTOR ═══════════════════════════════════════════ */
+.game-selector {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+.gs-card {
+  flex: 1;
+  min-width: 180px;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  padding: 20px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: var(--bg2);
+  position: relative;
+}
+.gs-card:hover, .gs-card.active {
+  border-color: var(--gold);
+  background: rgba(245,197,24,0.07);
+}
+.gs-card.flash.active   { border-color: var(--cyan); background: rgba(0,229,255,0.07); }
+.gs-card.champ.active   { border-color: var(--purple); background: rgba(213,0,249,0.07); }
+.gs-type  { font-family: 'Bebas Neue', cursive; font-size: 11px; letter-spacing: 4px; color: var(--muted); }
+.gs-name  { font-family: 'Bebas Neue', cursive; font-size: 20px; letter-spacing: 2px; margin: 4px 0 6px; }
+.gs-detail { font-size: 12px; color: var(--muted); line-height: 1.5; }
+.gs-fee   { font-family: 'JetBrains Mono', monospace; font-size: 13px; color: var(--green); margin-top: 6px; }
+.gs-live  {
+  position: absolute; top: 10px; right: 10px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 9px; letter-spacing: 2px;
+  background: rgba(0,230,118,0.12);
+  color: var(--green);
+  border: 1px solid rgba(0,230,118,0.35);
+  padding: 2px 7px;
+  border-radius: 2px;
+}
+.gs-jackpot { font-family: 'JetBrains Mono', monospace; font-size: 15px; color: var(--gold); margin-top: 6px; }
+
+/* ══ PACE BADGE ═════════════════════════════════════════════════ */
+.pace-badge {
+  display: inline-block;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 1px;
+  padding: 3px 9px;
+  border-radius: 2px;
+  background: rgba(0,229,255,0.08);
+  border: 1px solid rgba(0,229,255,0.2);
+  color: var(--cyan);
+  margin-top: 6px;
+}
+.pace-badge.hot { background:rgba(255,80,0,0.12); border-color:rgba(255,80,0,0.3); color:var(--amber); }
+
+/* ══ SOCIAL PROOF TICKER ═════════════════════════════════════════ */
+#socialTicker {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 11px;
+  color: var(--muted);
+  padding: 6px 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  transition: opacity 0.4s;
+}
+#socialTicker span { color: var(--gold); }
+ ══════════════════════════════════════════ */
 #bfCanvas {
   position: fixed;
   top: 0; left: 0;
@@ -1355,6 +1572,37 @@ footer {
 <canvas id="bfCanvas"></canvas>
 <div class="elim-flash" id="elimFlash"></div>
 <div class="notif-stack" id="notifStack"></div>
+
+<!-- HEAT SPIKE ALERT BAR -->
+<div id="heatSpikeBar">
+  <span class="heat-flag" id="heatFlag">&#127987;</span>
+  <span class="heat-label">HEAT SPIKE: <strong id="heatName">???</strong> ELIMINATION PROBABILITY SURGED</span>
+  <span class="heat-timer" id="heatTimer">90</span>s
+  <div class="heat-actions">
+    <button class="btn-heat-sell" onclick="quickSell()">SELL NOW</button>
+    <button class="btn-heat-shield" onclick="quickShield()">SHIELD</button>
+  </div>
+</div>
+
+<!-- LOCK WINDOW BANNER -->
+<div id="lockBanner">&#128274; TRADING LOCKED &mdash; ELIMINATION IMMINENT &mdash; <span id="lockTimer"></span></div>
+
+<!-- NEAR MISS TOAST -->
+<div id="nearMissToast">
+  <div class="nm-title">&#127919; NEAR MISS</div>
+  <div class="nm-body" id="nearMissBody">Your territory survived this round.</div>
+</div>
+
+<!-- ENTRY WINDOW BANNER -->
+<div id="entryBanner">
+  <span class="game-type-badge standard" id="gameTypeBadge">DAILY WAR</span>
+  <span class="entry-label">JACKPOT</span>
+  <span class="entry-jackpot" id="entryJackpot">$138K</span>
+  <span class="entry-sep">&middot;</span>
+  <span class="entry-label">ENTRY CLOSES IN</span>
+  <span class="entry-timer" id="entryTimer">--:--</span>
+  <span class="entry-players" id="entryPlayers">0 players registered</span>
+</div>
 
 <!-- NAV -->
 <nav>
@@ -1458,14 +1706,20 @@ footer {
   <div class="hero-stats">
     <div class="hstat"><div class="hstat-num" id="liveJackpot">$138K</div><div class="hstat-label">Current Jackpot</div></div>
     <div class="hstat"><div class="hstat-num" id="livePlayers">2,847</div><div class="hstat-label">Active Players</div></div>
-    <div class="hstat"><div class="hstat-num">154</div><div class="hstat-label">Territories</div></div>
-    <div class="hstat"><div class="hstat-num">3%</div><div class="hstat-label">House Cut</div></div>
+    <div class="hstat"><div class="hstat-num" id="liveSurviving">154</div><div class="hstat-label">Territories Left</div></div>
+    <div class="hstat at-risk"><div class="hstat-num" id="liveAtRisk">$0</div><div class="hstat-label">Your FC At Risk</div></div>
+    <div class="hstat"><div class="hstat-num" id="liveElimRate">1/day</div><div class="hstat-label">Elim Pace</div></div>
   </div>
   <div class="hero-btns">
     <button class="btn-hero-primary" onclick="scrollTo('#crypto')">DEPOSIT &amp; PLAY</button>
     <button class="btn-hero-outline" onclick="scrollTo('#how')">HOW IT WORKS</button>
   </div>
   <div class="scroll-hint">▼ SCROLL TO LEARN MORE ▼</div>
+
+  <!-- Social proof ticker -->
+  <div id="socialTicker" style="margin-top:18px;font-size:12px;color:var(--muted);font-family:'JetBrains Mono',monospace;min-height:20px;text-align:center">
+    <span style="color:var(--gold)">⚡</span> Loading live activity...
+  </div>
 </section>
 
 <!-- STORY -->
@@ -1497,7 +1751,73 @@ footer {
     <h2 class="section-title">HOW IT <span class="cyan">WORKS</span></h2>
     <p class="section-lead">Six steps from zero to jackpot. Simple to learn, impossible to stop playing.</p>
 
-    <!-- Phase Timeline -->
+    <!-- Game Selector -->
+    <div class="game-selector" id="gameSelector">
+      <div class="gs-card active" data-type="standard" onclick="selectGame(this,'standard')">
+        <div class="gs-live">LIVE</div>
+        <div class="gs-type">LAYER 2 &middot; DAILY GAME</div>
+        <div class="gs-name" style="color:var(--gold)">Daily War</div>
+        <div class="gs-detail">30&ndash;60 days &middot; 1 elimination/day &middot; accelerates at endgame</div>
+        <div class="gs-fee">Entry: 10 FC per slot</div>
+        <div class="gs-jackpot" id="gsJackpotStandard">$138,420 jackpot</div>
+      </div>
+      <div class="gs-card flash" data-type="flash" onclick="selectGame(this,'flash')">
+        <div class="gs-live">LIVE</div>
+        <div class="gs-type">MINI GAME</div>
+        <div class="gs-name" style="color:var(--cyan)">Flash War</div>
+        <div class="gs-detail">7 days &middot; 3&ndash;5 eliminations/day &middot; weekend event</div>
+        <div class="gs-fee">Entry: 5 FC per slot</div>
+        <div class="gs-jackpot" id="gsJackpotFlash">$12,880 jackpot</div>
+      </div>
+      <div class="gs-card champ" data-type="championship" onclick="selectGame(this,'championship')">
+        <div class="gs-type">LAYER 3 &middot; QUARTERLY</div>
+        <div class="gs-name" style="color:var(--purple)">World War</div>
+        <div class="gs-detail">21 days &middot; accelerated pace &middot; prestige entry only</div>
+        <div class="gs-fee">Entry: 50 FC per slot</div>
+        <div class="gs-jackpot" style="color:var(--purple)">Next season Q3 2026</div>
+      </div>
+    </div>
+
+    <!-- Three-Layer Time Structure -->
+    <div class="time-layers">
+      <div class="tl-card micro">
+        <div class="tl-layer">LAYER 1 &middot; EVERY 5 MINUTES</div>
+        <div class="tl-title">Heat Spike</div>
+        <div class="tl-body">A random territory's elimination probability temporarily doubles. You get a 90-second warning. Sell, buy Intel, or shield. Nothing is eliminated yet &mdash; but the anxiety is real.</div>
+        <div class="tl-stat" id="tlNextHeat">Next spike: monitoring...</div>
+      </div>
+      <div class="tl-card daily">
+        <div class="tl-layer">LAYER 2 &middot; EVERY 24 HOURS</div>
+        <div class="tl-title">Daily Elimination</div>
+        <div class="tl-body">One territory eliminated at <strong style="color:var(--gold)">8:00 PM UTC</strong> daily. The jackpot compounds. Players build a ritual around it. The pace accelerates as fewer territories survive.</div>
+        <div class="tl-stat" id="tlElimRate">Current pace: 1 per day &middot; 154 territories</div>
+      </div>
+      <div class="tl-card season">
+        <div class="tl-layer">LAYER 3 &middot; EVERY 3 MONTHS</div>
+        <div class="tl-title">Championship</div>
+        <div class="tl-body">The World War. $300K&ndash;$1M+ jackpot. 21 days. Prestige-only entry. Exclusive NFT rewards. This is the event that gets written about and brings new players in.</div>
+        <div class="tl-stat">Next: Q3 2026 &middot; Registration opens June 1</div>
+      </div>
+    </div>
+
+    <!-- Acceleration table -->
+    <div style="overflow-x:auto;margin-bottom:40px">
+      <table style="width:100%;border-collapse:collapse;font-size:13px;font-family:'JetBrains Mono',monospace">
+        <thead><tr style="border-bottom:1px solid var(--border);color:var(--muted)">
+          <th style="padding:10px 12px;text-align:left">TERRITORIES LEFT</th>
+          <th style="padding:10px 12px;text-align:left">ELIMINATIONS</th>
+          <th style="padding:10px 12px;text-align:left">FEEL</th>
+        </tr></thead>
+        <tbody>
+          <tr><td style="padding:8px 12px;color:var(--text)">154 &rarr; 100</td><td style="color:var(--green)">1 per day</td><td style="color:var(--muted)">Strategic, slow</td></tr>
+          <tr><td style="padding:8px 12px;color:var(--text)">100 &rarr; 50</td><td style="color:var(--green)">2 per day</td><td style="color:var(--muted)">Rising tension</td></tr>
+          <tr><td style="padding:8px 12px;color:var(--text)">50 &rarr; 20</td><td style="color:var(--gold)">3 per day</td><td style="color:var(--muted)">Daily drama</td></tr>
+          <tr><td style="padding:8px 12px;color:var(--text)">20 &rarr; 10</td><td style="color:var(--amber)">1 per 6 h</td><td style="color:var(--muted)">Can't leave the screen</td></tr>
+          <tr><td style="padding:8px 12px;color:var(--text)">10 &rarr; 5</td><td style="color:var(--amber)">1 per 2 h</td><td style="color:var(--muted)">Live sports event</td></tr>
+          <tr style="background:rgba(255,60,0,0.06)"><td style="padding:8px 12px;color:var(--red)">5 &rarr; 1</td><td style="color:var(--red)">1 per 30 min</td><td style="color:var(--red)">Rocket launch</td></tr>
+        </tbody>
+      </table>
+    </div>
     <div class="phase-timeline" id="phaseTimeline">
       <div class="phase phase-active" id="ph1">
         <div class="phase-num">PHASE 01</div>
@@ -2554,6 +2874,167 @@ setInterval(() => {
   actIdx++;
 }, 7000);
 setTimeout(() => pushNotif('\u2691 LIVE GAME  ROUND 4', 'gold', '$138,420 jackpot · 142 territories remaining'), 1500);
+
+// ── GAME SELECTOR ──────────────────────────────────────────────
+let _currentGameType = 'standard';
+function selectGame(card, type) {
+  document.querySelectorAll('.gs-card').forEach(c => c.classList.remove('active'));
+  card.classList.add('active');
+  _currentGameType = type;
+  const badge = document.getElementById('gameTypeBadge');
+  if (badge) {
+    badge.className = 'game-type-badge ' + type;
+    badge.textContent = { standard: 'DAILY WAR', flash: 'FLASH WAR', championship: 'WORLD WAR' }[type] || 'DAILY WAR';
+  }
+  if (window._socket) window._socket.emit('games_list');
+}
+
+// ── HELPER: quick sell / shield from heat spike bar ─────────────
+function quickSell()  { if (window._socket) window._socket.emit('sell',   { gameType: _currentGameType }); }
+function quickShield(){ if (window._socket) window._socket.emit('shield', { gameType: _currentGameType }); }
+
+// ── SOCKET.IO GAME EVENTS ───────────────────────────────────────
+(function () {
+  if (typeof io === 'undefined') return;  // Socket.IO not loaded on static preview
+  const socket = io();
+  window._socket = socket;
+  window._myTerritories = [];
+
+  socket.emit('join', { name: 'Guest', gameType: _currentGameType });
+
+  socket.on('init', (state) => {
+    window._myTerritories = (state.player && state.player.territories) ? state.player.territories : [];
+    const ar = document.getElementById('liveAtRisk');
+    if (ar && state.player) ar.textContent = '$' + (state.player.atRisk || 0);
+    const jEl = document.getElementById('entryJackpot');
+    if (jEl) jEl.textContent = '$' + Math.round(state.jackpot || 0).toLocaleString();
+    if (state.entryEndsAt) {
+      const s = Math.ceil((state.entryEndsAt - Date.now()) / 1000);
+      const eT = document.getElementById('entryTimer');
+      if (eT) eT.textContent = Math.floor(s / 60) + ':' + String(s % 60).padStart(2, '0');
+      const banner = document.getElementById('entryBanner');
+      if (banner) banner.style.display = state.phase === 'entry_window' ? 'flex' : 'none';
+    }
+    const er = document.getElementById('liveElimRate');
+    if (er && state.elimRate) er.textContent = state.elimRate;
+    const tlRate = document.getElementById('tlElimRate');
+    if (tlRate && state.elimRate) tlRate.textContent = 'Current pace: ' + state.elimRate + ' \u00b7 ' + (state.surviving || 154) + ' territories';
+  });
+
+  socket.on('tick', ({ jackpot: jk, totalPlayers, countdown, elimRate, phase, surviving }) => {
+    if (jk != null) {
+      document.getElementById('liveJackpot').textContent = '$' + (jk >= 1000 ? Math.round(jk / 1000) + 'K' : jk);
+      const jEl = document.getElementById('entryJackpot');
+      if (jEl) jEl.textContent = '$' + Math.round(jk).toLocaleString();
+    }
+    if (totalPlayers) document.getElementById('livePlayers').textContent = totalPlayers.toLocaleString();
+    if (surviving) {
+      const el = document.getElementById('liveSurviving');
+      if (el) el.textContent = surviving;
+    }
+    if (elimRate) {
+      const er = document.getElementById('liveElimRate');
+      if (er) er.textContent = elimRate;
+    }
+    if (phase === 'entry_window' && countdown != null) {
+      const m = Math.floor(countdown / 60), s = countdown % 60;
+      const eT = document.getElementById('entryTimer');
+      if (eT) eT.textContent = m + ':' + String(s).padStart(2, '0');
+    }
+  });
+
+  socket.on('phase_change', ({ phase, typeLabel, entryFee, elimRate }) => {
+    const banner = document.getElementById('entryBanner');
+    if (phase === 'active') {
+      if (banner) banner.style.display = 'none';
+      pushNotif('\u2694\ufe0f ' + (typeLabel || 'WAR') + ' NOW ACTIVE', 'gold', 'Eliminations have begun! Pace: ' + (elimRate || '1/day'));
+    } else if (phase === 'entry_window') {
+      if (banner) banner.style.display = 'flex';
+    }
+    const er = document.getElementById('liveElimRate');
+    if (er && elimRate) er.textContent = elimRate;
+    const tlRate = document.getElementById('tlElimRate');
+    if (tlRate && elimRate) tlRate.textContent = 'Current pace: ' + elimRate;
+  });
+
+  socket.on('heat_spike', ({ flag, name, probability, warningMs }) => {
+    const bar = document.getElementById('heatSpikeBar');
+    const fEl = document.getElementById('heatFlag');
+    const nEl = document.getElementById('heatName');
+    const tEl = document.getElementById('heatTimer');
+    if (fEl) fEl.textContent = flag || '\ud83d\udea9';
+    if (nEl) nEl.textContent = (flag || '') + ' ' + (name || 'Unknown');
+    if (bar) bar.classList.add('active');
+    let secs = Math.ceil((warningMs || 90000) / 1000);
+    if (tEl) tEl.textContent = secs;
+    const t = setInterval(() => {
+      secs--;
+      if (tEl) tEl.textContent = secs;
+      if (secs <= 0) clearInterval(t);
+    }, 1000);
+    pushNotif('\ud83d\udd25 HEAT SPIKE: ' + (flag || '') + ' ' + (name || ''), 'red', 'Elimination probability surged to ' + (probability || '??') + '% — act fast!');
+    const next = document.getElementById('tlNextHeat');
+    if (next) next.textContent = 'ACTIVE: ' + (name || '') + ' probability ' + (probability || '??') + '% \u2014 ' + secs + 's remaining';
+  });
+
+  socket.on('heat_expire', () => {
+    const bar = document.getElementById('heatSpikeBar');
+    if (bar) bar.classList.remove('active');
+    const next = document.getElementById('tlNextHeat');
+    if (next) next.textContent = 'Next spike: monitoring...';
+  });
+
+  socket.on('lock_window', ({ secondsLeft }) => {
+    const b = document.getElementById('lockBanner');
+    const ct = document.getElementById('lockTimer');
+    if (b) b.classList.add('active');
+    let s = Math.round(secondsLeft || 0);
+    if (ct) ct.textContent = s + 's';
+    const t = setInterval(() => {
+      s--;
+      if (ct) ct.textContent = s + 's';
+      if (s <= 0) {
+        clearInterval(t);
+        if (b) b.classList.remove('active');
+      }
+    }, 1000);
+    pushNotif('\ud83d\udd12 TRADING LOCKED', 'red', 'Elimination happening in ' + secondsLeft + 's — no trades until it resolves.');
+  });
+
+  socket.on('near_miss', ({ survived }) => {
+    const myT = window._myTerritories || [];
+    if (!myT.length || !survived) return;
+    const mine = (survived).filter(t => myT.includes(t.id));
+    if (!mine.length) return;
+    const top = mine.sort((a, b) => b.probability - a.probability)[0];
+    const toast = document.getElementById('nearMissToast');
+    const body  = document.getElementById('nearMissBody');
+    if (body) body.textContent = 'Your territory had a ' + top.probability + '% elimination probability this round. You survived.';
+    if (toast) { toast.classList.add('show'); setTimeout(() => toast.classList.remove('show'), 6000); }
+    pushNotif('\u26a1 NEAR MISS', 'amber', top.probability + '% chance you were eliminated — you survived.');
+  });
+
+  socket.on('elimination', ({ territory, remaining }) => {
+    const er = document.getElementById('liveElimRate');
+    const sv = document.getElementById('liveSurviving');
+    if (sv  && remaining != null) sv.textContent = remaining;
+    const tlRate = document.getElementById('tlElimRate');
+    if (tlRate) tlRate.textContent = 'Current pace: ' + (er ? er.textContent : '1/day') + ' \u00b7 ' + (remaining || '?') + ' territories';
+  });
+
+  socket.on('social_proof', ({ message }) => {
+    const el = document.getElementById('socialTicker');
+    if (el) el.innerHTML = '<span>\u26a1</span> ' + message;
+  });
+
+  socket.on('games_list', (games) => {
+    if (!Array.isArray(games)) return;
+    games.forEach(g => {
+      const jEl = document.getElementById('gsJackpot' + g.gameType.charAt(0).toUpperCase() + g.gameType.slice(1));
+      if (jEl) jEl.textContent = '$' + Math.round(g.jackpot || 0).toLocaleString() + ' jackpot';
+    });
+  });
+})();
 </script>
 
 <!-- Wallet JS -->
