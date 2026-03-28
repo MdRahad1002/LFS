@@ -12,7 +12,8 @@ const cookieParser = require('cookie-parser');
 const cors         = require('cors');
 const rateLimit    = require('express-rate-limit');
 const helmet       = require('helmet');
-const { GameEngine } = require('./game/GameEngine');
+const { GameEngine }    = require('./game/GameEngine');
+const { LotteryEngine } = require('./game/LotteryEngine');
 
 // ─── Routes ──────────────────────────────────────────────────────────────────
 const authRouter      = require('./routes/auth');
@@ -21,6 +22,7 @@ const marketRouter    = require('./routes/market');
 const referralRouter  = require('./routes/referral');
 const analyticsRouter = require('./routes/analytics');
 const pushRouter      = require('./routes/push');
+const lotteryRouter   = require('./routes/lottery');
 const { broadcastToRound } = require('./routes/push');
 
 const PORT = process.env.PORT || 3000;
@@ -76,6 +78,7 @@ app.use('/api/market',    apiLimit,       marketRouter);
 app.use('/api/referral',  apiLimit,       referralRouter);
 app.use('/api/analytics', analyticsLimit, analyticsRouter);
 app.use('/api/push',      apiLimit,       pushRouter);
+app.use('/api/lottery',   apiLimit,       lotteryRouter);
 
 // Health check
 app.get('/health', (_req, res) => res.json({
@@ -102,6 +105,12 @@ function requireKYC(req, res, next) {
 // Run a Standard game + a Flash War simultaneously
 const game      = new GameEngine(io, 'standard');
 const flashGame = new GameEngine(io, 'flash');
+
+// ─── Lottery Engine ──────────────────────────────────────────────────────────
+const lotteryEngine = new LotteryEngine(io);
+app.locals.lotteryEngine = lotteryEngine;
+app.locals.io            = io;
+lotteryEngine.init().catch(err => console.error('[lottery] init failed:', err.message));
 
 // Helper: attach push-notification hooks to any GameEngine instance
 function hookGameEvents(g) {
@@ -137,6 +146,13 @@ io.on('connection', socket => {
     const g = gameType === 'flash' ? flashGame : game;
     g.addPlayer(socket.id, name);
     socket.emit('init', g.fullState(socket.id));
+  });
+
+  // Lottery: join player-specific room for personal payout notifications
+  socket.on('lottery_auth', ({ playerId } = {}) => {
+    if (playerId && /^[0-9a-f-]{36}$/i.test(playerId)) {
+      socket.join(`player:${playerId}`);
+    }
   });
 
   socket.on('buy', ({ territoryId, gameType = 'standard' }) => {

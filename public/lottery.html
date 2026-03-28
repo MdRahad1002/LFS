@@ -1,0 +1,956 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Territory Lottery — Last Flag Standing</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@300;400;600;700;900&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/ethers/6.7.0/ethers.umd.min.js" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script src="/socket.io/socket.io.js"></script>
+<style>
+:root{--bg:#03080c;--bg2:#060f18;--bg3:#0a1a26;--gold:#f5c518;--amber:#ff9900;--red:#ff2d2d;--green:#00e676;--cyan:#00e5ff;--text:#d0e8f5;--muted:#3a6070;--border:#122030;}
+*{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Barlow Condensed',sans-serif;overflow-x:hidden;min-height:100vh;}
+
+/* ── NAV ─────────────────────────────────────────────────────────────────── */
+nav{height:56px;background:rgba(3,8,12,.97);border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;padding:0 24px;position:sticky;top:0;z-index:100;}
+.nav-left{display:flex;align-items:center;gap:16px;}
+.nav-logo{font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:2px;color:var(--gold);text-decoration:none;}
+.nav-badge{background:rgba(245,197,24,.12);border:1px solid rgba(245,197,24,.3);color:var(--gold);font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:3px;padding:3px 9px;border-radius:2px;}
+.nav-links{display:flex;gap:20px;align-items:center;}
+.nav-links a{color:var(--muted);text-decoration:none;font-size:13px;letter-spacing:2px;transition:color .2s;}
+.nav-links a:hover,.nav-links a.active{color:var(--gold);}
+.wallet-btn{background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.3);color:var(--gold);font-family:'Barlow Condensed',sans-serif;font-size:13px;font-weight:600;letter-spacing:2px;padding:7px 16px;cursor:pointer;transition:all .2s;}
+.wallet-btn:hover{background:rgba(245,197,24,.2);}
+
+/* ── BANNER ──────────────────────────────────────────────────────────────── */
+.banner{background:linear-gradient(135deg,rgba(6,15,24,.97),rgba(10,26,38,.97));border-bottom:1px solid var(--border);padding:24px 32px;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;}
+.jackpot-block{text-align:center;}
+.jackpot-label{font-size:11px;letter-spacing:4px;color:var(--muted);margin-bottom:4px;}
+.jackpot-value{font-family:'Bebas Neue',cursive;font-size:60px;line-height:1;color:var(--gold);text-shadow:0 0 40px rgba(245,197,24,.25);}
+.jackpot-usd{font-size:13px;color:var(--muted);margin-top:2px;font-family:'JetBrains Mono',monospace;}
+.countdown-block{text-align:center;}
+.cd-label{font-size:11px;letter-spacing:4px;color:var(--muted);margin-bottom:8px;}
+.cd-row{display:flex;gap:6px;}
+.cd-unit{background:var(--bg3);border:1px solid var(--border);padding:10px 14px;min-width:60px;text-align:center;border-radius:2px;}
+.cd-val{font-family:'Bebas Neue',cursive;font-size:32px;color:var(--cyan);line-height:1;}
+.cd-key{font-size:9px;letter-spacing:3px;color:var(--muted);margin-top:2px;}
+.stats-row{display:flex;gap:8px;}
+.stat-card{background:var(--bg3);border:1px solid var(--border);padding:14px 18px;min-width:110px;text-align:center;border-radius:2px;}
+.stat-val{font-family:'JetBrains Mono',monospace;font-size:20px;color:var(--text);}
+.stat-lbl{font-size:10px;letter-spacing:3px;color:var(--muted);margin-top:2px;}
+.price-block{text-align:center;background:rgba(245,197,24,.04);border:1px solid rgba(245,197,24,.15);padding:14px 22px;border-radius:2px;}
+.price-lbl{font-size:10px;letter-spacing:3px;color:var(--muted);margin-bottom:4px;}
+.price-usd{font-family:'Bebas Neue',cursive;font-size:38px;color:var(--gold);line-height:1;}
+.price-eth{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);margin-top:4px;}
+
+/* ── MAIN LAYOUT ─────────────────────────────────────────────────────────── */
+.main{display:grid;grid-template-columns:1fr 340px;min-height:calc(100vh - 230px);}
+
+/* ── GRID PANEL ──────────────────────────────────────────────────────────── */
+.grid-panel{padding:22px;border-right:1px solid var(--border);}
+.grid-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:8px;}
+.grid-title{font-family:'Bebas Neue',cursive;font-size:17px;letter-spacing:3px;color:var(--gold);}
+.grid-legend{display:flex;gap:12px;align-items:center;font-size:11px;color:var(--muted);letter-spacing:1px;}
+.ld{width:10px;height:10px;border-radius:1px;display:inline-block;margin-right:3px;vertical-align:middle;}
+.ld-empty{background:var(--bg3);border:1px solid var(--border);}
+.ld-low{background:rgba(0,230,118,.25);}
+.ld-med{background:rgba(245,197,24,.3);}
+.ld-hot{background:rgba(255,100,0,.35);}
+.ld-mine{background:rgba(0,229,255,.35);}
+
+/* ── TERRITORY GRID ──────────────────────────────────────────────────────── */
+.territory-grid{display:grid;grid-template-columns:repeat(15,1fr);gap:3px;}
+.t-cell{aspect-ratio:1.35;border:1px solid var(--border);background:var(--bg3);border-radius:2px;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:9px;cursor:pointer;transition:border-color .15s,transform .15s;position:relative;overflow:hidden;user-select:none;}
+.t-cell:hover{border-color:rgba(245,197,24,.6);transform:scale(1.06);z-index:2;box-shadow:0 2px 12px rgba(0,0,0,.5);}
+.t-cell.mine{border-color:rgba(0,229,255,.5);}
+.t-cell.winner-cell{border-color:var(--gold)!important;animation:winCellPulse 1s infinite;}
+@keyframes winCellPulse{0%,100%{box-shadow:0 0 6px rgba(245,197,24,.3)}50%{box-shadow:0 0 20px rgba(245,197,24,.8)}}
+.t-flag{font-size:13px;line-height:1;}
+.t-count{font-family:'JetBrains Mono',monospace;color:var(--muted);font-size:7px;margin-top:1px;}
+.t-mine-dot{position:absolute;top:2px;right:2px;width:4px;height:4px;border-radius:50%;background:var(--cyan);}
+
+/* ── SIDEBAR ─────────────────────────────────────────────────────────────── */
+.sidebar{background:var(--bg2);display:flex;flex-direction:column;overflow:hidden;}
+.sb-sec{border-bottom:1px solid var(--border);padding:16px;}
+.sb-sec:last-child{border-bottom:none;}
+.sb-title{font-family:'Bebas Neue',cursive;font-size:12px;letter-spacing:4px;color:var(--muted);margin-bottom:10px;}
+
+/* ── MY TICKETS TABLE ────────────────────────────────────────────────────── */
+.tickets-table{width:100%;border-collapse:collapse;font-size:12px;}
+.tickets-table th{text-align:left;color:var(--muted);font-size:10px;letter-spacing:2px;font-weight:400;padding-bottom:6px;border-bottom:1px solid var(--border);}
+.tickets-table td{padding:7px 4px;border-bottom:1px solid rgba(18,32,48,.6);vertical-align:middle;}
+.odds-bar{height:3px;background:var(--bg);border-radius:2px;margin-top:3px;overflow:hidden;}
+.odds-fill{height:100%;background:linear-gradient(90deg,var(--cyan),var(--green));border-radius:2px;}
+
+/* ── LEADERBOARD ─────────────────────────────────────────────────────────── */
+.lb-item{display:flex;align-items:center;gap:8px;padding:6px 0;border-bottom:1px solid rgba(18,32,48,.7);font-size:12px;}
+.lb-item:last-child{border-bottom:none;}
+.lb-rank{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);width:18px;flex-shrink:0;}
+.lb-flag{font-size:16px;flex-shrink:0;}
+.lb-name{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.lb-tix{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--gold);flex-shrink:0;}
+.lb-pct{font-size:10px;color:var(--muted);flex-shrink:0;width:36px;text-align:right;}
+
+/* ── PAST ROUNDS ─────────────────────────────────────────────────────────── */
+.round-card{background:var(--bg3);border:1px solid var(--border);border-radius:2px;padding:10px 12px;margin-bottom:8px;}
+.round-card-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;}
+.round-num{font-family:'JetBrains Mono',monospace;font-size:10px;color:var(--muted);}
+.round-eth{font-family:'JetBrains Mono',monospace;font-size:13px;color:var(--gold);}
+.round-winner-row{display:flex;align-items:center;gap:8px;}
+.round-wflag{font-size:18px;}
+.round-wname{font-size:13px;}
+.round-date{font-size:10px;color:var(--muted);font-family:'JetBrains Mono',monospace;}
+
+/* ── CONNECT PROMPT ──────────────────────────────────────────────────────── */
+.conn-prompt{text-align:center;padding:20px 12px;}
+.conn-prompt p{color:var(--muted);font-size:11px;letter-spacing:2px;margin-bottom:12px;}
+.conn-prompt button{background:rgba(245,197,24,.1);border:1px solid rgba(245,197,24,.3);color:var(--gold);font-family:'Barlow Condensed',sans-serif;font-size:13px;letter-spacing:2px;padding:8px 20px;cursor:pointer;transition:all .2s;}
+.conn-prompt button:hover{background:rgba(245,197,24,.2);}
+
+/* ── BUY MODAL ───────────────────────────────────────────────────────────── */
+.modal-overlay{position:fixed;inset:0;background:rgba(3,8,12,.85);z-index:200;display:flex;align-items:center;justify-content:center;backdrop-filter:blur(4px);}
+.modal{background:var(--bg2);border:1px solid var(--border);width:440px;max-width:95vw;border-radius:2px;}
+.modal-hdr{background:var(--bg3);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--border);}
+.modal-title{font-family:'Bebas Neue',cursive;font-size:20px;letter-spacing:3px;}
+.modal-close{background:none;border:none;color:var(--muted);font-size:20px;cursor:pointer;line-height:1;padding:0 4px;}
+.modal-close:hover{color:var(--text);}
+.modal-body{padding:22px 20px;}
+.modal-terr{display:flex;align-items:center;gap:14px;margin-bottom:18px;padding-bottom:18px;border-bottom:1px solid var(--border);}
+.modal-flag{font-size:38px;}
+.modal-cname{font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:2px;}
+.modal-meta{font-size:12px;color:var(--muted);margin-top:4px;font-family:'JetBrains Mono',monospace;}
+.modal-odds-txt{font-size:13px;color:var(--cyan);margin-top:3px;}
+.form-lbl{font-size:11px;letter-spacing:3px;color:var(--muted);margin-bottom:6px;display:block;}
+.qty-row{display:flex;align-items:center;gap:8px;margin-bottom:16px;}
+.qty-btn{background:var(--bg3);border:1px solid var(--border);color:var(--text);display:flex;align-items:center;justify-content:center;cursor:pointer;border-radius:2px;transition:all .15s;flex-shrink:0;}
+.qty-btn-sm{width:32px;height:32px;font-size:16px;}
+.qty-btn-lg{height:32px;padding:0 10px;font-size:12px;letter-spacing:1px;}
+.qty-btn:hover{border-color:var(--gold);color:var(--gold);}
+.qty-input{background:var(--bg3);border:1px solid var(--border);color:var(--text);font-family:'JetBrains Mono',monospace;font-size:17px;text-align:center;width:72px;height:32px;border-radius:2px;outline:none;}
+.qty-input:focus{border-color:rgba(245,197,24,.4);}
+.price-summary{background:var(--bg3);border:1px solid var(--border);padding:12px 14px;margin-bottom:16px;}
+.pr-row{display:flex;justify-content:space-between;font-size:12px;margin-bottom:5px;}
+.pr-row:last-child{margin-bottom:0;padding-top:8px;border-top:1px solid var(--border);font-size:14px;font-weight:700;}
+.pr-row .v{font-family:'JetBrains Mono',monospace;}
+.pr-row.total .v{color:var(--gold);}
+.buy-btn{width:100%;background:rgba(245,197,24,.12);border:1px solid rgba(245,197,24,.4);color:var(--gold);font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:4px;padding:13px;cursor:pointer;transition:all .2s;border-radius:2px;}
+.buy-btn:hover:not(:disabled){background:rgba(245,197,24,.22);}
+.buy-btn:disabled{opacity:.4;cursor:not-allowed;}
+.modal-warn{font-size:11px;color:var(--muted);text-align:center;margin-top:10px;letter-spacing:1px;}
+
+/* ── WINNER OVERLAY ──────────────────────────────────────────────────────── */
+.winner-overlay{position:fixed;inset:0;background:rgba(3,8,12,.92);z-index:300;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:24px;}
+.winner-overlay.show{display:flex;}
+.w-flag{font-size:88px;margin-bottom:14px;animation:popIn .5s ease;}
+@keyframes popIn{from{transform:scale(.4);opacity:0}to{transform:scale(1);opacity:1}}
+.w-title{font-family:'Bebas Neue',cursive;font-size:60px;letter-spacing:6px;color:var(--gold);line-height:1;}
+.w-country{font-family:'Bebas Neue',cursive;font-size:34px;letter-spacing:4px;margin-top:8px;}
+.w-jackpot{font-family:'JetBrains Mono',monospace;font-size:18px;color:var(--gold);margin-top:14px;}
+.w-payout{font-family:'Bebas Neue',cursive;font-size:34px;color:var(--green);margin-top:10px;}
+.w-close{margin-top:28px;background:none;border:1px solid var(--muted);color:var(--muted);font-family:'Barlow Condensed',sans-serif;font-size:14px;letter-spacing:3px;padding:9px 26px;cursor:pointer;transition:all .2s;border-radius:2px;}
+.w-close:hover{border-color:var(--text);color:var(--text);}
+
+/* ── TOAST ───────────────────────────────────────────────────────────────── */
+.toast-wrap{position:fixed;bottom:22px;right:22px;z-index:500;display:flex;flex-direction:column;gap:6px;}
+.toast{background:var(--bg3);border:1px solid var(--border);border-left:3px solid var(--green);padding:11px 14px;min-width:260px;max-width:340px;font-size:13px;animation:toastIn .3s ease;border-radius:2px;}
+.toast.err{border-left-color:var(--red);}
+.toast.gold{border-left-color:var(--gold);}
+@keyframes toastIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:none}}
+
+/* ── STATES ──────────────────────────────────────────────────────────────── */
+.empty-state{color:var(--muted);font-size:11px;letter-spacing:2px;padding:8px 0;}
+.loader-txt{color:var(--muted);font-family:'JetBrains Mono',monospace;font-size:11px;padding:16px 0;}
+.no-round{text-align:center;padding:80px 20px;color:var(--muted);}
+.no-round .ico{font-size:48px;margin-bottom:14px;}
+.no-round .msg{font-family:'Bebas Neue',cursive;font-size:22px;letter-spacing:4px;}
+.no-round .sub{font-size:12px;margin-top:6px;letter-spacing:2px;}
+
+/* ── DRAWING BANNER ──────────────────────────────────────────────────────── */
+.drawing-banner{background:rgba(245,197,24,.07);border:1px solid rgba(245,197,24,.2);padding:10px 16px;text-align:center;font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gold);letter-spacing:3px;animation:drawBlink 1.2s infinite;}
+@keyframes drawBlink{0%,100%{opacity:1}50%{opacity:.5}}
+
+@media(max-width:900px){.main{grid-template-columns:1fr;}.banner{flex-direction:column;align-items:flex-start;}.stats-row{flex-wrap:wrap;}}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-left">
+    <a href="/" class="nav-logo">LAST FLAG</a>
+    <span class="nav-badge">&#127922; LOTTERY</span>
+  </div>
+  <div class="nav-links">
+    <a href="/hub.html">LOBBY</a>
+    <a href="/spectator.html">SPECTATE</a>
+    <a href="/lottery.html" class="active">LOTTERY</a>
+  </div>
+  <button class="wallet-btn" id="walletBtn" onclick="handleWallet()">CONNECT WALLET</button>
+</nav>
+
+<!-- JACKPOT BANNER -->
+<div class="banner" id="bannerEl">
+  <div class="jackpot-block">
+    <div class="jackpot-label">THIS WEEK'S POT</div>
+    <div class="jackpot-value" id="jackpotEth">0.000</div>
+    <div class="jackpot-usd" id="jackpotUsd">— USD</div>
+  </div>
+  <div class="countdown-block">
+    <div class="cd-label">DRAW IN</div>
+    <div class="cd-row">
+      <div class="cd-unit"><div class="cd-val" id="cdD">--</div><div class="cd-key">DAYS</div></div>
+      <div class="cd-unit"><div class="cd-val" id="cdH">--</div><div class="cd-key">HRS</div></div>
+      <div class="cd-unit"><div class="cd-val" id="cdM">--</div><div class="cd-key">MIN</div></div>
+      <div class="cd-unit"><div class="cd-val" id="cdS">--</div><div class="cd-key">SEC</div></div>
+    </div>
+  </div>
+  <div class="stats-row">
+    <div class="stat-card"><div class="stat-val" id="sTix">—</div><div class="stat-lbl">TICKETS</div></div>
+    <div class="stat-card"><div class="stat-val" id="sCov">—</div><div class="stat-lbl">TERRITORIES</div></div>
+  </div>
+  <div class="price-block">
+    <div class="price-lbl">PER TICKET</div>
+    <div class="price-usd">$20</div>
+    <div class="price-eth" id="priceEth">≈ — ETH</div>
+  </div>
+</div>
+
+<!-- DRAWING BANNER (hidden until draw phase) -->
+<div class="drawing-banner" id="drawingBanner" style="display:none;">
+  &#9881; TICKET WINDOW CLOSED &mdash; CHAINLINK VRF DRAW IN PROGRESS&hellip;
+</div>
+
+<!-- MAIN LAYOUT -->
+<div class="main" id="mainLayout">
+
+  <!-- TERRITORY GRID -->
+  <div class="grid-panel">
+    <div class="grid-header">
+      <div class="grid-title">CHOOSE YOUR TERRITORY</div>
+      <div class="grid-legend">
+        <span><span class="ld ld-empty"></span>EMPTY</span>
+        <span><span class="ld ld-low"></span>ACTIVE</span>
+        <span><span class="ld ld-med"></span>HOT</span>
+        <span><span class="ld ld-hot"></span>BURNING</span>
+        <span><span class="ld ld-mine"></span>YOURS</span>
+      </div>
+    </div>
+    <div class="territory-grid" id="territoryGrid">
+      <div class="loader-txt" style="grid-column:1/-1;text-align:center;">LOADING TERRITORIES&hellip;</div>
+    </div>
+  </div>
+
+  <!-- SIDEBAR -->
+  <div class="sidebar">
+
+    <!-- MY TICKETS -->
+    <div class="sb-sec">
+      <div class="sb-title">MY TICKETS</div>
+      <div id="myTicketsEl">
+        <div class="conn-prompt">
+          <p>CONNECT WALLET TO SEE YOUR TICKETS</p>
+          <button onclick="handleWallet()">CONNECT</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- HOTTEST TERRITORIES -->
+    <div class="sb-sec">
+      <div class="sb-title">HOTTEST TERRITORIES</div>
+      <div id="leaderboardEl"><div class="loader-txt">LOADING&hellip;</div></div>
+    </div>
+
+    <!-- PAST ROUNDS -->
+    <div class="sb-sec">
+      <div class="sb-title">PAST ROUNDS</div>
+      <div id="pastRoundsEl"><div class="loader-txt">LOADING&hellip;</div></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- NO ACTIVE ROUND -->
+<div id="noRoundEl" class="no-round" style="display:none;">
+  <div class="ico">&#9203;</div>
+  <div class="msg">NO ACTIVE LOTTERY ROUND</div>
+  <div class="sub">A NEW ROUND STARTS AUTOMATICALLY</div>
+</div>
+
+<!-- BUY MODAL -->
+<div class="modal-overlay" id="buyModal" style="display:none;" onclick="closeBuyModal(event)">
+  <div class="modal" onclick="event.stopPropagation()">
+    <div class="modal-hdr">
+      <div class="modal-title">BUY TICKETS</div>
+      <button class="modal-close" onclick="closeBuyModal()" aria-label="Close">&#10005;</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-terr">
+        <div class="modal-flag" id="mFlag">&#127987;</div>
+        <div>
+          <div class="modal-cname" id="mCountry">—</div>
+          <div class="modal-meta" id="mMeta">— tickets</div>
+          <div class="modal-odds-txt" id="mOdds">—</div>
+        </div>
+      </div>
+      <label class="form-lbl">QUANTITY</label>
+      <div class="qty-row">
+        <button class="qty-btn qty-btn-sm" onclick="adjQty(-1)">&#8722;</button>
+        <input class="qty-input" type="number" id="qtyInput" value="1" min="1" max="1000" oninput="syncPrice()">
+        <button class="qty-btn qty-btn-sm" onclick="adjQty(1)">+</button>
+        <button class="qty-btn qty-btn-lg" onclick="setQty(5)">&#215;5</button>
+        <button class="qty-btn qty-btn-lg" onclick="setQty(10)">&#215;10</button>
+      </div>
+      <div class="price-summary">
+        <div class="pr-row"><span>Per ticket</span><span class="v" id="pPer">—</span></div>
+        <div class="pr-row"><span>Quantity</span><span class="v" id="pQty">—</span></div>
+        <div class="pr-row total"><span>TOTAL</span><span class="v" id="pTotal">—</span></div>
+      </div>
+      <button class="buy-btn" id="buyBtn" onclick="submitBuy()" disabled>BUY TICKETS</button>
+      <div class="modal-warn">Transaction sent via MetaMask &middot; non-refundable &middot; gas fees apply</div>
+    </div>
+  </div>
+</div>
+
+<!-- WINNER OVERLAY -->
+<div class="winner-overlay" id="winnerOverlay">
+  <div class="w-flag" id="wFlag">&#127942;</div>
+  <div class="w-title">WINNER!</div>
+  <div class="w-country" id="wCountry">—</div>
+  <div class="w-jackpot" id="wJackpot">—</div>
+  <div class="w-payout" id="wPayout" style="display:none;">YOUR PAYOUT: —</div>
+  <button class="w-close" onclick="document.getElementById('winnerOverlay').classList.remove('show')">CLOSE</button>
+</div>
+
+<!-- TOAST WRAPPER -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<script>
+// ─── MINIMAL WALLET SHIM ──────────────────────────────────────────────────────
+// Mirrors the Wallet class in wallet.js — load it here so lottery.html is self-contained.
+// If wallet.js is already on the page it will be used; otherwise we provide a lightweight shim.
+(function() {
+  if (window.Wallet) return; // wallet.js already loaded
+  class Wallet {
+    constructor() {
+      this.provider = null; this.signer = null;
+      this.address  = null; this.chainId = null;
+      this.token    = null; this.player  = null;
+      this._restoreSession();
+    }
+    async connect(type) {
+      if (type !== 'metamask') throw new Error('Only MetaMask supported here');
+      if (!window.ethereum) throw new Error('MetaMask not detected');
+      const accts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      if (!accts.length) throw new Error('No accounts returned');
+      this.provider = new ethers.BrowserProvider(window.ethereum);
+      this.signer   = await this.provider.getSigner();
+      this.address  = accts[0];
+      this.chainId  = Number((await this.provider.getNetwork()).chainId);
+      window.dispatchEvent(new CustomEvent('wallet:connected', { detail: { address: this.address } }));
+    }
+    async signIn(referralCode) {
+      if (!this.address) throw new Error('Connect wallet first');
+      const n = await fetch('/api/auth/nonce', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ address: this.address }),
+      }).then(r => r.json());
+      const sig = await this.signer.signMessage(n.message);
+      const d   = await fetch('/api/auth/verify', {
+        method: 'POST', headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ address: this.address, signature: sig, referralCode }),
+      }).then(r => r.json());
+      if (!d.token) throw new Error(d.error || 'Sign-in failed');
+      this.token = d.token; this.player = d.player;
+      this._saveSession();
+      window.dispatchEvent(new CustomEvent('wallet:signedIn', { detail: { player: d.player, token: d.token } }));
+      return d;
+    }
+    async authFetch(path, opts = {}) {
+      if (!this.token) throw new Error('Not signed in');
+      const r = await fetch(path, {
+        ...opts,
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + this.token, ...(opts.headers || {}) },
+      });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(data.error || 'HTTP ' + r.status);
+      return data;
+    }
+    disconnect() {
+      Object.assign(this, { provider: null, signer: null, address: null, chainId: null, token: null, player: null });
+      localStorage.removeItem('lfs_token');
+      window.dispatchEvent(new CustomEvent('wallet:disconnected'));
+    }
+    get isConnected() { return !!this.address; }
+    _saveSession() { if (this.token) localStorage.setItem('lfs_token', this.token); }
+    _restoreSession() {
+      const t = localStorage.getItem('lfs_token');
+      if (!t) return;
+      try {
+        const payload = JSON.parse(atob(t.split('.')[1]));
+        if (payload.exp * 1000 < Date.now()) { localStorage.removeItem('lfs_token'); return; }
+        this.token = t;
+      } catch { localStorage.removeItem('lfs_token'); }
+    }
+  }
+  window.Wallet = Wallet;
+})();
+
+// ─── APP STATE ────────────────────────────────────────────────────────────────
+let wallet        = null;
+let contractAddr  = null;
+let ticketPriceWei = null;   // BigInt
+let currentRound  = null;
+let territories   = [];      // [{territory_id, country_name, flag_emoji, ticket_count, odds_pct, ...}]
+let myTickets     = {};      // { territory_id: count }
+let drawEndMs     = null;
+let cdTimer       = null;
+let selTerritory  = null;    // currently open modal territory
+
+// ─── BOOT ─────────────────────────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async () => {
+  wallet = new Wallet();
+  if (wallet.token) updateWalletBtn();
+
+  window.addEventListener('wallet:signedIn', () => { updateWalletBtn(); loadMyTickets(); });
+  window.addEventListener('wallet:disconnected', () => { updateWalletBtn(); renderMyTickets([], 0); });
+
+  await loadConfig();
+  await Promise.all([loadCurrentRound(), loadPastRounds()]);
+  connectSocket();
+});
+
+// ─── CONFIG ───────────────────────────────────────────────────────────────────
+async function loadConfig() {
+  try {
+    const cfg = await fetch('/api/lottery/config').then(r => r.json());
+    contractAddr = cfg.contractAddress || null;
+
+    if (contractAddr && typeof ethers !== 'undefined') {
+      try {
+        const rpcProvider = new ethers.BrowserProvider(window.ethereum || getPublicProvider());
+        const contract = new ethers.Contract(contractAddr, LOTTERY_ABI_MIN, rpcProvider);
+        ticketPriceWei = await contract.ticketPriceWei();
+        document.getElementById('priceEth').textContent = '≈ ' + fmtEth(ticketPriceWei) + ' ETH';
+      } catch (_) { /* price feed will be shown when wallet connects */ }
+    }
+  } catch (err) { console.warn('[lottery] loadConfig:', err.message); }
+}
+
+function getPublicProvider() {
+  // Fallback read-only provider (Ethereum mainnet public RPC)
+  return null; // ethers will fail gracefully
+}
+
+// ─── CURRENT ROUND ────────────────────────────────────────────────────────────
+async function loadCurrentRound() {
+  try {
+    const data = await fetch('/api/lottery/rounds/current').then(r => r.json());
+
+    if (!data.round) {
+      document.getElementById('mainLayout').style.display = 'none';
+      document.getElementById('noRoundEl').style.display = '';
+      return;
+    }
+
+    document.getElementById('mainLayout').style.display = '';
+    document.getElementById('noRoundEl').style.display = 'none';
+
+    currentRound  = data.round;
+    territories   = data.territories || [];
+    const total   = data.totalTickets || 0;
+    const covered = territories.filter(t => t.ticket_count > 0).length;
+
+    setJackpot(currentRound.jackpot_wei || '0');
+    document.getElementById('sTix').textContent = total.toLocaleString();
+    document.getElementById('sCov').textContent = covered + '/195';
+
+    if (currentRound.status === 'drawing') {
+      showDrawingBanner();
+    } else {
+      drawEndMs = new Date(currentRound.end_time).getTime();
+      startCountdown();
+    }
+
+    renderGrid();
+    renderLeaderboard();
+    if (wallet?.token) loadMyTickets();
+
+  } catch (err) {
+    console.error('[lottery] loadCurrentRound:', err.message);
+    toast('Failed to load round data', 'err');
+  }
+}
+
+// ─── JACKPOT ──────────────────────────────────────────────────────────────────
+function setJackpot(wei) {
+  const eth = Number(BigInt(wei)) / 1e18;
+  document.getElementById('jackpotEth').textContent = eth.toFixed(3);
+  document.getElementById('jackpotUsd').textContent = '≈ $' + Math.round(eth * 3000).toLocaleString() + ' USD';
+}
+
+// ─── COUNTDOWN ────────────────────────────────────────────────────────────────
+function startCountdown() {
+  if (cdTimer) clearInterval(cdTimer);
+  tickCd();
+  cdTimer = setInterval(tickCd, 1000);
+}
+
+function tickCd() {
+  const ms = Math.max(0, drawEndMs - Date.now());
+  const t  = Math.floor(ms / 1000);
+  setCD(Math.floor(t / 86400), Math.floor((t % 86400) / 3600), Math.floor((t % 3600) / 60), t % 60);
+  if (ms === 0) { clearInterval(cdTimer); showDrawingBanner(); }
+}
+
+function setCD(d, h, m, s) {
+  document.getElementById('cdD').textContent = pad2(d);
+  document.getElementById('cdH').textContent = pad2(h);
+  document.getElementById('cdM').textContent = pad2(m);
+  document.getElementById('cdS').textContent = pad2(s);
+}
+
+function showDrawingBanner() {
+  document.getElementById('drawingBanner').style.display = '';
+  setCD('--', '--', '--', '--');
+  if (cdTimer) { clearInterval(cdTimer); cdTimer = null; }
+}
+
+// ─── GRID ─────────────────────────────────────────────────────────────────────
+function renderGrid() {
+  const grid  = document.getElementById('territoryGrid');
+  const maxTx = Math.max(...territories.map(t => t.ticket_count), 1);
+  const frag  = document.createDocumentFragment();
+
+  for (const t of territories) {
+    const tid    = parseInt(t.territory_id, 10);
+    const tcount = parseInt(t.ticket_count, 10) || 0;
+    const todds  = parseFloat(t.odds_pct) || 0;
+    const isMine = (myTickets[tid] || 0) > 0;
+
+    const cell = document.createElement('div');
+    cell.className = 't-cell' + (isMine ? ' mine' : '');
+    cell.id        = 'tc-' + tid;
+    cell.style.background = heatBg(tcount, maxTx);
+    cell.title     = t.country_name + ' \u2014 ' + tcount + ' tickets \u00b7 ' + todds + '% odds';
+    cell.addEventListener('click', () => openModal(tid));
+
+    if (isMine) {
+      const dot = document.createElement('div');
+      dot.className = 't-mine-dot';
+      cell.appendChild(dot);
+    }
+    const flagSpan = document.createElement('span');
+    flagSpan.className   = 't-flag';
+    flagSpan.textContent = t.flag_emoji || '\uD83C\uDFF3';
+    const cntSpan = document.createElement('span');
+    cntSpan.className   = 't-count';
+    cntSpan.textContent = tcount || '';
+    cell.appendChild(flagSpan);
+    cell.appendChild(cntSpan);
+    frag.appendChild(cell);
+  }
+
+  grid.textContent = ''; // clear without innerHTML
+  grid.appendChild(frag);
+}
+
+function heatBg(count, max) {
+  if (!count)             return 'var(--bg3)';
+  const r = count / max;
+  if (r < 0.15) return 'rgba(0,230,118,.18)';
+  if (r < 0.40) return 'rgba(245,197,24,.22)';
+  if (r < 0.70) return 'rgba(255,100,0,.28)';
+  return 'rgba(255,45,45,.22)';
+}
+
+function patchCell(territoryId, newCount) {
+  const t = territories.find(x => x.territory_id === territoryId);
+  if (!t) return;
+  t.ticket_count = newCount;
+  const maxTx = Math.max(...territories.map(x => x.ticket_count), 1);
+  const cell  = document.getElementById('tc-' + territoryId);
+  if (!cell) return;
+  cell.style.background = heatBg(newCount, maxTx);
+  const cs = cell.querySelector('.t-count');
+  if (cs) cs.textContent = newCount || '';
+}
+
+// ─── LEADERBOARD ─────────────────────────────────────────────────────────────
+function renderLeaderboard() {
+  const top = [...territories].sort((a, b) => b.ticket_count - a.ticket_count).slice(0, 10);
+  const el  = document.getElementById('leaderboardEl');
+  const hit = top.filter(t => t.ticket_count > 0);
+  if (!hit.length) {
+    el.innerHTML = '<div class="empty-state">NO TICKETS SOLD YET</div>'; return;
+  }
+  const frag = document.createDocumentFragment();
+  hit.forEach((t, i) => {
+    const tcount = parseInt(t.ticket_count, 10) || 0;
+    const todds  = parseFloat(t.odds_pct) || 0;
+
+    const row   = document.createElement('div'); row.className = 'lb-item';
+    const rank  = document.createElement('span'); rank.className = 'lb-rank'; rank.textContent = '#' + (i + 1);
+    const flag  = document.createElement('span'); flag.className = 'lb-flag'; flag.textContent = t.flag_emoji || '\uD83C\uDFF3';
+    const name  = document.createElement('span'); name.className = 'lb-name'; name.textContent = t.country_name;
+    const tix   = document.createElement('span'); tix.className  = 'lb-tix';  tix.textContent  = tcount;
+    const pct   = document.createElement('span'); pct.className  = 'lb-pct';  pct.textContent  = todds + '%';
+    row.appendChild(rank); row.appendChild(flag); row.appendChild(name);
+    row.appendChild(tix);  row.appendChild(pct);
+    frag.appendChild(row);
+  });
+  el.textContent = '';
+  el.appendChild(frag);
+}
+
+// ─── MY TICKETS ───────────────────────────────────────────────────────────────
+async function loadMyTickets() {
+  if (!wallet?.token || !currentRound) return;
+  try {
+    const data = await wallet.authFetch(`/api/lottery/rounds/${currentRound.id}/my-tickets`);
+    myTickets = {};
+    (data.territories || []).forEach(t => { myTickets[t.territory_id] = t.my_tickets; });
+    renderMyTickets(data.territories || [], data.grandTotal || 0);
+    // Mark mine on grid (sanitize id to integer before DOM lookup)
+    Object.keys(myTickets).forEach(rawId => {
+      const id   = parseInt(rawId, 10);
+      const cell = document.getElementById('tc-' + id);
+      if (!cell) return;
+      cell.classList.add('mine');
+      if (!cell.querySelector('.t-mine-dot')) {
+        const d = document.createElement('div'); d.className = 't-mine-dot'; cell.appendChild(d);
+      }
+    });
+  } catch (err) { console.warn('[lottery] loadMyTickets:', err.message); }
+}
+
+function renderMyTickets(terrs, grandTotal) {
+  const el = document.getElementById('myTicketsEl');
+  if (!wallet?.token) {
+    el.innerHTML = '<div class="conn-prompt"><p>CONNECT WALLET TO SEE YOUR TICKETS</p><button onclick="handleWallet()">CONNECT</button></div>';
+    return;
+  }
+  if (!terrs.length) {
+    el.innerHTML = '<div class="empty-state">NO TICKETS — CLICK A TERRITORY TO BUY</div>'; return;
+  }
+  // Build table via DOM APIs to avoid innerHTML XSS
+  const tbl   = document.createElement('table'); tbl.className = 'tickets-table';
+  const thead = tbl.createTHead();
+  const hrow  = thead.insertRow();
+  ['TERRITORY', 'QTY', 'WIN ODDS'].forEach((h, i) => {
+    const th = document.createElement('th'); th.textContent = h;
+    if (i === 1) th.style.textAlign = 'center';
+    hrow.appendChild(th);
+  });
+  const tbody = tbl.createTBody();
+  terrs.forEach(t => {
+    const myQty = parseInt(t.my_tickets, 10) || 0;
+    const todds = parseFloat(t.odds_pct) || 0;
+    const bar   = Math.max(2, Math.min(100, todds));
+
+    const tr   = tbody.insertRow();
+    // Col 1: flag + name
+    const td0  = tr.insertCell(); td0.style.whiteSpace = 'nowrap';
+    const flagS = document.createElement('span'); flagS.textContent = (t.flag_emoji || '\uD83C\uDFF3') + ' ';
+    const nameS = document.createElement('span'); nameS.textContent = t.country_name || 'T' + parseInt(t.territory_id, 10);
+    td0.appendChild(flagS); td0.appendChild(nameS);
+    // Col 2: quantity
+    const td1  = tr.insertCell(); td1.textContent = myQty;
+    td1.style.textAlign = 'center'; td1.style.fontFamily = "'JetBrains Mono',monospace";
+    // Col 3: odds bar
+    const td2  = tr.insertCell();
+    const oddsS = document.createElement('span');
+    oddsS.textContent = todds + '%';
+    oddsS.style.color = 'var(--cyan)'; oddsS.style.fontFamily = "'JetBrains Mono',monospace";
+    const barDiv = document.createElement('div'); barDiv.className = 'odds-bar';
+    const fill   = document.createElement('div'); fill.className   = 'odds-fill'; fill.style.width = bar + '%';
+    barDiv.appendChild(fill);
+    td2.appendChild(oddsS); td2.appendChild(barDiv);
+  });
+  el.textContent = '';
+  el.appendChild(tbl);
+}
+
+// ─── PAST ROUNDS ──────────────────────────────────────────────────────────────
+async function loadPastRounds() {
+  try {
+    const data = await fetch('/api/lottery/rounds?limit=6').then(r => r.json());
+    const done = (data.rounds || []).filter(x => x.status === 'complete');
+    const el   = document.getElementById('pastRoundsEl');
+    if (!done.length) {
+      el.innerHTML = '<div class="empty-state">NO COMPLETED ROUNDS YET</div>'; return;
+    }
+    const frag = document.createDocumentFragment();
+    done.forEach(r => {
+      const eth = fmtEth(r.jackpot_wei || '0');
+      const rid = parseInt(r.id, 10);
+      const dt  = new Date(r.drawn_at || r.end_time).toLocaleDateString();
+
+      const card    = document.createElement('div'); card.className = 'round-card';
+      const top     = document.createElement('div'); top.className  = 'round-card-top';
+      const numEl   = document.createElement('span'); numEl.className = 'round-num'; numEl.textContent = 'ROUND #' + rid;
+      const ethEl   = document.createElement('span'); ethEl.className = 'round-eth'; ethEl.textContent = eth + ' ETH';
+      top.appendChild(numEl); top.appendChild(ethEl);
+
+      const wrow    = document.createElement('div'); wrow.className = 'round-winner-row';
+      const wflag   = document.createElement('span'); wflag.className = 'round-wflag'; wflag.textContent = r.winner_flag || '\uD83C\uDFC6';
+      const winfo   = document.createElement('div');
+      const wname   = document.createElement('div'); wname.className = 'round-wname'; wname.textContent = r.winner_country || 'Territory ' + parseInt(r.winner_territory_id, 10);
+      const wdate   = document.createElement('div'); wdate.className = 'round-date';  wdate.textContent = dt;
+      winfo.appendChild(wname); winfo.appendChild(wdate);
+      wrow.appendChild(wflag); wrow.appendChild(winfo);
+
+      card.appendChild(top); card.appendChild(wrow);
+      frag.appendChild(card);
+    });
+    el.textContent = '';
+    el.appendChild(frag);
+  } catch (err) { console.warn('[lottery] loadPastRounds:', err.message); }
+}
+
+// ─── BUY MODAL ────────────────────────────────────────────────────────────────
+function openModal(territoryId) {
+  if (!currentRound || currentRound.status !== 'entry') {
+    toast('Ticket sales are not open', 'err'); return;
+  }
+  const t = territories.find(x => x.territory_id === territoryId);
+  if (!t) return;
+  selTerritory = t;
+
+  document.getElementById('mFlag').textContent    = t.flag_emoji || '&#127987;';
+  document.getElementById('mCountry').textContent = t.country_name;
+  document.getElementById('mMeta').textContent    = `${t.ticket_count} tickets · ${t.player_count} players`;
+  document.getElementById('mOdds').textContent    = `${t.odds_pct}% current win probability`;
+  document.getElementById('qtyInput').value       = 1;
+  document.getElementById('buyBtn').disabled      = !wallet?.token || !contractAddr || !ticketPriceWei;
+  syncPrice();
+  document.getElementById('buyModal').style.display = 'flex';
+}
+
+function closeBuyModal(e) {
+  if (e && e.target !== document.getElementById('buyModal')) return;
+  document.getElementById('buyModal').style.display = 'none';
+  selTerritory = null;
+}
+
+function adjQty(d) {
+  const inp = document.getElementById('qtyInput');
+  inp.value = Math.max(1, Math.min(1000, parseInt(inp.value || 1) + d));
+  syncPrice();
+}
+
+function setQty(n) {
+  document.getElementById('qtyInput').value = n;
+  syncPrice();
+}
+
+function syncPrice() {
+  const qty  = Math.max(1, parseInt(document.getElementById('qtyInput').value) || 1);
+  const unit = ticketPriceWei || 0n;
+  const tot  = unit * BigInt(qty);
+  document.getElementById('pPer').textContent   = fmtEth(unit) + ' ETH';
+  document.getElementById('pQty').textContent   = qty;
+  document.getElementById('pTotal').textContent = fmtEth(tot) + ' ETH';
+  document.getElementById('buyBtn').disabled    = !wallet?.token || !contractAddr || !ticketPriceWei;
+}
+
+async function submitBuy() {
+  if (!wallet?.token)       { toast('Connect wallet first', 'err'); return; }
+  if (!selTerritory)          return;
+  if (!contractAddr)        { toast('Contract address not set', 'err'); return; }
+  if (!ticketPriceWei)      { toast('Ticket price unavailable', 'err'); return; }
+
+  const territoryId = selTerritory.territory_id;
+  const qty         = Math.max(1, Math.min(1000, parseInt(document.getElementById('qtyInput').value) || 1));
+  const totalWei    = ticketPriceWei * BigInt(qty);
+  const btn         = document.getElementById('buyBtn');
+
+  btn.disabled = true; btn.textContent = 'WAITING FOR WALLET…';
+
+  try {
+    // 1. Backend validation
+    await wallet.authFetch(`/api/lottery/rounds/${currentRound.id}/buy`, {
+      method: 'POST',
+      body: JSON.stringify({ territoryId, quantity: qty }),
+    });
+
+    // 2. On-chain tx
+    if (typeof ethers === 'undefined' || !wallet.signer) throw new Error('Wallet not ready');
+
+    const contract = new ethers.Contract(contractAddr, LOTTERY_ABI_MIN, wallet.signer);
+    btn.textContent = 'CONFIRM IN METAMASK…';
+    const tx = await contract.buyTickets(
+      BigInt(currentRound.contract_round_id || currentRound.id),
+      territoryId,
+      BigInt(qty),
+      { value: totalWei }
+    );
+    btn.textContent = 'CONFIRMING TX (1 BLOCK)…';
+    const receipt = await tx.wait(1);
+
+    // 3. Notify backend
+    await wallet.authFetch(`/api/lottery/rounds/${currentRound.id}/confirm-buy`, {
+      method: 'POST',
+      body: JSON.stringify({
+        territoryId,
+        quantity:           qty,
+        txHash:             receipt.hash,
+        totalPaidWei:       totalWei.toString(),
+        pricePerTicketWei:  ticketPriceWei.toString(),
+      }),
+    });
+
+    toast(`${qty} ticket${qty > 1 ? 's' : ''} purchased on ${selTerritory.country_name}!`, 'gold');
+    document.getElementById('buyModal').style.display = 'none';
+    selTerritory = null;
+    await loadCurrentRound();
+    await loadMyTickets();
+
+  } catch (err) {
+    console.error('[lottery] submitBuy:', err);
+    toast(err.reason || err.shortMessage || err.message || 'Transaction failed', 'err');
+  } finally {
+    btn.disabled    = false;
+    btn.textContent = 'BUY TICKETS';
+  }
+}
+
+// ─── SOCKET.IO ────────────────────────────────────────────────────────────────
+function connectSocket() {
+  const socket = io({ transports: ['websocket', 'polling'] });
+
+  socket.on('connect', () => {
+    if (wallet?.player?.id) socket.emit('lottery_auth', { playerId: wallet.player.id });
+    window.addEventListener('wallet:signedIn', e => {
+      socket.emit('lottery_auth', { playerId: e.detail.player?.id });
+    });
+  });
+
+  // Server countdown tick
+  socket.on('lottery_tick', ({ roundId, msLeft }) => {
+    if (currentRound?.id === roundId) drawEndMs = Date.now() + msLeft;
+  });
+
+  // Ticket purchased → update jackpot + territory cell
+  socket.on('lottery_jackpot_update', ({ roundId, jackpotWei, totalTickets, territoryId, qty }) => {
+    if (!currentRound || currentRound.id !== roundId) return;
+    currentRound.jackpot_wei = jackpotWei;
+    setJackpot(jackpotWei);
+    document.getElementById('sTix').textContent = totalTickets.toLocaleString();
+
+    // Update territory count in local data
+    const t = territories.find(x => x.territory_id === territoryId);
+    if (t) {
+      t.ticket_count += qty;
+      patchCell(territoryId, t.ticket_count);
+      // Recompute odds
+      const tot = territories.reduce((s, x) => s + x.ticket_count, 0);
+      territories.forEach(x => {
+        x.odds_pct = tot > 0 ? ((x.ticket_count / tot) * 100).toFixed(2) : '0.00';
+      });
+      const cov = territories.filter(x => x.ticket_count > 0).length;
+      document.getElementById('sCov').textContent = cov + '/195';
+      renderLeaderboard();
+    }
+  });
+
+  // New round opened
+  socket.on('lottery_round_started', () => {
+    toast('New lottery round started! Buy your tickets now.', 'gold');
+    loadCurrentRound();
+  });
+
+  // Draw phase started
+  socket.on('lottery_drawing', ({ message }) => {
+    if (currentRound) currentRound.status = 'drawing';
+    showDrawingBanner();
+    toast(message || 'Draw in progress…', '');
+  });
+
+  // Winner announced (global)
+  socket.on('lottery_winner', data => {
+    revealWinner(data.flagEmoji, data.countryName, data.jackpotWei, null);
+    loadCurrentRound();
+    loadPastRounds();
+  });
+
+  // Personal payout
+  socket.on('lottery_your_payout', data => {
+    revealWinner(null, null, null, data.payoutWei);
+  });
+}
+
+function revealWinner(flagEmoji, country, jackpotWei, payoutWei) {
+  if (flagEmoji)  document.getElementById('wFlag').textContent    = flagEmoji;
+  if (country)    document.getElementById('wCountry').textContent = country;
+  if (jackpotWei) document.getElementById('wJackpot').textContent = 'JACKPOT: ' + fmtEth(jackpotWei) + ' ETH';
+
+  const payEl = document.getElementById('wPayout');
+  if (payoutWei && BigInt(payoutWei) > 0n) {
+    payEl.textContent  = 'YOUR PAYOUT: ' + fmtEth(payoutWei) + ' ETH';
+    payEl.style.display = '';
+  } else {
+    payEl.style.display = 'none';
+  }
+  document.getElementById('winnerOverlay').classList.add('show');
+}
+
+// ─── WALLET ───────────────────────────────────────────────────────────────────
+async function handleWallet() {
+  if (wallet.isConnected && wallet.token) { wallet.disconnect(); return; }
+  try {
+    await wallet.connect('metamask');
+    // Refresh ticket price once wallet available
+    if (contractAddr && typeof ethers !== 'undefined' && wallet.provider) {
+      try {
+        const c = new ethers.Contract(contractAddr, LOTTERY_ABI_MIN, wallet.provider);
+        ticketPriceWei = await c.ticketPriceWei();
+        document.getElementById('priceEth').textContent = '≈ ' + fmtEth(ticketPriceWei) + ' ETH';
+      } catch (_) {}
+    }
+    await wallet.signIn();
+  } catch (err) { toast(err.message || 'Connection failed', 'err'); }
+}
+
+function updateWalletBtn() {
+  const addr = wallet.address;
+  document.getElementById('walletBtn').textContent = addr
+    ? addr.slice(0, 6) + '…' + addr.slice(-4)
+    : 'CONNECT WALLET';
+}
+
+// ─── TOAST ────────────────────────────────────────────────────────────────────
+function toast(msg, type) {
+  const el = document.createElement('div');
+  el.className = 'toast' + (type ? ' ' + type : '');
+  el.textContent = msg;
+  document.getElementById('toastWrap').appendChild(el);
+  setTimeout(() => el.remove(), 4500);
+}
+
+// ─── HELPERS ──────────────────────────────────────────────────────────────────
+function fmtEth(wei) {
+  if (wei === null || wei === undefined) return '—';
+  const n = typeof wei === 'bigint' ? wei : BigInt(wei.toString());
+  return (Number(n) / 1e18).toFixed(6);
+}
+function pad2(n) { return String(n).padStart(2, '0'); }
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ─── MINIMAL CONTRACT ABI ─────────────────────────────────────────────────────
+const LOTTERY_ABI_MIN = [
+  { type:'function', name:'buyTickets',
+    inputs:[{type:'uint256',name:'roundId'},{type:'uint8',name:'territoryId'},{type:'uint256',name:'qty'}],
+    outputs:[], stateMutability:'payable' },
+  { type:'function', name:'ticketPriceWei',
+    inputs:[], outputs:[{type:'uint256'}], stateMutability:'view' },
+  { type:'function', name:'playerTickets',
+    inputs:[{type:'uint256'},{type:'address'},{type:'uint8'}],
+    outputs:[{type:'uint256'}], stateMutability:'view' },
+];
+</script>
+</body>
+</html>

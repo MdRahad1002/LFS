@@ -16,6 +16,11 @@ const VRF_CONFIG = {
   subId:       process.env.VRF_SUB_ID      || "0",   // create at https://vrf.chain.link
 };
 
+// ETH/USD price feed
+// Mainnet:  0x5f4eC3Df9cbd43714FE2740f5E3616155c5b8419
+// Sepolia:  0x694AA1769357215DE4FAC081bf1f309aDC325306
+const ETH_USD_FEED = process.env.ETH_USD_FEED || "0x694AA1769357215DE4FAC081bf1f309aDC325306";
+
 const HOUSE_WALLET   = process.env.HOUSE_WALLET   || ethers.ZeroAddress;
 const RESERVE_WALLET = process.env.RESERVE_WALLET || ethers.ZeroAddress;
 const TERRITORY_URI  = process.env.TERRITORY_URI  || "https://api.lastflagstanding.io/metadata/";
@@ -56,11 +61,25 @@ async function main() {
   console.log("     ✓ Market:   ", await market.getAddress());
 
   // ── 5. Alliance Vault ─────────────────────────────────────
-  console.log("5/5  Deploying AllianceVault...");
+  console.log("5/6  Deploying AllianceVault...");
   const Alliance = await ethers.getContractFactory("AllianceVault");
   const alliance = await Alliance.deploy();
   await alliance.waitForDeployment();
   console.log("     ✓ Alliance: ", await alliance.getAddress());
+
+  // ── 6. Lottery Vault ──────────────────────────────────────
+  console.log("6/6  Deploying LotteryVault...");
+  const LotteryVault = await ethers.getContractFactory("LotteryVault");
+  const lotteryVault = await LotteryVault.deploy(
+    VRF_CONFIG.coordinator,
+    VRF_CONFIG.keyHash,
+    VRF_CONFIG.subId,
+    ETH_USD_FEED,
+    HOUSE_WALLET,
+    RESERVE_WALLET
+  );
+  await lotteryVault.waitForDeployment();
+  console.log("     ✓ Lottery:  ", await lotteryVault.getAddress());
 
   // ── Wire contracts ────────────────────────────────────────
   console.log("\n     Wiring contracts...");
@@ -78,6 +97,7 @@ async function main() {
     vrf:       await vrf.getAddress(),
     market:    await market.getAddress(),
     alliance:  await alliance.getAddress(),
+    lottery:   await lotteryVault.getAddress(),
   };
 
   console.log("\n✅  Deployment complete. Add these to your .env:\n");
@@ -86,6 +106,7 @@ async function main() {
   console.log(`CONTRACT_VRF=${addresses.vrf}`);
   console.log(`CONTRACT_MARKET=${addresses.market}`);
   console.log(`CONTRACT_ALLIANCE=${addresses.alliance}`);
+  console.log(`CONTRACT_LOTTERY=${addresses.lottery}`);
   console.log("");
 
   // ── Verify on Etherscan ───────────────────────────────────

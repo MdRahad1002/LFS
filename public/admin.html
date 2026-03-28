@@ -3,397 +3,662 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Analytics  Last Flag Standing Admin</title>
-<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=JetBrains+Mono:wght@300;400;700&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js"></script>
+<title>LFS Admin &mdash; Operations Center</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;700&family=IBM+Plex+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#03080c;--bg2:#060f18;--bg3:#0a1a26;--gold:#f5c518;--amber:#ff9900;--red:#ff2d2d;--green:#00e676;--cyan:#00e5ff;--text:#d0e8f5;--muted:#3a6070;--border:#122030;}
+:root {
+  --bg:#060a0f; --bg2:#090e16; --bg3:#0c1420; --panel:#0a1018;
+  --border:rgba(0,200,120,0.12); --border2:rgba(0,200,120,0.28);
+  --green:#00c878; --green2:#00ff9d; --gold:#f0b020; --gold2:#ffd060;
+  --red:#ff3838; --orange:#ff7820; --blue:#2080ff; --cyan:#00d8ff;
+  --purple:#a040ff; --text:#c0d8e8; --muted:#304860; --dim:#1a2a38;
+}
 *{margin:0;padding:0;box-sizing:border-box;}
-body{background:var(--bg);color:var(--text);font-family:'Barlow Condensed',sans-serif;min-height:100vh;}
-nav{height:56px;background:rgba(3,8,12,0.95);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 24px;gap:20px;}
-.nav-logo{font-family:'Bebas Neue',cursive;font-size:18px;color:var(--gold);}
-.admin-badge{background:rgba(213,0,249,0.15);border:1px solid rgba(213,0,249,0.3);color:#d500f9;font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:3px;padding:3px 8px;}
-.container{max-width:1400px;margin:0 auto;padding:32px 24px;}
-/* HEADER */
-.page-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px;}
-.page-title{font-family:'Bebas Neue',cursive;font-size:36px;letter-spacing:3px;}
-.page-title span{color:var(--gold);}
-.date-range{display:flex;gap:8px;}
-.day-btn{background:var(--bg3);border:1px solid var(--border);color:var(--muted);padding:6px 14px;font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:1px;cursor:pointer;transition:all 0.2s;}
-.day-btn:hover,.day-btn.active{border-color:var(--gold);color:var(--gold);}
-/* KPI CARDS */
-.kpi-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:16px;margin-bottom:32px;}
-.kpi{background:var(--bg2);border:1px solid var(--border);padding:20px;position:relative;overflow:hidden;}
-.kpi::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--gold);}
-.kpi.red::before{background:var(--red);}
-.kpi.green::before{background:var(--green);}
-.kpi.cyan::before{background:var(--cyan);}
-.kpi.amber::before{background:var(--amber);}
-.kpi-label{font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--muted);margin-bottom:8px;}
-.kpi-value{font-family:'Bebas Neue',cursive;font-size:36px;line-height:1;color:var(--text);}
-.kpi-sub{font-size:12px;color:var(--muted);margin-top:6px;}
-.kpi-delta{font-family:'JetBrains Mono',monospace;font-size:11px;margin-top:4px;}
-.kpi-delta.up{color:var(--green);}
+html,body{height:100%;overflow:hidden;}
+body{background:var(--bg);color:var(--text);font-family:'IBM Plex Mono',monospace;font-size:12px;display:flex;flex-direction:column;}
+body::before{content:'';position:fixed;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,200,120,0.015) 2px,rgba(0,200,120,0.015) 3px);pointer-events:none;z-index:9999;}
+.topbar{height:44px;flex-shrink:0;background:var(--panel);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:20px;z-index:100;}
+.tb-logo{font-size:13px;font-weight:700;letter-spacing:3px;color:var(--green);white-space:nowrap;}
+.tb-logo span{color:var(--muted);}
+.tb-status{display:flex;align-items:center;gap:6px;font-size:11px;color:var(--muted);}
+.tb-dot{width:6px;height:6px;border-radius:50%;}
+.tb-dot.live{background:var(--green);box-shadow:0 0 6px var(--green);animation:dotPulse 1.5s infinite;}
+.tb-dot.warn{background:var(--gold);box-shadow:0 0 6px var(--gold);}
+.tb-dot.dead{background:var(--red);}
+@keyframes dotPulse{50%{opacity:0.3;}}
+.tb-spacer{flex:1;}
+.tb-time{font-size:13px;color:var(--green2);letter-spacing:2px;}
+.tb-alert{background:rgba(255,56,56,0.1);border:1px solid rgba(255,56,56,0.3);color:var(--red);padding:4px 12px;font-size:10px;letter-spacing:2px;cursor:pointer;transition:all 0.2s;font-family:'IBM Plex Mono',monospace;}
+.tb-alert:hover{background:rgba(255,56,56,0.2);}
+.tb-btn{background:rgba(0,200,120,0.1);border:1px solid var(--border2);color:var(--green);padding:4px 12px;font-size:10px;letter-spacing:2px;cursor:pointer;transition:all 0.2s;font-family:'IBM Plex Mono',monospace;}
+.tb-btn:hover{background:rgba(0,200,120,0.2);}
+.layout{flex:1;overflow:hidden;display:grid;grid-template-columns:200px 1fr 280px;}
+.sidebar{background:var(--panel);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;}
+.sb-section{padding:14px 0;}
+.sb-label{font-size:9px;letter-spacing:3px;color:var(--muted);padding:0 16px;margin-bottom:6px;text-transform:uppercase;}
+.sb-item{display:flex;align-items:center;gap:10px;padding:8px 16px;cursor:pointer;font-size:11px;letter-spacing:1px;color:var(--muted);transition:all 0.15s;border-left:2px solid transparent;}
+.sb-item:hover{background:rgba(0,200,120,0.04);color:var(--text);}
+.sb-item.active{background:rgba(0,200,120,0.07);color:var(--green);border-left-color:var(--green);}
+.sb-icon{font-size:13px;width:18px;text-align:center;}
+.sb-badge{margin-left:auto;background:rgba(255,56,56,0.15);border:1px solid rgba(255,56,56,0.3);color:var(--red);font-size:9px;padding:1px 5px;}
+.sb-badge.green{background:rgba(0,200,120,0.1);border-color:rgba(0,200,120,0.3);color:var(--green);}
+.sb-divider{height:1px;background:var(--border);margin:4px 0;}
+.game-sel{padding:14px 16px;border-bottom:1px solid var(--border);}
+.gs-label{font-size:9px;letter-spacing:3px;color:var(--muted);margin-bottom:8px;}
+.gs-game{background:var(--bg3);border:1px solid var(--border);padding:8px 10px;margin-bottom:6px;cursor:pointer;transition:border-color 0.2s;}
+.gs-game.active{border-color:var(--green2);}
+.gs-game:hover{border-color:var(--border2);}
+.gs-name{font-size:11px;color:var(--text);margin-bottom:3px;}
+.gs-meta{font-size:10px;color:var(--muted);}
+.gs-dot{display:inline-block;width:5px;height:5px;border-radius:50%;margin-right:4px;background:var(--green);}
+.gs-dot.entry{background:var(--gold);}
+.gs-dot.end{background:var(--blue);}
+.main{overflow-y:auto;overflow-x:hidden;background:var(--bg2);}
+.kpi-row{display:grid;grid-template-columns:repeat(6,1fr);gap:1px;background:var(--border);border-bottom:1px solid var(--border);}
+.kpi{background:var(--bg2);padding:14px 16px;position:relative;overflow:hidden;}
+.kpi::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;opacity:0;transition:opacity 0.3s;}
+.kpi:hover::after{opacity:1;}
+.kpi.k1::after{background:var(--green);}
+.kpi.k2::after{background:var(--gold);}
+.kpi.k3::after{background:var(--cyan);}
+.kpi.k4::after{background:var(--orange);}
+.kpi.k5::after{background:var(--purple);}
+.kpi.k6::after{background:var(--red);}
+.kpi-label{font-size:9px;letter-spacing:2px;color:var(--muted);margin-bottom:5px;}
+.kpi-val{font-size:20px;font-weight:700;line-height:1;margin-bottom:4px;}
+.kpi-val.green{color:var(--green2);}
+.kpi-val.gold{color:var(--gold2);}
+.kpi-val.cyan{color:var(--cyan);}
+.kpi-val.orange{color:var(--orange);}
+.kpi-val.purple{color:var(--purple);}
+.kpi-val.red{color:var(--red);}
+.kpi-delta{font-size:10px;color:var(--green);}
 .kpi-delta.dn{color:var(--red);}
-/* CHARTS */
-.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:32px;}
-.chart-card{background:var(--bg2);border:1px solid var(--border);padding:20px;}
-.chart-title{font-family:'Bebas Neue',cursive;font-size:16px;letter-spacing:2px;color:var(--muted);margin-bottom:16px;}
-.chart-wrap{position:relative;height:220px;}
-/* TABLES */
-.tables-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;margin-bottom:32px;}
-.table-card{background:var(--bg2);border:1px solid var(--border);padding:20px;}
-.table-title{font-family:'Bebas Neue',cursive;font-size:16px;letter-spacing:2px;color:var(--muted);margin-bottom:14px;}
-table{width:100%;border-collapse:collapse;font-size:13px;}
-th{font-family:'Bebas Neue',cursive;font-size:12px;letter-spacing:2px;color:var(--muted);border-bottom:1px solid var(--border);padding:8px 10px;text-align:left;}
-td{padding:10px;border-bottom:1px solid rgba(18,32,48,0.5);font-family:'JetBrains Mono',monospace;font-size:12px;color:#5a7a8a;}
-tr:hover td{background:rgba(245,197,24,0.02);color:var(--text);}
-.td-gold{color:var(--gold);}
-.td-green{color:var(--green);}
-.td-red{color:var(--red);}
-/* FUNNEL */
-.funnel-card{background:var(--bg2);border:1px solid var(--border);padding:20px;margin-bottom:32px;}
-.funnel-step{display:flex;align-items:center;gap:16px;padding:12px 0;border-bottom:1px solid rgba(18,32,48,0.5);}
-.funnel-step:last-child{border-bottom:none;}
-.funnel-label{font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);width:200px;}
-.funnel-track{flex:1;height:24px;background:var(--bg3);border:1px solid var(--border);position:relative;overflow:hidden;}
-.funnel-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--amber));transition:width 1s ease;}
-.funnel-pct{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--gold);width:60px;text-align:right;}
-.funnel-count{font-family:'JetBrains Mono',monospace;font-size:12px;color:var(--muted);width:80px;text-align:right;}
-/* AUTH */
-.auth-wall{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;}
-.auth-title{font-family:'Bebas Neue',cursive;font-size:48px;color:var(--gold);}
-.auth-input{background:var(--bg3);border:1px solid var(--border);color:var(--text);padding:12px 16px;font-family:'JetBrains Mono',monospace;font-size:14px;width:320px;}
-.auth-btn{background:var(--gold);color:#000;border:none;padding:12px 32px;font-family:'Bebas Neue',cursive;font-size:18px;letter-spacing:2px;cursor:pointer;width:320px;}
-.auth-btn:hover{filter:brightness(1.1);}
-.auth-sub{font-size:12px;color:var(--muted);letter-spacing:2px;}
-@media(max-width:1200px){.kpi-grid{grid-template-columns:repeat(3,1fr);}.charts-grid,.tables-grid{grid-template-columns:1fr;}}
-@media(max-width:700px){.kpi-grid{grid-template-columns:1fr 1fr;}}
+.content-grid{display:grid;grid-template-columns:1fr 1fr;gap:1px;background:var(--border);padding:1px;}
+.panel{background:var(--bg2);overflow:hidden;}
+.panel-hdr{display:flex;align-items:center;justify-content:space-between;padding:10px 16px;border-bottom:1px solid var(--border);background:var(--panel);}
+.panel-title{font-size:11px;letter-spacing:2px;color:var(--green);}
+.panel-meta{font-size:10px;color:var(--muted);}
+.panel-body{padding:12px 16px;}
+.chart-area{height:120px;display:flex;align-items:flex-end;gap:3px;padding:8px 16px 0;}
+.bar{flex:1;background:var(--dim);border-top:1px solid transparent;transition:all 0.3s;cursor:pointer;min-height:4px;}
+.bar:hover{opacity:0.8;}
+.bar.green{background:rgba(0,200,120,0.3);border-top-color:var(--green);}
+.bar.blue{background:rgba(32,128,255,0.3);border-top-color:var(--blue);}
+.chart-labels{display:flex;gap:3px;padding:4px 16px 8px;}
+.chart-labels span{flex:1;text-align:center;font-size:9px;color:var(--muted);}
+.data-table{width:100%;border-collapse:collapse;}
+.data-table th{font-size:9px;letter-spacing:2px;color:var(--muted);padding:6px 10px;border-bottom:1px solid var(--border);text-align:left;text-transform:uppercase;}
+.data-table td{padding:7px 10px;border-bottom:1px solid rgba(0,200,120,0.05);font-size:11px;color:#8aabb8;transition:background 0.15s;}
+.data-table tr:hover td{background:rgba(0,200,120,0.03);}
+.data-table .val{color:var(--text);}
+.data-table .green{color:var(--green);}
+.data-table .gold{color:var(--gold);}
+.data-table .red{color:var(--red);}
+.data-table .cyan{color:var(--cyan);}
+.badge{font-size:9px;letter-spacing:1px;padding:2px 6px;display:inline-block;}
+.badge.live{background:rgba(0,200,120,0.1);color:var(--green);border:1px solid rgba(0,200,120,0.3);}
+.badge.entry{background:rgba(240,176,32,0.1);color:var(--gold);border:1px solid rgba(240,176,32,0.3);}
+.badge.ended{background:rgba(48,72,96,0.5);color:var(--muted);border:1px solid var(--border);}
+.badge.warn{background:rgba(255,120,32,0.1);color:var(--orange);border:1px solid rgba(255,120,32,0.3);}
+.prog{height:3px;background:var(--dim);}
+.prog-fill{height:100%;transition:width 1s ease;}
+.prog-fill.green{background:var(--green);}
+.prog-fill.gold{background:var(--gold);}
+.rev-item{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(0,200,120,0.05);}
+.rev-item:last-child{border-bottom:none;}
+.rev-label{flex:1;font-size:11px;color:#6a8aaa;}
+.rev-bar-wrap{width:80px;height:4px;background:var(--dim);}
+.rev-bar{height:100%;}
+.rev-val{font-size:11px;width:60px;text-align:right;}
+.ctrl-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px;}
+.ctrl-btn{padding:10px 8px;border:1px solid var(--border);background:var(--bg3);color:var(--muted);font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:1px;cursor:pointer;transition:all 0.2s;text-align:center;}
+.ctrl-btn:hover{border-color:var(--border2);color:var(--text);}
+.ctrl-btn.danger{border-color:rgba(255,56,56,0.3);color:var(--red);}
+.ctrl-btn.danger:hover{background:rgba(255,56,56,0.08);}
+.ctrl-btn.primary{border-color:var(--border2);color:var(--green);background:rgba(0,200,120,0.06);}
+.ctrl-btn.primary:hover{background:rgba(0,200,120,0.12);}
+.ctrl-btn.full{grid-column:1/-1;}
+.alert-item{display:flex;align-items:flex-start;gap:10px;padding:8px 0;border-bottom:1px solid rgba(0,200,120,0.05);animation:slideIn 0.3s ease;}
+@keyframes slideIn{from{opacity:0;transform:translateX(-8px);}to{opacity:1;transform:none;}}
+.alert-dot{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:3px;}
+.alert-text{flex:1;font-size:11px;line-height:1.5;color:#6a8aaa;}
+.alert-text strong{color:var(--text);}
+.alert-time{font-size:9px;color:var(--muted);flex-shrink:0;}
+.geo-map{height:140px;background:var(--bg3);border:1px solid var(--border);position:relative;overflow:hidden;margin-bottom:10px;}
+.geo-dot{position:absolute;width:4px;height:4px;border-radius:50%;background:var(--green);box-shadow:0 0 4px var(--green);animation:geoBlink var(--d,2s) infinite alternate;}
+@keyframes geoBlink{from{opacity:0.3;}to{opacity:1;}}
+.right-panel{background:var(--panel);border-left:1px solid var(--border);display:flex;flex-direction:column;overflow-y:auto;}
+.rp-section{border-bottom:1px solid var(--border);padding:14px 16px;}
+.rp-title{font-size:10px;letter-spacing:3px;color:var(--green);margin-bottom:12px;}
+.jm-amount{font-size:28px;font-weight:700;color:var(--gold2);letter-spacing:2px;line-height:1;text-align:center;}
+.jm-sub{font-size:9px;color:var(--muted);letter-spacing:2px;margin-top:3px;text-align:center;margin-bottom:12px;}
+.jm-row{display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:4px;}
+.jm-track{height:6px;background:var(--dim);border:1px solid var(--border);}
+.jm-fill{height:100%;background:linear-gradient(90deg,var(--gold),var(--gold2));transition:width 1s ease;}
+.th-row{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+.th-flag{font-size:14px;width:20px;}
+.th-name{flex:1;font-size:10px;color:#6a8aaa;}
+.th-bar{width:60px;height:3px;background:var(--dim);}
+.th-fill{height:100%;}
+.th-val{font-size:10px;width:30px;text-align:right;}
+.ec-label{font-size:9px;letter-spacing:3px;color:var(--muted);margin-bottom:6px;text-align:center;}
+.ec-clock{font-size:36px;font-weight:700;color:var(--green2);letter-spacing:4px;line-height:1;text-align:center;}
+.ec-clock.warn{color:var(--gold2);}
+.ec-clock.danger{color:var(--red);animation:blink 0.5s infinite alternate;}
+@keyframes blink{from{opacity:1;}to{opacity:0.4;}}
+.ec-round{font-size:10px;color:var(--muted);margin-top:4px;text-align:center;}
+.ec-prog{height:3px;background:var(--dim);margin-top:8px;}
+.ec-fill{height:100%;background:linear-gradient(90deg,var(--green),var(--green2));transition:width 1s linear;}
+.retention-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+.ret-day{aspect-ratio:1;background:var(--dim);display:flex;align-items:center;justify-content:center;font-size:8px;color:var(--muted);border:1px solid transparent;}
+.ret-day.h{background:rgba(0,200,120,0.25);border-color:rgba(0,200,120,0.2);color:var(--green);}
+.ret-day.m{background:rgba(240,176,32,0.15);border-color:rgba(240,176,32,0.2);color:var(--gold);}
+.ret-day.l{background:rgba(255,56,56,0.1);border-color:rgba(255,56,56,0.15);color:var(--red);}
+::-webkit-scrollbar{width:4px;height:4px;}
+::-webkit-scrollbar-track{background:var(--bg);}
+::-webkit-scrollbar-thumb{background:var(--dim);}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);display:flex;align-items:center;justify-content:center;z-index:2000;opacity:0;pointer-events:none;transition:opacity 0.2s;}
+.modal-overlay.show{opacity:1;pointer-events:all;}
+.modal{background:var(--bg2);border:1px solid var(--border2);padding:28px;width:380px;}
+.modal h3{color:var(--green2);letter-spacing:2px;margin-bottom:14px;font-size:14px;}
+.modal p{color:#6a8aaa;line-height:1.7;margin-bottom:20px;}
+.modal-btns{display:flex;gap:10px;}
+.full-width{grid-column:1/-1;}
 </style>
 </head>
 <body>
 
-<!-- AUTH WALL -->
-<div class="auth-wall" id="authWall">
-  <div style="font-family:'JetBrains Mono',monospace;font-size:11px;letter-spacing:4px;color:var(--muted);">ADMIN ACCESS</div>
-  <div class="auth-title">⚑ ANALYTICS</div>
-  <div class="auth-sub">Connect your admin wallet to access this dashboard</div>
-  <button class="auth-btn" onclick="connectAdmin()">CONNECT WALLET</button>
-  <div id="authError" style="color:var(--red);font-size:12px;font-family:'JetBrains Mono',monospace;display:none;">Not authorized  admin wallet required.</div>
+<div class="topbar">
+  <div class="tb-logo">&#9873; LFS <span>// ADMIN OPS CENTER</span></div>
+  <div class="tb-status"><div class="tb-dot live"></div>3 GAMES LIVE</div>
+  <div class="tb-status"><div class="tb-dot warn"></div>2 IN ENTRY</div>
+  <div class="tb-status"><div class="tb-dot dead"></div>1 ENDED</div>
+  <div class="tb-spacer"></div>
+  <div class="tb-time" id="tbTime">00:00:00 UTC</div>
+  <button class="tb-alert" onclick="showModal('EMERGENCY HALT','This will freeze all games immediately. All trades will be suspended. Use only in case of smart contract emergency.')">&#9888; EMERGENCY HALT</button>
+  <button class="tb-btn" onclick="showModal('LAUNCH NEW GAME','Start a new Standard Game? Entry window will open immediately for 14 days before eliminations begin.')">+ NEW GAME</button>
 </div>
 
-<nav>
-  <span class="nav-logo">⚑ LAST FLAG</span>
-  <span class="admin-badge">ADMIN ANALYTICS</span>
-  <span id="walletDisplay" style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--muted);margin-left:auto;"></span>
-</nav>
+<div class="layout">
 
-<div class="container">
-  <div class="page-header">
-    <div>
-      <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:4px;color:var(--muted);margin-bottom:6px;">// DASHBOARD</div>
-      <div class="page-title">OPERATIONS <span>OVERVIEW</span></div>
+  <div class="sidebar">
+    <div class="game-sel">
+      <div class="gs-label">Active Games</div>
+      <div class="gs-game active" onclick="selectGame(this,'STANDARD-07')">
+        <div class="gs-name">STANDARD-07</div>
+        <div class="gs-meta"><span class="gs-dot"></span>LIVE &middot; Round 4/15</div>
+      </div>
+      <div class="gs-game" onclick="selectGame(this,'FLASH-12')">
+        <div class="gs-name">FLASH-12</div>
+        <div class="gs-meta"><span class="gs-dot"></span>LIVE &middot; Day 3/7</div>
+      </div>
+      <div class="gs-game" onclick="selectGame(this,'STANDARD-08')">
+        <div class="gs-name">STANDARD-08</div>
+        <div class="gs-meta"><span class="gs-dot entry"></span>ENTRY &middot; 11d left</div>
+      </div>
+      <div class="gs-game" onclick="selectGame(this,'FLASH-11')">
+        <div class="gs-name">FLASH-11</div>
+        <div class="gs-meta"><span class="gs-dot end"></span>ENDED &middot; Paid out</div>
+      </div>
     </div>
-    <div class="date-range">
-      <button class="day-btn" onclick="setRange(7)" id="btn7">7D</button>
-      <button class="day-btn active" onclick="setRange(14)" id="btn14">14D</button>
-      <button class="day-btn" onclick="setRange(30)" id="btn30">30D</button>
+    <div class="sb-divider"></div>
+    <div class="sb-section">
+      <div class="sb-label">Operations</div>
+      <div class="sb-item active" onclick="setNav(this)"><span class="sb-icon">&#128200;</span>Overview</div>
+      <div class="sb-item" onclick="setNav(this)"><span class="sb-icon">&#127757;</span>Territory Map</div>
+      <div class="sb-item" onclick="setNav(this)"><span class="sb-icon">&#128101;</span>Players <span class="sb-badge green">2,847</span></div>
+      <div class="sb-item" onclick="setNav(this)"><span class="sb-icon">&#128176;</span>Financials</div>
+      <div class="sb-item" onclick="setNav(this)"><span class="sb-icon">&#128279;</span>Blockchain</div>
+      <div class="sb-item" onclick="setNav(this)"><span class="sb-icon">&#127919;</span>Eliminations</div>
+      <div class="sb-item" onclick="setNav(this,'lottery')"><span class="sb-icon">&#127922;</span>Lottery <span class="sb-badge green" id="sbLotteryBadge">LIVE</span></div>
+    </div>
+    <div class="sb-divider"></div>
+    <div class="sb-section">
+      <div class="sb-label">Platform</div>
+      <div class="sb-item" onclick="setNav(this)"><span class="sb-icon">&#9888;</span>Alerts <span class="sb-badge">3</span></div>
+      <div class="sb-item" onclick="setNav(this)"><span class="sb-icon">&#128737;</span>Anti-Cheat</div>
+      <div class="sb-item" onclick="setNav(this)"><span class="sb-icon">&#128226;</span>Marketing</div>
+      <div class="sb-item" onclick="setNav(this)"><span class="sb-icon">&#9881;</span>Settings</div>
+      <div class="sb-item" onclick="setNav(this)"><span class="sb-icon">&#128193;</span>Audit Log</div>
+    </div>
+    <div class="sb-divider"></div>
+    <div class="sb-section">
+      <div class="sb-label">House Today</div>
+      <div style="padding:0 16px;">
+        <div style="color:var(--green2);font-size:18px;font-weight:700;margin-bottom:3px;" id="sbHouseToday">$1,619</div>
+        <div style="color:var(--muted);font-size:9px;letter-spacing:1px;">Revenue collected</div>
+        <div style="margin-top:8px;color:var(--gold);font-size:13px;font-weight:700;" id="sbJackpotTotal">$138,420</div>
+        <div style="color:var(--muted);font-size:9px;letter-spacing:1px;">Total in jackpots</div>
+      </div>
     </div>
   </div>
 
-  <!-- KPIs -->
-  <div class="kpi-grid">
-    <div class="kpi green">
-      <div class="kpi-label">// ACTIVE TODAY</div>
-      <div class="kpi-value" id="kActiveToday"></div>
-      <div class="kpi-sub">unique players</div>
-      <div class="kpi-delta up" id="dActiveToday"></div>
+  <div class="main">
+    <div class="kpi-row">
+      <div class="kpi k1"><div class="kpi-label">LIVE PLAYERS</div><div class="kpi-val green" id="kpiPlayers">2,847</div><div class="kpi-delta">&#9650; +124 today</div></div>
+      <div class="kpi k2"><div class="kpi-label">JACKPOTS TOTAL</div><div class="kpi-val gold" id="kpiJackpot">$138,420</div><div class="kpi-delta">&#9650; +$4,200 today</div></div>
+      <div class="kpi k3"><div class="kpi-label">HOUSE REVENUE</div><div class="kpi-val cyan" id="kpiRevenue">$1,619</div><div class="kpi-delta">&#9650; +$340 vs yesterday</div></div>
+      <div class="kpi k4"><div class="kpi-label">DEPOSITS 24H</div><div class="kpi-val orange" id="kpiDeposits">$14,200</div><div class="kpi-delta">&#9650; +18% vs avg</div></div>
+      <div class="kpi k5"><div class="kpi-label">TERRITORIES SOLD</div><div class="kpi-val purple" id="kpiTerr">10,312</div><div class="kpi-delta">&#9650; +891 today</div></div>
+      <div class="kpi k6"><div class="kpi-label">CHURN TODAY</div><div class="kpi-val red" id="kpiChurn">4.2%</div><div class="kpi-delta" style="color:var(--green)">&#9650; Below 5% &#10003;</div></div>
     </div>
-    <div class="kpi">
-      <div class="kpi-label">// TOTAL PLAYERS</div>
-      <div class="kpi-value" id="kTotalPlayers"></div>
-      <div class="kpi-sub">all time</div>
-      <div class="kpi-delta up" id="dTotalPlayers"></div>
-    </div>
-    <div class="kpi amber">
-      <div class="kpi-label">// DEPOSIT VOLUME</div>
-      <div class="kpi-value" id="kDeposits"></div>
-      <div class="kpi-sub" id="kDepositsEth">ETH period</div>
-      <div class="kpi-delta up" id="dDeposits"></div>
-    </div>
-    <div class="kpi red">
-      <div class="kpi-label">// HOUSE REVENUE</div>
-      <div class="kpi-value" id="kRevenue"></div>
-      <div class="kpi-sub">3% of jackpots</div>
-    </div>
-    <div class="kpi cyan">
-      <div class="kpi-label">// ROUNDS COMPLETE</div>
-      <div class="kpi-value" id="kRounds"></div>
-      <div class="kpi-sub">this period</div>
+
+    <div class="content-grid">
+      <div class="panel">
+        <div class="panel-hdr"><div class="panel-title">DEPOSIT VOLUME &mdash; 14 DAY</div><div class="panel-meta">Total: $142,700</div></div>
+        <div class="chart-area" id="depositChart"></div>
+        <div class="chart-labels" id="depositLabels"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hdr"><div class="panel-title">HOUSE REVENUE BREAKDOWN</div><div class="panel-meta">Last 30 days</div></div>
+        <div class="panel-body" id="revBreakdown"></div>
+      </div>
+
+      <div class="panel full-width" id="lotteryPanel" style="display:none;">
+        <div class="panel-hdr">
+          <div class="panel-title">&#127922; TERRITORY LOTTERY &mdash; ACTIVE ROUND</div>
+          <div class="panel-meta" id="lotteryRoundMeta">Loading…</div>
+        </div>
+        <div class="panel-body" style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;">
+          <div>
+            <div class="kpi-label">JACKPOT</div>
+            <div class="kpi-val gold" id="lottJackpot">—</div>
+            <div class="kpi-label" style="margin-top:6px;">TOTAL TICKETS</div>
+            <div style="color:var(--cyan);font-size:16px;font-weight:700;" id="lottTickets">—</div>
+            <div class="kpi-label" style="margin-top:6px;">ROUND CLOSES</div>
+            <div style="color:var(--text);font-size:13px;" id="lottCountdown">—</div>
+          </div>
+          <div>
+            <div class="kpi-label" style="margin-bottom:8px;">TOP TERRITORIES</div>
+            <table class="data-table"><thead><tr><th>Territory</th><th>Tickets</th><th>Odds%</th></tr></thead>
+            <tbody id="lottTopTerr"></tbody></table>
+          </div>
+          <div>
+            <div class="kpi-label" style="margin-bottom:8px;">CONTROLS</div>
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <button class="ctrl-btn primary" onclick="triggerLotteryDraw()">&#9654; TRIGGER DRAW</button>
+              <button class="ctrl-btn" onclick="startNewLotteryRound()">&#43; NEW ROUND</button>
+              <a href="/lottery.html" target="_blank" class="ctrl-btn" style="text-align:center;text-decoration:none;display:block;">&#128279; VIEW LOTTERY PAGE</a>
+            </div>
+            <div class="kpi-label" style="margin-top:12px;">STATUS</div>
+            <div id="lottStatus" style="color:var(--green);font-size:11px;margin-top:4px;">—</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel full-width">
+        <div class="panel-hdr"><div class="panel-title">ACTIVE GAME STATUS</div><div class="panel-meta">All instances</div></div>
+        <div class="panel-body" style="padding:0;">
+          <table class="data-table">
+            <thead><tr><th>Game</th><th>Type</th><th>Status</th><th>Round</th><th>Territories</th><th>Players</th><th>Jackpot</th><th>House</th><th>Next Elim</th><th></th></tr></thead>
+            <tbody id="gamesTable"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hdr"><div class="panel-title">PLAYER GEOGRAPHY</div><div class="panel-meta">Active sessions</div></div>
+        <div class="panel-body" style="padding:10px 12px;">
+          <div class="geo-map" id="geoMap"></div>
+          <table class="data-table"><thead><tr><th>Region</th><th>Players</th><th>Deposits</th><th>%</th></tr></thead><tbody id="geoTable"></tbody></table>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hdr"><div class="panel-title">RETENTION HEATMAP &mdash; 7 WEEKS</div><div class="panel-meta">DAU ratio</div></div>
+        <div class="panel-body">
+          <div style="font-size:9px;color:var(--muted);margin-bottom:8px;display:flex;gap:12px;">
+            <span><span style="color:var(--green)">&#9632;</span> &gt;60%</span>
+            <span><span style="color:var(--gold)">&#9632;</span> 30&ndash;60%</span>
+            <span><span style="color:var(--red)">&#9632;</span> &lt;30%</span>
+          </div>
+          <div class="retention-grid" id="retentionGrid"></div>
+          <div style="margin-top:10px;display:flex;justify-content:space-between;font-size:10px;color:var(--muted);"><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span><span>S</span></div>
+          <div style="margin-top:14px;">
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-bottom:4px;"><span>7-day retention</span><span style="color:var(--green)">68.4%</span></div>
+            <div class="prog"><div class="prog-fill green" style="width:68.4%"></div></div>
+            <div style="display:flex;justify-content:space-between;font-size:10px;color:var(--muted);margin-top:8px;margin-bottom:4px;"><span>30-day retention</span><span style="color:var(--gold)">41.2%</span></div>
+            <div class="prog"><div class="prog-fill gold" style="width:41.2%"></div></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hdr"><div class="panel-title">LIVE ACTIVITY</div><div class="panel-meta"><span class="tb-dot live" style="display:inline-block;margin-right:4px"></span>Real-time</div></div>
+        <div class="panel-body" id="actFeed" style="max-height:200px;overflow-y:auto;"></div>
+      </div>
+
+      <div class="panel">
+        <div class="panel-hdr"><div class="panel-title">TOP PLAYERS &mdash; LIFETIME</div><div class="panel-meta">By winnings</div></div>
+        <div class="panel-body" style="padding:0;">
+          <table class="data-table"><thead><tr><th>#</th><th>Wallet</th><th>Wins</th><th>Earned</th><th>Spent</th><th>Net</th><th>Risk</th></tr></thead><tbody id="topPlayers"></tbody></table>
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- CHARTS -->
-  <div class="charts-grid">
-    <div class="chart-card">
-      <div class="chart-title">// PLAYER GROWTH</div>
-      <div class="chart-wrap"><canvas id="chartPlayers"></canvas></div>
+  <div class="right-panel">
+    <div class="rp-section">
+      <div class="rp-title">NEXT ELIMINATION &mdash; STD-07</div>
+      <div style="padding:14px 0;">
+        <div class="ec-label">ROUND CLOSES IN</div>
+        <div class="ec-clock" id="ecClock">00:42</div>
+        <div class="ec-round" id="ecRound">Round 4 of 15 &middot; 142 alive</div>
+      </div>
+      <div class="ec-prog"><div class="ec-fill" id="ecFill" style="width:70%"></div></div>
+      <div class="ctrl-grid" style="margin-top:12px;">
+        <button class="ctrl-btn primary" onclick="triggerElim()">&#9654; FIRE VRF</button>
+        <button class="ctrl-btn" onclick="showModal('DELAY 30m','Delay this round by 30 minutes? Players will be notified.')">&#9208; DELAY</button>
+        <button class="ctrl-btn danger full" onclick="showModal('EMERGENCY SHIELD','Apply shield to ALL territories this round?')">&#128737; SHIELD ALL</button>
+      </div>
     </div>
-    <div class="chart-card">
-      <div class="chart-title">// DEPOSIT VOLUME (ETH)</div>
-      <div class="chart-wrap"><canvas id="chartDeposits"></canvas></div>
+
+    <div class="rp-section">
+      <div class="rp-title">JACKPOT &mdash; STD-07</div>
+      <div class="jm-amount" id="rpJackpot">$138,420</div>
+      <div class="jm-sub">LOCKED IN CONTRACT</div>
+      <div class="jm-row"><span>Target</span><span style="color:var(--gold)">$150,000</span></div>
+      <div class="jm-track"><div class="jm-fill" id="jmFill" style="width:92%"></div></div>
+      <div class="jm-row" style="margin-top:4px;"><span>Growth rate</span><span style="color:var(--green)">+$186/hr</span></div>
+      <div class="jm-row"><span>ETA</span><span style="color:var(--cyan)">~62h</span></div>
     </div>
-    <div class="chart-card">
-      <div class="chart-title">// RANK DISTRIBUTION</div>
-      <div class="chart-wrap"><canvas id="chartRanks"></canvas></div>
+
+    <div class="rp-section">
+      <div class="rp-title">TERRITORY HEAT</div>
+      <div id="terrHeat"></div>
     </div>
-    <div class="chart-card">
-      <div class="chart-title">// ROUNDS PER DAY</div>
-      <div class="chart-wrap"><canvas id="chartRounds"></canvas></div>
+
+    <div class="rp-section">
+      <div class="rp-title">&#9888; ANTI-CHEAT</div>
+      <div id="alertFeed"></div>
+    </div>
+
+    <div class="rp-section">
+      <div class="rp-title">PLATFORM HEALTH</div>
+      <div style="display:flex;flex-direction:column;gap:8px;">
+        <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted);font-size:10px;">API Latency</span><span style="color:var(--green);font-size:11px;" id="apiLatency">14ms</span></div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted);font-size:10px;">WS Connections</span><span style="color:var(--cyan);font-size:11px;" id="wsConns">2,847</span></div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted);font-size:10px;">VRF Node</span><span style="color:var(--green);font-size:11px;">&#9679; ONLINE</span></div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted);font-size:10px;">Smart Contract</span><span style="color:var(--green);font-size:11px;">&#9679; HEALTHY</span></div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted);font-size:10px;">Pending Withdrawals</span><span style="color:var(--gold);font-size:11px;" id="pendingW">3</span></div>
+        <div style="display:flex;justify-content:space-between;"><span style="color:var(--muted);font-size:10px;">Gas Price (Gwei)</span><span style="color:var(--text);font-size:11px;" id="gasPrice">24</span></div>
+      </div>
     </div>
   </div>
+</div>
 
-  <!-- TABLES -->
-  <div class="tables-grid">
-    <div class="table-card">
-      <div class="table-title">// HOTTEST TERRITORIES</div>
-      <table>
-        <thead><tr><th>#</th><th>Territory</th><th>Slots</th><th>Holders</th></tr></thead>
-        <tbody id="tblTerritories"></tbody>
-      </table>
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3 id="modalTitle">CONFIRM</h3>
+    <p id="modalBody"></p>
+    <div class="modal-btns">
+      <button class="ctrl-btn primary" style="flex:1;padding:12px;" onclick="closeModal()">&#10003; CONFIRM</button>
+      <button class="ctrl-btn" style="flex:1;padding:12px;" onclick="closeModal()">&#10007; CANCEL</button>
     </div>
-    <div class="table-card">
-      <div class="table-title">// MOST ELIMINATED</div>
-      <table>
-        <thead><tr><th>#</th><th>Territory</th><th>Times Elim.</th></tr></thead>
-        <tbody id="tblEliminated"></tbody>
-      </table>
-    </div>
-  </div>
-
-  <!-- KYC/RETENTION FUNNEL -->
-  <div class="funnel-card">
-    <div class="table-title" style="margin-bottom:20px;">// PLAYER FUNNEL</div>
-    <div id="funnelContainer"></div>
   </div>
 </div>
 
 <script>
-// ── CHARTS CONFIG ────────────────────────────────────────────
-Chart.defaults.color = '#3a6070';
-Chart.defaults.borderColor = '#122030';
-Chart.defaults.font.family = "'JetBrains Mono', monospace";
+// Clock
+function updateTime(){const n=new Date();document.getElementById('tbTime').textContent=n.getUTCHours().toString().padStart(2,'0')+':'+n.getUTCMinutes().toString().padStart(2,'0')+':'+n.getUTCSeconds().toString().padStart(2,'0')+' UTC';}
+setInterval(updateTime,1000);updateTime();
 
-let charts = {};
-let jwtToken = localStorage.getItem('lfs_token') || null;
-let currentRange = 14;
+// Nav
+function setNav(el, section) {
+  document.querySelectorAll('.sb-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  document.getElementById('lotteryPanel').style.display = (section === 'lottery') ? '' : 'none';
+}
+function selectGame(el,id){document.querySelectorAll('.gs-game').forEach(g=>g.classList.remove('active'));el.classList.add('active');pushAct('info','Switched to <strong>'+id+'</strong>');}
 
-// ── AUTH ─────────────────────────────────────────────────────
-async function connectAdmin() {
-  if (!window.ethereum) {
-    alert('MetaMask not installed');
-    return;
-  }
+// Lottery admin helpers
+async function loadLotteryRound() {
   try {
-    const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
-    const address  = accounts[0];
-
-    // Get nonce
-    const nr = await fetch('/api/auth/nonce', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ address })
+    const r = await fetch('/api/lottery/rounds/current').then(x => x.json());
+    if (!r.round) {
+      document.getElementById('lotteryRoundMeta').textContent = 'No active round';
+      document.getElementById('lottStatus').textContent = 'No active round';
+      return;
+    }
+    const round = r.round;
+    document.getElementById('lotteryRoundMeta').textContent = `Round #${round.id} — ${round.status.toUpperCase()}`;
+    document.getElementById('lottJackpot').textContent = formatWei(round.jackpot_wei);
+    document.getElementById('lottTickets').textContent = (round.total_tickets || 0).toLocaleString() + ' tickets';
+    document.getElementById('lottStatus').textContent = round.status.toUpperCase();
+    updateLottCountdown(new Date(round.end_time));
+    // Top 5 territories — build via DOM APIs (no innerHTML taint)
+    const top5       = [...r.territories].sort((a, b) => b.ticket_count - a.ticket_count).slice(0, 5);
+    const grandTotal = r.totalTickets || 1;
+    const tbody      = document.getElementById('lottTopTerr');
+    tbody.textContent = '';
+    top5.forEach(t => {
+      const tc  = parseInt(t.ticket_count, 10) || 0;
+      const pct = ((tc / grandTotal) * 100).toFixed(1);
+      const tr  = document.createElement('tr');
+      const td0 = document.createElement('td'); td0.textContent = (t.flag_emoji || '') + ' ' + (t.country_name || '');
+      const td1 = document.createElement('td'); td1.className = 'val'; td1.textContent = tc;
+      const td2 = document.createElement('td'); td2.className = 'green'; td2.textContent = pct + '%';
+      tr.appendChild(td0); tr.appendChild(td1); tr.appendChild(td2);
+      tbody.appendChild(tr);
     });
-    const { message } = await nr.json();
+  } catch(e) { console.error('[admin] lottery load:', e.message); }
+}
 
-    // Sign
-    const sig = await window.ethereum.request({
-      method: 'personal_sign',
-      params: [message, address]
-    });
+function formatWei(wei) {
+  if (!wei) return '$0';
+  const eth = parseFloat(wei) / 1e18;
+  return eth.toFixed(4) + ' ETH';
+}
 
-    // Verify
-    const vr = await fetch('/api/auth/verify', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ address, signature: sig })
-    });
-    const { token, player } = await vr.json();
-
-    if (!token) throw new Error('Auth failed');
-    jwtToken = token;
-    localStorage.setItem('lfs_token', token);
-
-    // Check admin access
-    const meResp = await authFetch('/api/analytics/overview?days=14');
-    document.getElementById('authWall').style.display = 'none';
-    document.getElementById('walletDisplay').textContent =
-      address.slice(0,6) + '...' + address.slice(-4);
-
-    loadDashboard(currentRange);
-  } catch (err) {
-    document.getElementById('authError').style.display = 'block';
-    document.getElementById('authError').textContent = err.message || 'Auth failed';
+function updateLottCountdown(endTime) {
+  const el = document.getElementById('lottCountdown');
+  function tick() {
+    const ms = endTime - Date.now();
+    if (ms <= 0) { el.textContent = 'ENDED'; return; }
+    const d = Math.floor(ms / 86400000);
+    const h = Math.floor((ms % 86400000) / 3600000);
+    const m = Math.floor((ms % 3600000)  / 60000);
+    const s = Math.floor((ms % 60000)    / 1000);
+    el.textContent = (d > 0 ? d + 'd ' : '') + String(h).padStart(2,'0') + ':' +
+                     String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+    setTimeout(tick, 1000);
   }
+  tick();
 }
 
-async function authFetch(url) {
-  const r = await fetch(url, {
-    headers: { Authorization: 'Bearer ' + jwtToken }
-  });
-  if (r.status === 403) throw new Error('Not authorized');
-  return r.json();
-}
-
-// ── LOAD DASHBOARD ───────────────────────────────────────────
-async function loadDashboard(days) {
+async function triggerLotteryDraw() {
+  const meta = document.getElementById('lotteryRoundMeta').textContent;
+  const match = meta.match(/Round #(\d+)/);
+  if (!match) return showModal('ERROR', 'No active round found');
+  const roundId = match[1];
+  const token = localStorage.getItem('auth_token');
+  if (!token) return showModal('AUTH REQUIRED', 'Connect admin wallet first');
   try {
-    const [overview, revenue, territories, retention] = await Promise.all([
-      authFetch(`/api/analytics/overview?days=${days}`),
-      authFetch(`/api/analytics/revenue?days=${days}`),
-      authFetch('/api/analytics/territories'),
-      authFetch('/api/analytics/retention'),
-    ]);
-
-    renderKPIs(overview, revenue, days);
-    renderCharts(overview, revenue, retention);
-    renderTerritoryTables(territories);
-    renderFunnel(retention);
-  } catch (err) {
-    alert('Failed to load dashboard: ' + err.message);
-  }
+    const r = await fetch(`/api/lottery/rounds/${roundId}/draw`, {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
+    }).then(x => x.json());
+    showModal('DRAW TRIGGERED', r.message || JSON.stringify(r));
+    setTimeout(loadLotteryRound, 2000);
+  } catch(e) { showModal('ERROR', e.message); }
 }
 
-function renderKPIs(overview, revenue, days) {
-  document.getElementById('kActiveToday').textContent   = fmt(overview.activeToday);
-  document.getElementById('kTotalPlayers').textContent  = fmt(
-    overview.playerGrowth.reduce((s, r) => s + r.new_players, 0)
-  );
-
-  const deposits = revenue.revenue.reduce((s, r) => s + Number(r.deposit_wei), 0);
-  const payouts  = revenue.revenue.reduce((s, r) => s + Number(r.payout_wei),  0);
-  const house    = deposits * 0.03;
-  document.getElementById('kDeposits').textContent = '$' + fmtUSD(deposits / 1e18 * 3500);
-  document.getElementById('kRevenue').textContent  = '$' + fmtUSD(house / 1e18 * 3500);
-
-  const roundCount = overview.rounds.reduce((s, r) => s + r.rounds, 0);
-  document.getElementById('kRounds').textContent = fmt(roundCount);
+async function startNewLotteryRound() {
+  const token = localStorage.getItem('auth_token');
+  if (!token) return showModal('AUTH REQUIRED', 'Connect admin wallet first');
+  try {
+    const r = await fetch('/api/lottery/rounds/new', {
+      method: 'POST',
+      headers: { 'Authorization': 'Bearer ' + token, 'Content-Type': 'application/json' }
+    }).then(x => x.json());
+    showModal('NEW ROUND', r.ok ? `Round #${r.round?.id} started` : JSON.stringify(r));
+    setTimeout(loadLotteryRound, 2000);
+  } catch(e) { showModal('ERROR', e.message); }
 }
 
-function renderCharts(overview, revenue, retention) {
-  const days   = overview.playerGrowth.map(r => r.day?.slice(5) || '');
-  const newP   = overview.playerGrowth.map(r => r.new_players);
-  const depVol = revenue.revenue.map(r => (Number(r.deposit_wei) / 1e18).toFixed(4));
-  const rPdays = overview.rounds.map(r => r.day?.slice(5) || '');
-  const rpcnt  = overview.rounds.map(r => r.rounds);
+// Load lottery data on page load
+loadLotteryRound();
+setInterval(loadLotteryRound, 30000);
 
-  renderLineChart('chartPlayers',  days, newP,   'New Players',     '#00e676');
-  renderBarChart( 'chartDeposits', days, depVol, 'Deposits (ETH)',  '#f5c518');
-  renderBarChart( 'chartRounds',   rPdays, rpcnt, 'Rounds Complete', '#00e5ff');
+// Modal
+function showModal(title,body){document.getElementById('modalTitle').textContent=title;document.getElementById('modalBody').textContent=body;document.getElementById('modalOverlay').classList.add('show');}
+function closeModal(){document.getElementById('modalOverlay').classList.remove('show');}
 
-  // Rank donut
-  const ranks    = retention.rankDistribution;
-  const rkLabels = ranks.map(r => r.rank_tier.toUpperCase());
-  const rkData   = ranks.map(r => r.count);
-  const rkColors = ['#6a8a9a','#00e5ff','#f5c518','#ff9900','#ff2d2d','#d500f9'];
-  if (charts.chartRanks) charts.chartRanks.destroy();
-  charts.chartRanks = new Chart(document.getElementById('chartRanks'), {
-    type: 'doughnut',
-    data: { labels: rkLabels, datasets: [{ data: rkData, backgroundColor: rkColors, borderWidth: 0 }] },
-    options: { plugins: { legend: { position: 'right', labels: { font: { size: 11 } } } }, cutout: '70%' }
+// Deposit Chart
+(function(){
+  const vals=[4200,6800,5400,8100,7200,9400,11200,8800,12400,10600,13800,11200,14200,12800];
+  const max=Math.max(...vals);
+  const days='M,T,W,T,F,S,S,M,T,W,T,F,S,S'.split(',');
+  const chart=document.getElementById('depositChart');
+  const labels=document.getElementById('depositLabels');
+  vals.forEach((v,i)=>{
+    const b=document.createElement('div');
+    b.className='bar '+(i>=7?'green':'blue');
+    b.style.height=Math.max((v/max)*100,3)+'%';
+    b.title='$'+v.toLocaleString();
+    b.onclick=()=>pushAct('info','Day '+(i+1)+' deposits: <strong>$'+v.toLocaleString()+'</strong>');
+    chart.appendChild(b);
+    const l=document.createElement('span');l.textContent=days[i];labels.appendChild(l);
   });
-}
+})();
 
-function renderLineChart(id, labels, data, label, color) {
-  if (charts[id]) charts[id].destroy();
-  charts[id] = new Chart(document.getElementById(id), {
-    type: 'line',
-    data: {
-      labels,
-      datasets: [{ label, data, borderColor: color, backgroundColor: color + '15',
-        borderWidth: 1.5, pointRadius: 2, fill: true, tension: 0.4 }]
-    },
-    options: { responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: { x: { grid: { color: '#122030' } }, y: { grid: { color: '#122030' }, beginAtZero: true } } }
-  });
-}
-
-function renderBarChart(id, labels, data, label, color) {
-  if (charts[id]) charts[id].destroy();
-  charts[id] = new Chart(document.getElementById(id), {
-    type: 'bar',
-    data: { labels, datasets: [{ label, data, backgroundColor: color + '55', borderColor: color, borderWidth: 1 }] },
-    options: { responsive: true, maintainAspectRatio: false,
-      plugins: { legend: { display: false } },
-      scales: { x: { grid: { color: '#122030' } }, y: { grid: { color: '#122030' }, beginAtZero: true } } }
-  });
-}
-
-function renderTerritoryTables(territories) {
-  const hot = document.getElementById('tblTerritories');
-  hot.innerHTML = territories.hottest?.slice(0,10).map((t, i) =>
-    `<tr><td class="td-gold">#${i+1}</td><td>${t.flag_emoji} ${t.country_name}</td>
-     <td class="td-gold">${fmt(t.total_slots)}</td><td>${fmt(t.unique_holders)}</td></tr>`
-  ).join('') || '<tr><td colspan="4" style="color:var(--muted)">No data</td></tr>';
-
-  const elim = document.getElementById('tblEliminated');
-  elim.innerHTML = territories.mostEliminated?.slice(0,10).map((t, i) =>
-    `<tr><td class="td-red">#${i+1}</td><td>${t.flag_emoji} ${t.country_name}</td>
-     <td class="td-red">${t.times_eliminated}×</td></tr>`
-  ).join('') || '<tr><td colspan="3" style="color:var(--muted)">No data</td></tr>';
-}
-
-function renderFunnel(retention) {
-  const kyc = retention.kycFunnel || [];
-  const total = kyc.reduce((s, r) => s + r.count, 0) || 1;
-  const funnelSteps = [
-    { label: 'WALLET CONNECTED',   count: total },
-    { label: 'PROFILE CREATED',    count: Math.round(total * 0.72) },
-    { label: 'FIRST DEPOSIT',      count: Math.round(total * 0.48) },
-    { label: 'FIRST ROUND PLAYED', count: Math.round(total * 0.41) },
-    { label: 'KYC SUBMITTED',      count: kyc.find(k => k.kyc_status !== 'none')?.count || 0 },
-    { label: 'KYC APPROVED',       count: kyc.find(k => k.kyc_status === 'approved')?.count || 0 },
-    { label: 'WITHDRAWAL MADE',    count: Math.round(total * 0.12) },
+// Revenue
+(function(){
+  const items=[
+    {label:'Territory entries (3%)',val:'$4,280',pct:52,color:'var(--green)'},
+    {label:'Insider Intel sales',val:'$2,100',pct:26,color:'var(--gold)'},
+    {label:'Shield Token sales',val:'$980',pct:12,color:'var(--blue)'},
+    {label:'Battle Pass',val:'$450',pct:6,color:'var(--purple)'},
+    {label:'Trade commissions',val:'$310',pct:4,color:'var(--cyan)'},
   ];
+  document.getElementById('revBreakdown').innerHTML=items.map(it=>
+    '<div class="rev-item"><div class="rev-label">'+it.label+'</div><div class="rev-bar-wrap"><div class="rev-bar" style="width:'+it.pct+'%;background:'+it.color+'"></div></div><div class="rev-val" style="color:'+it.color+'">'+it.val+'</div></div>'
+  ).join('');
+})();
 
-  const c = document.getElementById('funnelContainer');
-  c.innerHTML = funnelSteps.map(s => `
-    <div class="funnel-step">
-      <div class="funnel-label">${s.label}</div>
-      <div class="funnel-track">
-        <div class="funnel-fill" style="width:${Math.round(s.count/total*100)}%"></div>
-      </div>
-      <div class="funnel-pct">${Math.round(s.count/total*100)}%</div>
-      <div class="funnel-count">${fmt(s.count)}</div>
-    </div>`).join('');
+// Games Table
+(function(){
+  const games=[
+    {id:'STANDARD-07',type:'Standard',st:'live',round:'4/15',terr:'142/154',players:1240,jp:'$138,420',house:'$4,127',next:'00:42',nc:'warn'},
+    {id:'FLASH-12',type:'Flash',st:'live',round:'3/7',terr:'148/154',players:680,jp:'$21,800',house:'$672',next:'01:14',nc:''},
+    {id:'STANDARD-08',type:'Standard',st:'entry',round:'Entry',terr:'0/154',players:312,jp:'$30,240',house:'$934',next:'11d',nc:''},
+    {id:'FLASH-11',type:'Flash',st:'ended',round:'ENDED',terr:'1 survivor',players:0,jp:'PAID',house:'$1,240',next:'\u2014',nc:''},
+    {id:'CHAMP-Q1',type:'Championship',st:'entry',round:'Entry',terr:'0/154',players:89,jp:'$8,900',house:'$275',next:'41d',nc:''},
+  ];
+  document.getElementById('gamesTable').innerHTML=games.map(g=>
+    '<tr><td class="val">'+g.id+'</td><td><span class="badge '+(g.type==='Championship'?'warn':g.type==='Flash'?'entry':'live')+'">'+g.type.toUpperCase()+'</span></td>'+
+    '<td><span class="badge '+g.st+'">'+g.st.toUpperCase()+'</span></td><td class="val">'+g.round+'</td><td>'+g.terr+'</td>'+
+    '<td class="val">'+(g.players>0?g.players.toLocaleString():'\u2014')+'</td><td class="gold">'+g.jp+'</td><td class="green">'+g.house+'</td>'+
+    '<td class="'+g.nc+'">'+g.next+'</td><td><button class="ctrl-btn" style="padding:3px 8px;font-size:9px" onclick="pushAct(\'info\',\'Viewing '+g.id+'\')">VIEW</button></td></tr>'
+  ).join('');
+})();
+
+// Geo
+(function(){
+  const map=document.getElementById('geoMap');
+  const svg=document.createElementNS('http://www.w3.org/2000/svg','svg');
+  svg.style.cssText='position:absolute;inset:0;width:100%;height:100%;';
+  svg.innerHTML='<line x1="0" y1="50%" x2="100%" y2="50%" stroke="rgba(0,200,120,0.08)" stroke-width="1"/><line x1="50%" y1="0" x2="50%" y2="100%" stroke="rgba(0,200,120,0.08)" stroke-width="1"/><text x="2" y="11" fill="rgba(48,72,96,0.8)" font-size="8" font-family="IBM Plex Mono">NORTH AMERICA</text><text x="44" y="11" fill="rgba(48,72,96,0.8)" font-size="8" font-family="IBM Plex Mono">EUROPE</text><text x="66" y="11" fill="rgba(48,72,96,0.8)" font-size="8" font-family="IBM Plex Mono">ASIA</text>';
+  map.appendChild(svg);
+  [{x:22,y:35,d:1.2},{x:28,y:42,d:2.1},{x:35,y:30,d:1.8},{x:48,y:28,d:1.5},{x:52,y:38,d:2.5},{x:60,y:35,d:1.1},{x:65,y:45,d:1.8},{x:70,y:50,d:2.2},{x:75,y:40,d:1.3},{x:80,y:55,d:1.6},{x:15,y:55,d:1.4},{x:42,y:60,d:1.9},{x:55,y:65,d:2.0}].forEach(d=>{
+    const el=document.createElement('div');el.className='geo-dot';el.style.cssText='left:'+d.x+'%;top:'+d.y+'%;--d:'+d.d+'s;width:'+(3+d.d)+'px;height:'+(3+d.d)+'px';map.appendChild(el);
+  });
+  document.getElementById('geoTable').innerHTML=[['North America','1,240','$68,400','43.6%'],['Europe','820','$41,200','28.8%'],['Asia Pacific','540','$22,800','19.0%'],['Other','247','$10,300','8.6%']].map(r=>'<tr><td class="val">'+r[0]+'</td><td class="cyan">'+r[1]+'</td><td class="gold">'+r[2]+'</td><td>'+r[3]+'</td></tr>').join('');
+})();
+
+// Retention
+(function(){
+  'h,h,m,h,h,l,m,h,m,h,h,m,h,h,m,h,h,l,h,h,m,h,m,h,h,l,m,h,h,m,h,h,h,m,h,h,l,h,m,h,h,h,m,h,h,l,m,h,h'.split(',').forEach((v,i)=>{
+    const d=document.createElement('div');d.className='ret-day '+v;d.textContent={h:'74%',m:'48%',l:'22%'}[v];
+    document.getElementById('retentionGrid').appendChild(d);
+  });
+})();
+
+// Top Players
+(function(){
+  const ps=[
+    {w:'0x7f3a...92bc',wins:14,earned:'$42,100',spent:'$1,840',net:'$40,260',risk:'LOW'},
+    {w:'0xab12...f8e1',wins:9,earned:'$28,400',spent:'$2,100',net:'$26,300',risk:'LOW'},
+    {w:'0x44cc...113a',wins:22,earned:'$19,800',spent:'$8,900',net:'$10,900',risk:'MED'},
+    {w:'0x9d5f...7722',wins:3,earned:'$11,200',spent:'$980',net:'$10,220',risk:'LOW'},
+    {w:'0x2b8e...c4d0',wins:1,earned:'$8,900',spent:'$6,200',net:'$2,700',risk:'HIGH'},
+  ];
+  document.getElementById('topPlayers').innerHTML=ps.map((p,i)=>
+    '<tr><td style="color:'+(i===0?'var(--gold2)':i===1?'#aaa':i===2?'#cd7f32':'var(--muted)')+'">'+(i+1)+'</td>'+
+    '<td class="val cyan" style="cursor:pointer">'+p.w+'</td><td class="green">'+p.wins+'</td>'+
+    '<td class="gold">'+p.earned+'</td><td style="color:var(--red)">'+p.spent+'</td><td class="green">'+p.net+'</td>'+
+    '<td><span class="badge '+(p.risk==='LOW'?'live':p.risk==='MED'?'entry':'warn')+'">'+p.risk+'</span></td></tr>'
+  ).join('');
+})();
+
+// Territory Heat
+document.getElementById('terrHeat').innerHTML=[
+  {flag:'&#127471;&#127477;',name:'Japan',pct:92,color:'var(--red)'},
+  {flag:'&#127474;&#127485;',name:'Mexico',pct:78,color:'var(--orange)'},
+  {flag:'&#127465;&#127466;',name:'Germany',pct:64,color:'var(--gold)'},
+  {flag:'&#127482;&#127480;',name:'USA',pct:41,color:'var(--green)'},
+  {flag:'&#127463;&#127479;',name:'Brazil',pct:28,color:'var(--green)'},
+].map(t=>'<div class="th-row"><span class="th-flag">'+t.flag+'</span><span class="th-name">'+t.name+'</span><div class="th-bar"><div class="th-fill" style="width:'+t.pct+'%;background:'+t.color+'"></div></div><span class="th-val" style="color:'+t.color+'">'+t.pct+'%</span></div>').join('');
+
+// Anti-cheat
+document.getElementById('alertFeed').innerHTML=[
+  {dot:'var(--gold)',text:'<strong>0x44cc...</strong> &mdash; 3 rapid buys in 4s.',time:'2m ago'},
+  {dot:'var(--red)',text:'<strong>0x9102...</strong> &mdash; Bot pattern. Flagged.',time:'18m ago'},
+  {dot:'var(--green)',text:'<strong>0x7f3a...</strong> &mdash; Cleared after review.',time:'1h ago'},
+].map(a=>'<div class="alert-item"><div class="alert-dot" style="background:'+a.dot+'"></div><div class="alert-text">'+a.text+'</div><div class="alert-time">'+a.time+'</div></div>').join('');
+
+// Activity feed
+const actFeed=document.getElementById('actFeed');
+function pushAct(type,text){
+  const colors={info:'var(--cyan)',buy:'var(--green)',sell:'var(--gold)',elim:'var(--red)',warn:'var(--orange)'};
+  const n=new Date(),ts=n.getUTCHours().toString().padStart(2,'0')+':'+n.getUTCMinutes().toString().padStart(2,'0')+':'+n.getUTCSeconds().toString().padStart(2,'0');
+  const item=document.createElement('div');item.className='alert-item';
+  item.innerHTML='<div class="alert-dot" style="background:'+(colors[type]||colors.info)+'"></div><div class="alert-text">'+text+'</div><div class="alert-time">'+ts+'</div>';
+  actFeed.insertBefore(item,actFeed.firstChild);
+  if(actFeed.children.length>30)actFeed.removeChild(actFeed.lastChild);
+}
+const actEvents=[
+  ()=>pushAct('buy','<strong>0x7f3a...92bc</strong> bought &#127465;&#127466; Germany &middot; 2 slots'),
+  ()=>pushAct('sell','<strong>0xab12...f8e1</strong> sold &#127471;&#127477; Japan for $14.20 FC'),
+  ()=>pushAct('buy','<strong>New wallet</strong> deposited 0.0031 BTC &middot; +37 FC credited'),
+  ()=>pushAct('elim','Round 4 &middot; <strong>&#127474;&#127485; Mexico ELIMINATED</strong>'),
+  ()=>pushAct('buy','<strong>0x44cc...113a</strong> bought Insider Intel &middot; $25 FC'),
+  ()=>pushAct('warn','Gas spike: 38 Gwei &middot; Monitoring'),
+  ()=>pushAct('buy','Alliance "Iron Council" formed &middot; 8 members'),
+];
+let actIdx=0;
+pushAct('info','Admin dashboard initialized &middot; All systems nominal');
+setInterval(()=>{actEvents[actIdx%actEvents.length]();actIdx++;},4000);
+
+// Elimination countdown
+let ecSecs=42,ecTotal=60,jackpot=138420;
+function ecTick(){
+  ecSecs--;if(ecSecs<0){triggerElim();ecSecs=ecTotal;}
+  const el=document.getElementById('ecClock');
+  el.textContent=String(Math.floor(ecSecs/60)).padStart(2,'0')+':'+String(ecSecs%60).padStart(2,'0');
+  el.className='ec-clock'+(ecSecs<=10?' danger':ecSecs<=20?' warn':'');
+  document.getElementById('ecFill').style.width=(ecSecs/ecTotal*100)+'%';
+  jackpot+=Math.floor(Math.random()*4)+1;
+  const jp='$'+jackpot.toLocaleString();
+  ['rpJackpot','kpiJackpot','sbJackpotTotal'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent=jp;});
+}
+setInterval(ecTick,1000);
+function triggerElim(){
+  const t=['&#127471;&#127477; Japan','&#127474;&#127485; Mexico','&#127470;&#127481; Italy','&#127480;&#127466; Sweden','&#127462;&#127479; Argentina'][Math.floor(Math.random()*5)];
+  pushAct('elim','VRF fired &middot; <strong>'+t+' ELIMINATED</strong>');
+  document.getElementById('ecRound').textContent='Round '+(5+Math.floor(Math.random()*2))+' of 15 &middot; '+(138+Math.floor(Math.random()*4))+' alive';
 }
 
-// ── RANGE BUTTONS ────────────────────────────────────────────
-function setRange(days) {
-  currentRange = days;
-  document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('btn' + days)?.classList.add('active');
-  if (jwtToken) loadDashboard(days);
-}
-
-// ── HELPERS ──────────────────────────────────────────────────
-function fmt(n) { return (n || 0).toLocaleString(); }
-function fmtUSD(n) {
-  if (n >= 1e6) return (n/1e6).toFixed(2) + 'M';
-  if (n >= 1e3) return (n/1e3).toFixed(1) + 'K';
-  return Math.round(n).toLocaleString();
-}
-
-// ── AUTO-AUTH if token exists ────────────────────────────────
-if (jwtToken) {
-  authFetch('/api/analytics/overview?days=14')
-    .then(() => {
-      document.getElementById('authWall').style.display = 'none';
-      loadDashboard(14);
-    })
-    .catch(() => { jwtToken = null; localStorage.removeItem('lfs_token'); });
-}
+// Live metrics
+setInterval(()=>{
+  const p=parseInt(document.getElementById('kpiPlayers').textContent.replace(/,/g,''))+(Math.random()>0.4?1:-1);
+  document.getElementById('kpiPlayers').textContent=p.toLocaleString();
+  document.getElementById('wsConns').textContent=p.toLocaleString();
+  document.getElementById('apiLatency').textContent=(12+Math.floor(Math.random()*8))+'ms';
+  document.getElementById('gasPrice').textContent=20+Math.floor(Math.random()*20);
+},3000);
 </script>
 </body>
 </html>

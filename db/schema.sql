@@ -324,3 +324,70 @@ INSERT INTO territory_names (territory_id, country_code, country_name, flag_emoj
 (191,'KP','North Korea','🇰🇵'),(192,'KR','South Korea','🇰🇷'),(193,'TZ','Tanzania','🇹🇿'),
 (194,'PS','Palestine','🇵🇸'),(195,'XK','Kosovo','🇽🇰')
 ON CONFLICT DO NOTHING;
+
+-- ============================================================
+--  LOTTERY ROUNDS
+-- ============================================================
+CREATE TABLE IF NOT EXISTS lottery_rounds (
+  id                  BIGSERIAL     PRIMARY KEY,
+  status              VARCHAR(20)   NOT NULL DEFAULT 'entry',
+  -- entry | drawing | complete | cancelled
+
+  jackpot_wei         NUMERIC(36,0) NOT NULL DEFAULT 0,
+  total_tickets       INTEGER       NOT NULL DEFAULT 0,
+
+  winner_territory_id INTEGER,          -- NULL until finalized, FK-style (no FK — territory_names has no id PK)
+  vrf_raw_random      VARCHAR(78),      -- raw Chainlink random value after fulfillment
+
+  start_time          TIMESTAMPTZ   NOT NULL DEFAULT now(),
+  end_time            TIMESTAMPTZ   NOT NULL,
+  drawn_at            TIMESTAMPTZ,
+
+  created_at          TIMESTAMPTZ   NOT NULL DEFAULT now(),
+  updated_at          TIMESTAMPTZ   NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_lottery_rounds_status ON lottery_rounds(status, created_at DESC);
+
+CREATE TRIGGER trg_lottery_rounds_updated_at
+  BEFORE UPDATE ON lottery_rounds
+  FOR EACH ROW EXECUTE FUNCTION set_updated_at();
+
+-- ============================================================
+--  LOTTERY TICKETS
+-- ============================================================
+CREATE TABLE IF NOT EXISTS lottery_tickets (
+  id                   UUID          PRIMARY KEY DEFAULT uuid_generate_v4(),
+  round_id             BIGINT        NOT NULL REFERENCES lottery_rounds(id) ON DELETE CASCADE,
+  territory_id         INTEGER       NOT NULL CHECK (territory_id BETWEEN 1 AND 195),
+  player_id            UUID          NOT NULL REFERENCES players(id),
+  quantity             INTEGER       NOT NULL CHECK (quantity > 0),
+  price_per_ticket_wei NUMERIC(36,0) NOT NULL DEFAULT 0,
+  total_paid_wei       NUMERIC(36,0) NOT NULL DEFAULT 0,
+  tx_hash              VARCHAR(66)   UNIQUE,          -- on-chain tx; prevents double-credit
+  created_at           TIMESTAMPTZ   NOT NULL DEFAULT now()
+);
+
+CREATE INDEX idx_lottery_tickets_round      ON lottery_tickets(round_id, territory_id);
+CREATE INDEX idx_lottery_tickets_player     ON lottery_tickets(player_id, round_id);
+CREATE INDEX idx_lottery_tickets_territory  ON lottery_tickets(round_id, territory_id, player_id);
+
+-- ============================================================
+--  LOTTERY PAYOUTS
+-- ============================================================
+CREATE TABLE IF NOT EXISTS lottery_payouts (
+  id           UUID          PRIMARY KEY DEFAULT uuid_generate_v4(),
+  round_id     BIGINT        NOT NULL REFERENCES lottery_rounds(id),
+  player_id    UUID          NOT NULL REFERENCES players(id),
+  territory_id INTEGER       NOT NULL,
+  ticket_count INTEGER       NOT NULL,
+  payout_wei   NUMERIC(36,0) NOT NULL,
+  claimed_at   TIMESTAMPTZ,
+  tx_hash      VARCHAR(66),
+  created_at   TIMESTAMPTZ   NOT NULL DEFAULT now(),
+
+  UNIQUE(round_id, player_id)   -- one payout record per player per round
+);
+
+CREATE INDEX idx_lottery_payouts_round  ON lottery_payouts(round_id);
+CREATE INDEX idx_lottery_payouts_player ON lottery_payouts(player_id);
